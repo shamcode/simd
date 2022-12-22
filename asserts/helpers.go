@@ -1,4 +1,4 @@
-package helper
+package asserts
 
 import (
 	"fmt"
@@ -25,5 +25,18 @@ func Equals(tb testing.TB, exp, act interface{}, message string) {
 		tb.FailNow()
 	} else {
 		fmt.Printf("\t\033[32;1m✔ \033[37;0m%s\033[39m\n", message)
+	}
+}
+
+func Success(tb testing.TB, err error) {
+	if nil != err {
+		_, file, line, _ := runtime.Caller(1)
+		fmt.Printf(
+			"\t\033[31m✖ %s:%d\n\n\t\033[36mget unexpected error\u001B[39m:\n\t\t%s\u001B[39m\n\n",
+			filepath.Base(file),
+			line,
+			err,
+		)
+		tb.FailNow()
 	}
 }

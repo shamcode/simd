@@ -3,10 +3,10 @@ package namespace
 import (
 	"context"
 	"fmt"
+	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	asserts "github.com/shamcode/simd/asserts"
 	"testing"
 )
 
