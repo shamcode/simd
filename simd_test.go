@@ -10,6 +10,7 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
+	"regexp"
 	"testing"
 )
 
@@ -78,9 +79,10 @@ func (sorting *byIDDesc) CalcIndex(item record.Record) int64 {
 	return sort.Int64IndexDesc(item.(*User).ID)
 }
 
-func TestFetchAllAndTotalQuery(t *testing.T) {
+func Test_FetchAllAndTotal(t *testing.T) {
 	store := indexes.CreateNamespace()
 	store.AddIndex(fields.NewInt64Index(userID))
+	store.AddIndex(fields.NewStringIndex(userName))
 	store.AddIndex(fields.NewEnum8Index(userStatus))
 	store.AddIndex(fields.NewBoolIndex(userIsOnline))
 	asserts.Success(t, store.Insert(&User{
@@ -116,7 +118,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 		ExpectedIDs   []int64
 	}{
 		{
-			Name: "SELECT * WHERE status = ACTIVE ORDER BY id ASC",
+			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id ASC",
 			Query: store.Query().
 				WhereEnum8(userStatus, where.EQ, StatusActive).
 				Sort(sort.ByInt64Index(&byIDAsc{})),
@@ -124,7 +126,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
-			Name: "SELECT * WHERE status = ACTIVE ORDER BY id DESC",
+			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id DESC",
 			Query: store.Query().
 				WhereEnum8(userStatus, where.EQ, StatusActive).
 				Sort(sort.ByInt64Index(&byIDDesc{})),
@@ -132,7 +134,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{4, 1},
 		},
 		{
-			Name: "SELECT * WHERE status != DISABLED ORDER BY id ASC",
+			Name: "SELECT *, COUNT(*) WHERE status != DISABLED ORDER BY id ASC",
 			Query: store.Query().
 				Not().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
@@ -141,7 +143,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
-			Name: "SELECT * WHERE score >= 10 AND score < 20 ORDER BY id ASC",
+			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
@@ -150,7 +152,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 2},
 		},
 		{
-			Name: "SELECT * WHERE score >= 10 AND score < 20 ORDER BY id ASC LIMIT 1",
+			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC LIMIT 1",
 			Query: store.Query().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
@@ -160,7 +162,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1},
 		},
 		{
-			Name: "SELECT * WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 1 LIMIT 3",
+			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 1 LIMIT 3",
 			Query: store.Query().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
@@ -171,7 +173,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{2},
 		},
 		{
-			Name: "SELECT * WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 2 LIMIT 3",
+			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 2 LIMIT 3",
 			Query: store.Query().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
@@ -182,7 +184,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{},
 		},
 		{
-			Name: "SELECT * WHERE name = 'Fourth' AND status == ACTIVE",
+			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == ACTIVE",
 			Query: store.Query().
 				WhereString(userName, where.EQ, "Fourth").
 				WhereEnum8(userStatus, where.EQ, StatusActive),
@@ -190,7 +192,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{4},
 		},
 		{
-			Name: "SELECT * WHERE name = 'Fourth' AND status == DISABLED",
+			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == DISABLED",
 			Query: store.Query().
 				WhereString(userName, where.EQ, "Fourth").
 				WhereEnum8(userStatus, where.EQ, StatusDisabled),
@@ -198,7 +200,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{},
 		},
 		{
-			Name: "SELECT * WHERE name LIKE 'th' ORDER BY id ASC",
+			Name: "SELECT *, COUNT(*) WHERE name LIKE 'th' ORDER BY id ASC",
 			Query: store.Query().
 				WhereString(userName, where.Like, "t").
 				Sort(sort.ByInt64Index(&byIDAsc{})),
@@ -206,7 +208,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
-			Name: "SELECT * WHERE id = 1 OR status == DISABLED",
+			Name: "SELECT *, COUNT(*) WHERE id = 1 OR status == DISABLED ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
@@ -216,7 +218,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
-			Name: "SELECT * WHERE id = 1 OR (NOT status == DISABLED)",
+			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (NOT status == DISABLED) ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
@@ -229,7 +231,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
-			Name: "SELECT * WHERE id = 1 OR (NOT status == ACTIVE OR NOT is_online = true)",
+			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (NOT status == ACTIVE OR NOT is_online = true) ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
@@ -245,7 +247,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
-			Name: "SELECT * WHERE id = 1 OR (status == DISABLED OR is_online = false)",
+			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (status == DISABLED OR is_online = false) ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
@@ -259,7 +261,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
-			Name: "SELECT * WHERE (status == DISABLED OR is_online = false) OR id = 1",
+			Name: "SELECT *, COUNT(*) WHERE (status == DISABLED OR is_online = false) OR id = 1 ORDER BY id ASC",
 			Query: store.Query().
 				OpenBracket().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
@@ -273,7 +275,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
-			Name: "SELECT * WHERE id = 4 OR (status == DISABLED OR is_online = false)",
+			Name: "SELECT *, COUNT(*) WHERE id = 4 OR (status == DISABLED OR is_online = false) ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt64(userID, where.EQ, 4).
 				Or().
@@ -287,7 +289,7 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 			ExpectedIDs:   []int64{1, 2, 3, 4},
 		},
 		{
-			Name: "SELECT * WHERE id = 4 AND (status == DISABLED OR is_online = true)",
+			Name: "SELECT *, COUNT(*) WHERE id = 4 AND (status == DISABLED OR is_online = true) ORDER BY id ASC",
 			Query: store.Query().
 				WhereInt64(userID, where.EQ, 4).
 				OpenBracket().
@@ -298,6 +300,56 @@ func TestFetchAllAndTotalQuery(t *testing.T) {
 				Sort(sort.ByInt64Index(&byIDAsc{})),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE is_online = true ORDER BY id ASC",
+			Query: store.Query().
+				WhereBool(userIsOnline, where.EQ, true).
+				Sort(sort.ByInt64Index(&byIDAsc{})),
+			ExpectedCount: 1,
+			ExpectedIDs:   []int64{4},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE id IN (4, 2) ORDER BY id ASC",
+			Query: store.Query().
+				WhereInt64(userID, where.InArray, 4, 2).
+				Sort(sort.ByInt64Index(&byIDAsc{})),
+			ExpectedCount: 2,
+			ExpectedIDs:   []int64{2, 4},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE name REGEXP [tT]) ORDER BY id ASC",
+			Query: store.Query().
+				WhereStringRegexp(userName, regexp.MustCompile("[tT]")).
+				Sort(sort.ByInt64Index(&byIDAsc{})),
+			ExpectedCount: 3,
+			ExpectedIDs:   []int64{1, 3, 4},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE name IN (Second, Third) ORDER BY id ASC",
+			Query: store.Query().
+				WhereString(userName, where.InArray, "Second", "Third").
+				Sort(sort.ByInt64Index(&byIDAsc{})),
+			ExpectedCount: 2,
+			ExpectedIDs:   []int64{2, 3},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE ( id = 1 ) AND id IN (1, 2, 3) ORDER BY id ASC",
+			Query: store.Query().
+				OpenBracket().
+				WhereInt64(userID, where.EQ, 1).
+				CloseBracket().
+				WhereInt64(userID, where.InArray, 1, 2, 3).
+				Sort(sort.ByInt64Index(&byIDAsc{})),
+			ExpectedCount: 1,
+			ExpectedIDs:   []int64{1},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE True id ASC",
+			Query: store.Query().
+				Sort(sort.ByInt64Index(&byIDAsc{})),
+			ExpectedCount: 4,
+			ExpectedIDs:   []int64{1, 2, 3, 4},
 		},
 	}
 

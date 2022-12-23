@@ -23,12 +23,16 @@ func (idx *stringIndexComputation) ForComparatorAllValues(comparator where.Field
 	}
 }
 
+type stringComparator interface {
+	CompareValue(value string) bool
+}
+
 func (idx *stringIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
 	return comparator.(*fields.StringFieldComparator).Value[0]
 }
 
 func (idx *stringIndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*fields.StringFieldComparator).CompareValue(value.(string))
+	return comparator.(stringComparator).CompareValue(value.(string))
 }
 
 var _ Storage = (*stringIndexStorage)(nil)
