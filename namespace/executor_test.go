@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
@@ -70,8 +71,8 @@ func (s *storage) Upsert(item record.Record) error {
 	return nil
 }
 
-func (s *storage) Query() Query {
-	return Create(s)
+func (s *storage) QueryExecutor() QueryExecutor {
+	return CreateQueryExecutor(s)
 }
 
 func (s *storage) Select(conditions where.Conditions) []record.Record {
@@ -94,7 +95,7 @@ func (sorting *idDesc) CalcIndex(item record.Record) int64 {
 	return sort.Int64IndexDesc(item.GetID())
 }
 
-func TestQuery(t *testing.T) {
+func TestQueryExecutor(t *testing.T) {
 	ns := &storage{
 		data: make(map[int64]record.Record),
 	}
@@ -106,115 +107,120 @@ func TestQuery(t *testing.T) {
 
 	tests := []struct {
 		name     string
-		query    Query
+		query    query.Query
 		expected []int64
 	}{
 		{
 			name:     "order by id asc",
-			query:    ns.Query().Sort(sort.ByInt64Index(&idAsc{})),
+			query:    query.NewBuilder().Sort(sort.ByInt64Index(&idAsc{})).Query(),
 			expected: []int64{1, 2, 3, 4, 5},
 		},
 		{
 			name:     "order by id desc",
-			query:    ns.Query().Sort(sort.ByInt64Index(&idDesc{})),
+			query:    query.NewBuilder().Sort(sort.ByInt64Index(&idDesc{})).Query(),
 			expected: []int64{5, 4, 3, 2, 1},
 		},
 		{
 			name:     "where id = int64(3)",
-			query:    ns.Query().WhereInt64(id, where.EQ, 3),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 3).Query(),
 			expected: []int64{3},
 		},
 		{
 			name:     "where id = int64(3) and age == int(20)",
-			query:    ns.Query().WhereInt64(id, where.EQ, 3).WhereInt(age, where.EQ, 20),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 3).WhereInt(age, where.EQ, 20).Query(),
 			expected: []int64{3},
 		},
 		{
 			name:     "where id = int64(3) and age == int(18)",
-			query:    ns.Query().WhereInt64(id, where.EQ, 3).WhereInt(age, where.EQ, 18),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 3).WhereInt(age, where.EQ, 18).Query(),
 			expected: []int64{},
 		},
 		{
 			name:     "where age > 18 and age < 22",
-			query:    ns.Query().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64Index(&idAsc{})),
+			query:    query.NewBuilder().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64Index(&idAsc{})).Query(),
 			expected: []int64{2, 3, 4},
 		},
 		{
 			name:     "where age >= 18 and age <= 22",
-			query:    ns.Query().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64Index(&idAsc{})),
+			query:    query.NewBuilder().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64Index(&idAsc{})).Query(),
 			expected: []int64{1, 2, 3, 4, 5},
 		},
 		{
 			name:     "where id = 2 or id = 5",
-			query:    ns.Query().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64Index(&idAsc{})),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64Index(&idAsc{})).Query(),
 			expected: []int64{2, 5},
 		},
 		{
 			name:     "where id = 2 or age > 20",
-			query:    ns.Query().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64Index(&idAsc{})),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64Index(&idAsc{})).Query(),
 			expected: []int64{2, 4, 5},
 		},
 		{
 			name: "where id = 1 or ( age > 20 and age < 22)",
-			query: ns.Query().
+			query: query.NewBuilder().
 				WhereInt64(id, where.EQ, 1).
 				Or().
 				OpenBracket().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where ( age > 20 and age < 22) or id = 1",
-			query: ns.Query().
+			query: query.NewBuilder().
 				OpenBracket().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where age > 20 and age < 22 or id = 1",
-			query: ns.Query().
+			query: query.NewBuilder().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where (age > 20 and age < 22) or id = 1",
-			query: ns.Query().
+			query: query.NewBuilder().
 				OpenBracket().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2)",
-			query: ns.Query().
+			query: query.NewBuilder().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				OpenBracket().
 				WhereInt64(id, where.EQ, 1).
 				Or().
 				WhereInt64(id, where.EQ, 2).
-				CloseBracket(),
+				CloseBracket().
+				Query(),
 			expected: []int64{},
 		},
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2 or id = 4)",
-			query: ns.Query().
+			query: query.NewBuilder().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				OpenBracket().
@@ -223,44 +229,49 @@ func TestQuery(t *testing.T) {
 				WhereInt64(id, where.EQ, 2).
 				Or().
 				WhereInt64(id, where.EQ, 4).
-				CloseBracket(),
+				CloseBracket().
+				Query(),
 			expected: []int64{4},
 		},
 		{
 			name: "where (age > 20 and age < 22) and id = 4",
-			query: ns.Query().
+			query: query.NewBuilder().
 				OpenBracket().
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				CloseBracket().
-				WhereInt64(id, where.EQ, 4),
+				WhereInt64(id, where.EQ, 4).
+				Query(),
 			expected: []int64{4},
 		},
 		{
 			name: "where age in {20, 21, 22} and id > 3",
-			query: ns.Query().
+			query: query.NewBuilder().
 				WhereInt(age, where.InArray, 20, 21, 22).
 				WhereInt64(id, where.GT, 3).
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{4, 5},
 		},
 		{
-			name:     "where name like \"th\"",
-			query:    ns.Query().WhereString(name, where.Like, "th").Sort(sort.ByInt64Index(&idAsc{})),
+			name: "where name like \"th\"",
+			query: query.NewBuilder().WhereString(name, where.Like, "th").Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{3, 4, 5},
 		},
 		{
 			name: "where name like \"th\" or name like \"first\"",
-			query: ns.Query().
+			query: query.NewBuilder().
 				WhereString(name, where.Like, "th").
 				Or().
 				WhereString(name, where.Like, "first").
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 3, 4, 5},
 		},
 		{
 			name: "where ((id = 1) or (id = 2))",
-			query: ns.Query().
+			query: query.NewBuilder().
 				OpenBracket().
 				OpenBracket().
 				WhereInt64(id, where.EQ, 1).
@@ -270,12 +281,13 @@ func TestQuery(t *testing.T) {
 				WhereInt64(id, where.EQ, 2).
 				CloseBracket().
 				CloseBracket().
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 2},
 		},
 		{
 			name: "where (((id = 1) or (id = 2)) or id = 3) or id = 4",
-			query: ns.Query().
+			query: query.NewBuilder().
 				OpenBracket().
 				OpenBracket().
 				OpenBracket().
@@ -291,14 +303,15 @@ func TestQuery(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 4).
-				Sort(sort.ByInt64Index(&idAsc{})),
+				Sort(sort.ByInt64Index(&idAsc{})).
+				Query(),
 			expected: []int64{1, 2, 3, 4},
 		},
 	}
 
 	for _, test := range tests {
 		ctx := context.Background()
-		iter, err := test.query.FetchAll(ctx)
+		iter, err := ns.QueryExecutor().FetchAll(ctx, test.query)
 		res := make([]int64, 0, iter.Size())
 		for iter.Next(ctx) {
 			res = append(res, iter.Item().(*user).ID)

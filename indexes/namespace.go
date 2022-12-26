@@ -118,8 +118,8 @@ func (ns *NamespaceWithIndexes) AddIndex(index *fields.Index) {
 	ns.byField[index.Field] = index
 }
 
-func (ns *NamespaceWithIndexes) Query() namespace.Query {
-	return namespace.Create(ns)
+func (ns *NamespaceWithIndexes) QueryExecutor() namespace.QueryExecutor {
+	return namespace.CreateQueryExecutor(ns)
 }
 
 func (ns *NamespaceWithIndexes) Select(conditions where.Conditions) []record.Record {

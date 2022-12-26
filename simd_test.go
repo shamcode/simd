@@ -6,7 +6,7 @@ import (
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/fields"
-	"github.com/shamcode/simd/namespace"
+	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
@@ -113,126 +113,138 @@ func Test_FetchAllAndTotal(t *testing.T) {
 
 	testCases := []struct {
 		Name          string
-		Query         namespace.Query
+		Query         query.Query
 		ExpectedCount int
 		ExpectedIDs   []int64
 	}{
 		{
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereEnum8(userStatus, where.EQ, StatusActive).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id DESC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereEnum8(userStatus, where.EQ, StatusActive).
-				Sort(sort.ByInt64Index(&byIDDesc{})),
+				Sort(sort.ByInt64Index(&byIDDesc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{4, 1},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE status != DISABLED ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				Not().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 2},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC LIMIT 1",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
 				Sort(sort.ByInt64Index(&byIDAsc{})).
-				Limit(1),
+				Limit(1).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 1 LIMIT 3",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
 				Sort(sort.ByInt64Index(&byIDAsc{})).
 				Offset(1).
-				Limit(3),
+				Limit(3).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{2},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 2 LIMIT 3",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt(userScore, where.GE, 10).
 				WhereInt(userScore, where.LT, 20).
 				Sort(sort.ByInt64Index(&byIDAsc{})).
 				Offset(2).
-				Limit(3),
+				Limit(3).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == ACTIVE",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereString(userName, where.EQ, "Fourth").
-				WhereEnum8(userStatus, where.EQ, StatusActive),
+				WhereEnum8(userStatus, where.EQ, StatusActive).
+				Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == DISABLED",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereString(userName, where.EQ, "Fourth").
-				WhereEnum8(userStatus, where.EQ, StatusDisabled),
+				WhereEnum8(userStatus, where.EQ, StatusDisabled).
+				Query(),
 			ExpectedCount: 0,
 			ExpectedIDs:   []int64{},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name LIKE 'th' ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereString(userName, where.Like, "t").
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR status == DISABLED ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (NOT status == DISABLED) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
 				OpenBracket().
 				Not().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (NOT status == ACTIVE OR NOT is_online = true) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
 				OpenBracket().
@@ -242,13 +254,14 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				Not().
 				WhereBool(userIsOnline, where.EQ, true).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (status == DISABLED OR is_online = false) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.EQ, 1).
 				Or().
 				OpenBracket().
@@ -256,13 +269,14 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				Or().
 				WhereBool(userIsOnline, where.EQ, false).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE (status == DISABLED OR is_online = false) OR id = 1 ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				OpenBracket().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
 				Or().
@@ -270,13 +284,14 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(userID, where.EQ, 1).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 4 OR (status == DISABLED OR is_online = false) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.EQ, 4).
 				Or().
 				OpenBracket().
@@ -284,70 +299,78 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				Or().
 				WhereBool(userIsOnline, where.EQ, false).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{1, 2, 3, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 4 AND (status == DISABLED OR is_online = true) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.EQ, 4).
 				OpenBracket().
 				WhereEnum8(userStatus, where.EQ, StatusDisabled).
 				Or().
 				WhereBool(userIsOnline, where.EQ, true).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE is_online = true ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereBool(userIsOnline, where.EQ, true).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id IN (4, 2) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.InArray, 4, 2).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{2, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name REGEXP [tT]) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereStringRegexp(userName, regexp.MustCompile("[tT]")).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 3, 4},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name IN (Second, Third) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereString(userName, where.InArray, "Second", "Third").
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{2, 3},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE ( id = 1 ) AND id IN (1, 2, 3) ORDER BY id ASC",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				OpenBracket().
 				WhereInt64(userID, where.EQ, 1).
 				CloseBracket().
 				WhereInt64(userID, where.InArray, 1, 2, 3).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{1},
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE True id ASC",
-			Query: store.Query().
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+			Query: query.NewBuilder().
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{1, 2, 3, 4},
 		},
@@ -355,7 +378,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 
 	for _, testCase := range testCases {
 		ctx := context.Background()
-		cursor, count, err := testCase.Query.FetchAllAndTotal(ctx)
+		cursor, count, err := store.QueryExecutor().FetchAllAndTotal(ctx, testCase.Query)
 		asserts.Equals(t, nil, err, fmt.Sprintf("%s: nil == err", testCase.Name))
 		ids := make([]int64, 0, cursor.Size())
 		for cursor.Next(ctx) {

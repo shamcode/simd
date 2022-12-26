@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/fields"
-	"github.com/shamcode/simd/namespace"
+	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"strconv"
@@ -33,59 +33,64 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 
 	benchmarks := []struct {
 		Name  string
-		Query namespace.Query
+		Query query.Query
 	}{
 		{
 			Name:  "is_online = true",
-			Query: store.Query().WhereBool(userIsOnline, where.EQ, true),
+			Query: query.NewBuilder().WhereBool(userIsOnline, where.EQ, true).Query(),
 		},
 		{
 			Name: "is_online = true offset 1000 limit 100",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereBool(userIsOnline, where.EQ, true).
 				Offset(1000).
-				Limit(100),
+				Limit(100).
+				Query(),
 		},
 		{
 			Name:  "id > 1000",
-			Query: store.Query().WhereInt64(userID, where.GT, 1000),
+			Query: query.NewBuilder().WhereInt64(userID, where.GT, 1000).Query(),
 		},
 		{
 			Name: "id > 1000 limit 100 asc",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				Limit(100).
-				Sort(sort.ByInt64Index(&byIDAsc{})),
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
 		},
 		{
 			Name: "id > 1000 limit 100 desc",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				Limit(100).
-				Sort(sort.ByInt64Index(&byIDDesc{})),
+				Sort(sort.ByInt64Index(&byIDDesc{})).
+				Query(),
 		},
 		{
 			Name: "id > 1000 and is_online = true and status = ACTIVE",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				WhereBool(userIsOnline, where.EQ, true).
-				WhereEnum8(userStatus, where.EQ, StatusActive),
+				WhereEnum8(userStatus, where.EQ, StatusActive).
+				Query(),
 		},
 		{
 			Name: "id > 1000 and is_online = true and status = ACTIVE limit 100 desc",
-			Query: store.Query().
+			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				WhereBool(userIsOnline, where.EQ, true).
 				WhereEnum8(userStatus, where.EQ, StatusActive).
 				Sort(sort.ByInt64Index(&byIDDesc{})).
-				Limit(100),
+				Limit(100).
+				Query(),
 		},
 	}
 
 	for _, bench := range benchmarks {
 		b.Run(bench.Name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_, _, err := bench.Query.FetchAllAndTotal(context.Background())
+				_, _, err := store.QueryExecutor().FetchAllAndTotal(context.Background(), bench.Query)
 				if nil != err {
 					b.Fatal(err)
 				}
