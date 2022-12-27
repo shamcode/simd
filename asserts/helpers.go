@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// equals fails the test if exp is not equal to act.
+// Equals fails the test if exp is not equal to act.
 func Equals(tb testing.TB, exp, act interface{}, message string) {
 	if diff := deep.Equal(exp, act); diff != nil {
 		_, file, line, _ := runtime.Caller(1)
@@ -28,6 +28,7 @@ func Equals(tb testing.TB, exp, act interface{}, message string) {
 	}
 }
 
+// Success fails the test if err != nil
 func Success(tb testing.TB, err error) {
 	if nil != err {
 		_, file, line, _ := runtime.Caller(1)

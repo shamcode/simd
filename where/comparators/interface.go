@@ -1,4 +1,4 @@
-package fields
+package comparators
 
 import (
 	"fmt"
@@ -6,28 +6,20 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Int32FieldComparator struct {
+type InterfaceFieldComparator struct {
 	BaseFieldComparator
-	Getter *record.Int32Getter
-	Value  []int32
+	Getter *record.InterfaceGetter
+	Value  []interface{}
 }
 
-func (fc *Int32FieldComparator) GetField() string {
+func (fc *InterfaceFieldComparator) GetField() string {
 	return fc.Getter.Field
 }
 
-func (fc *Int32FieldComparator) CompareValue(value int32) bool {
+func (fc *InterfaceFieldComparator) CompareValue(value interface{}) bool {
 	switch fc.Cmp {
 	case where.EQ:
 		return value == fc.Value[0]
-	case where.GT:
-		return value > fc.Value[0]
-	case where.LT:
-		return value < fc.Value[0]
-	case where.GE:
-		return value >= fc.Value[0]
-	case where.LE:
-		return value <= fc.Value[0]
 	case where.InArray:
 		for _, x := range fc.Value {
 			if x == value {
@@ -40,6 +32,6 @@ func (fc *Int32FieldComparator) CompareValue(value int32) bool {
 	}
 }
 
-func (fc *Int32FieldComparator) Compare(item interface{}) bool {
+func (fc *InterfaceFieldComparator) Compare(item interface{}) bool {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

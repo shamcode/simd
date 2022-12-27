@@ -33,12 +33,76 @@ func (s StatusEnum) String() string {
 	}
 }
 
+type Tag uint16
+
+const (
+	TagTester Tag = iota + 1
+	TagConfirmed
+	TagFree
+)
+
+func (t Tag) String() string {
+	switch t {
+	case TagTester:
+		return "tester"
+	case TagConfirmed:
+		return "confirmed"
+	case TagFree:
+		return "free"
+	default:
+		return ""
+	}
+}
+
+type Tags map[Tag]struct{}
+
+func (t Tags) Has(item interface{}) bool {
+	value, ok := item.(Tag)
+	if !ok {
+		return false
+	}
+	_, ok = t[value]
+	return ok
+}
+
+type CounterKey uint16
+
+const (
+	CounterKeyUnreadMessages CounterKey = iota + 1
+	CounterKeyPendingTasks
+)
+
+type Counters map[CounterKey]uint32
+
+func (c Counters) HasKey(key interface{}) bool {
+	counterKey, ok := key.(CounterKey)
+	if !ok {
+		return false
+	}
+	_, ok = c[counterKey]
+	return ok
+}
+func (c Counters) HasValue(check record.Comparator) bool {
+	for _, item := range c {
+		if check.Compare(item) {
+			return true
+		}
+	}
+	return false
+}
+
+type HasCounterValueEqual uint32
+
+func (c HasCounterValueEqual) Compare(item interface{}) bool { return item.(uint32) == uint32(c) }
+
 type User struct {
 	ID       int64
 	Name     string
 	Status   StatusEnum
 	Score    int
 	IsOnline bool
+	Tags     Tags
+	Counters Counters
 }
 
 func (u *User) GetID() int64   { return u.ID }
@@ -69,6 +133,16 @@ var userIsOnline = &record.BoolGetter{
 	Get:   func(item interface{}) bool { return item.(*User).IsOnline },
 }
 
+var userTags = &record.SetGetter{
+	Field: "tags",
+	Get:   func(item interface{}) record.Set { return item.(*User).Tags },
+}
+
+var userCounters = &record.MapGetter{
+	Field: "counters",
+	Get:   func(item interface{}) record.Map { return item.(*User).Counters },
+}
+
 type byIDAsc struct{}
 
 func (sorting *byIDAsc) CalcIndex(item record.Record) int64 { return item.(*User).ID }
@@ -90,18 +164,36 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		Name:   "First",
 		Status: StatusActive,
 		Score:  10,
+		Tags: map[Tag]struct{}{
+			TagTester:    {},
+			TagConfirmed: {},
+		},
+		Counters: Counters{
+			CounterKeyUnreadMessages: 10,
+			CounterKeyPendingTasks:   1,
+		},
 	}))
 	asserts.Success(t, store.Insert(&User{
 		ID:     2,
 		Name:   "Second",
 		Status: StatusDisabled,
 		Score:  15,
+		Tags: map[Tag]struct{}{
+			TagConfirmed: {},
+		},
+		Counters: Counters{
+			CounterKeyUnreadMessages: 2,
+		},
 	}))
 	asserts.Success(t, store.Insert(&User{
 		ID:     3,
 		Name:   "Third",
 		Status: StatusDisabled,
 		Score:  20,
+		Tags: map[Tag]struct{}{
+			TagConfirmed: {},
+			TagFree:      {},
+		},
 	}))
 	asserts.Success(t, store.Insert(&User{
 		ID:       4,
@@ -109,6 +201,9 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		Status:   StatusActive,
 		Score:    25,
 		IsOnline: true,
+		Counters: Counters{
+			CounterKeyPendingTasks: 1,
+		},
 	}))
 
 	testCases := []struct {
@@ -367,12 +462,57 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			ExpectedIDs:   []int64{1},
 		},
 		{
-			Name: "SELECT *, COUNT(*) WHERE True id ASC",
+			Name: "SELECT *, COUNT(*) WHERE True ORDER BY id ASC",
 			Query: query.NewBuilder().
 				Sort(sort.ByInt64Index(&byIDAsc{})).
 				Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{1, 2, 3, 4},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE tags HAS confirmed ORDER BY id ASC",
+			Query: query.NewBuilder().
+				WhereSet(userTags, where.SetHas, TagConfirmed).
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
+			ExpectedCount: 3,
+			ExpectedIDs:   []int64{1, 2, 3},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE tags HAS free ORDER BY id ASC",
+			Query: query.NewBuilder().
+				WhereSet(userTags, where.SetHas, TagFree).
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
+			ExpectedCount: 1,
+			ExpectedIDs:   []int64{3},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_KEY UnreadMessages ORDER BY id ASC",
+			Query: query.NewBuilder().
+				WhereMap(userCounters, where.MapHasKey, CounterKeyUnreadMessages).
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
+			ExpectedCount: 2,
+			ExpectedIDs:   []int64{1, 2},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_VALUE HasCounterValueEqual(2) ORDER BY id ASC",
+			Query: query.NewBuilder().
+				WhereMap(userCounters, where.MapHasValue, HasCounterValueEqual(2)).
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
+			ExpectedCount: 1,
+			ExpectedIDs:   []int64{2},
+		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_VALUE HasCounterValue(1) ORDER BY id ASC",
+			Query: query.NewBuilder().
+				WhereMap(userCounters, where.MapHasValue, HasCounterValueEqual(1)).
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
+			ExpectedCount: 2,
+			ExpectedIDs:   []int64{1, 4},
 		},
 	}
 

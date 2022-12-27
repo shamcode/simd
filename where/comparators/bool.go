@@ -1,4 +1,4 @@
-package fields
+package comparators
 
 import (
 	"fmt"

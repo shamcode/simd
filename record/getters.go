@@ -49,8 +49,3 @@ type SetGetter struct {
 	Field string
 	Get   func(item interface{}) Set
 }
-
-type StringsSetGetter struct {
-	Field string
-	Get   func(item interface{}) StringsSet
-}

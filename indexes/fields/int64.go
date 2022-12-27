@@ -4,7 +4,7 @@ import (
 	"github.com/shamcode/simd/indexes/storage"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
-	"github.com/shamcode/simd/where/fields"
+	"github.com/shamcode/simd/where/comparators"
 )
 
 var _ IndexComputer = (*int64IndexComputation)(nil)
@@ -18,17 +18,17 @@ func (idx *int64IndexComputation) ForItem(item interface{}) interface{} {
 }
 
 func (idx *int64IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*fields.Int64FieldComparator).Value {
+	for _, item := range comparator.(*comparators.Int64FieldComparator).Value {
 		cb(item)
 	}
 }
 
 func (idx *int64IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*fields.Int64FieldComparator).Value[0]
+	return comparator.(*comparators.Int64FieldComparator).Value[0]
 }
 
 func (idx *int64IndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*fields.Int64FieldComparator).CompareValue(value.(int64))
+	return comparator.(*comparators.Int64FieldComparator).CompareValue(value.(int64))
 }
 
 var _ Storage = (*int64IndexStorage)(nil)

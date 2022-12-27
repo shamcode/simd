@@ -4,7 +4,7 @@ import (
 	"github.com/shamcode/simd/indexes/storage"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
-	"github.com/shamcode/simd/where/fields"
+	"github.com/shamcode/simd/where/comparators"
 )
 
 var _ IndexComputer = (*enum8IndexComputation)(nil)
@@ -18,17 +18,17 @@ func (idx *enum8IndexComputation) ForItem(item interface{}) interface{} {
 }
 
 func (idx *enum8IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*fields.Enum8FieldComparator).Value {
+	for _, item := range comparator.(*comparators.Enum8FieldComparator).Value {
 		cb(item.Value())
 	}
 }
 
 func (idx *enum8IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*fields.Enum8FieldComparator).Value[0].Value()
+	return comparator.(*comparators.Enum8FieldComparator).Value[0].Value()
 }
 
 func (idx *enum8IndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*fields.Enum8FieldComparator).CompareValue(value.(uint8))
+	return comparator.(*comparators.Enum8FieldComparator).CompareValue(value.(uint8))
 }
 
 var _ Storage = (*enum8IndexStorage)(nil)

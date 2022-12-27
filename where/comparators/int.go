@@ -1,4 +1,4 @@
-package fields
+package comparators
 
 import (
 	"fmt"
@@ -6,17 +6,17 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Int64FieldComparator struct {
+type IntFieldComparator struct {
 	BaseFieldComparator
-	Getter *record.Int64Getter
-	Value  []int64
+	Getter *record.IntGetter
+	Value  []int
 }
 
-func (fc *Int64FieldComparator) GetField() string {
+func (fc *IntFieldComparator) GetField() string {
 	return fc.Getter.Field
 }
 
-func (fc *Int64FieldComparator) CompareValue(value int64) bool {
+func (fc *IntFieldComparator) CompareValue(value int) bool {
 	switch fc.Cmp {
 	case where.EQ:
 		return value == fc.Value[0]
@@ -40,6 +40,6 @@ func (fc *Int64FieldComparator) CompareValue(value int64) bool {
 	}
 }
 
-func (fc *Int64FieldComparator) Compare(item interface{}) bool {
+func (fc *IntFieldComparator) Compare(item interface{}) bool {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

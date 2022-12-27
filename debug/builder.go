@@ -11,6 +11,11 @@ import (
 	"strings"
 )
 
+type QueryBuilderWithDump interface {
+	query.Builder
+	SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{})
+}
+
 const (
 	chunkLimit uint8 = iota + 1
 	chunkOffset
@@ -18,7 +23,7 @@ const (
 	chunkSort
 )
 
-var _ query.Builder = (*debugQueryBuilder)(nil)
+var _ QueryBuilderWithDump = (*debugQueryBuilder)(nil)
 
 type debugQueryBuilder struct {
 	builder   query.Builder
@@ -83,7 +88,7 @@ func (q *debugQueryBuilder) CloseBracket() query.Builder {
 	return q
 }
 
-func (q *debugQueryBuilder) addWhere(field string, condition where.ComparatorType, value ...interface{}) {
+func (q *debugQueryBuilder) SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{}) {
 	w := q.chunks[chunkWhere]
 	if q.requireOp {
 		if q.isOr {
@@ -155,7 +160,7 @@ func (q *debugQueryBuilder) AddWhere(cmp where.FieldComparator) query.Builder {
 }
 
 func (q *debugQueryBuilder) Where(getter *record.InterfaceGetter, condition where.ComparatorType, value ...interface{}) query.Builder {
-	q.addWhere(getter.Field, condition, value)
+	q.SaveWhereForDump(getter.Field, condition, value)
 	q.builder.Where(getter, condition, value...)
 	return q
 }
@@ -165,7 +170,7 @@ func (q *debugQueryBuilder) WhereInt(getter *record.IntGetter, condition where.C
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereInt(getter, condition, value...)
 	return q
 }
@@ -175,7 +180,7 @@ func (q *debugQueryBuilder) WhereInt32(getter *record.Int32Getter, condition whe
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereInt32(getter, condition, value...)
 	return q
 }
@@ -185,7 +190,7 @@ func (q *debugQueryBuilder) WhereInt64(getter *record.Int64Getter, condition whe
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereInt64(getter, condition, value...)
 	return q
 }
@@ -195,13 +200,13 @@ func (q *debugQueryBuilder) WhereString(getter *record.StringGetter, condition w
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereString(getter, condition, value...)
 	return q
 }
 
 func (q *debugQueryBuilder) WhereStringRegexp(getter *record.StringGetter, value *regexp.Regexp) query.Builder {
-	q.addWhere(getter.Field, where.Regexp, []interface{}{value})
+	q.SaveWhereForDump(getter.Field, where.Regexp, []interface{}{value})
 	q.builder.WhereStringRegexp(getter, value)
 	return q
 }
@@ -211,7 +216,7 @@ func (q *debugQueryBuilder) WhereBool(getter *record.BoolGetter, condition where
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereBool(getter, condition, value...)
 	return q
 }
@@ -221,7 +226,7 @@ func (q *debugQueryBuilder) WhereEnum8(getter *record.Enum8Getter, condition whe
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereEnum8(getter, condition, value...)
 	return q
 }
@@ -231,7 +236,7 @@ func (q *debugQueryBuilder) WhereEnum16(getter *record.Enum16Getter, condition w
 	for i := range value {
 		items[i] = value[i]
 	}
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereEnum16(getter, condition, value...)
 	return q
 }
@@ -239,7 +244,7 @@ func (q *debugQueryBuilder) WhereEnum16(getter *record.Enum16Getter, condition w
 func (q *debugQueryBuilder) WhereMap(getter *record.MapGetter, condition where.ComparatorType, value ...interface{}) query.Builder {
 	items := make([]interface{}, len(value))
 	copy(items, value)
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereMap(getter, condition, value...)
 	return q
 }
@@ -247,18 +252,8 @@ func (q *debugQueryBuilder) WhereMap(getter *record.MapGetter, condition where.C
 func (q *debugQueryBuilder) WhereSet(getter *record.SetGetter, condition where.ComparatorType, value ...interface{}) query.Builder {
 	items := make([]interface{}, len(value))
 	copy(items, value)
-	q.addWhere(getter.Field, condition, items...)
+	q.SaveWhereForDump(getter.Field, condition, items...)
 	q.builder.WhereSet(getter, condition, value...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereStringsSet(getter *record.StringsSetGetter, condition where.ComparatorType, value ...string) query.Builder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.addWhere(getter.Field, condition, items...)
-	q.builder.WhereStringsSet(getter, condition, value...)
 	return q
 }
 
@@ -311,7 +306,7 @@ func (q *debugQueryBuilder) Query() query.Query {
 	}
 }
 
-func WrapWithDebug(qb query.Builder) query.Builder {
+func WrapQueryBuilderWithDebug(qb query.Builder) query.Builder {
 	return &debugQueryBuilder{
 		builder: qb,
 		chunks: map[uint8]*strings.Builder{

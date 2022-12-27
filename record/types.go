@@ -1,7 +1,5 @@
 package record
 
-import "strings"
-
 type Enum8 interface {
 	Value() uint8
 }
@@ -21,22 +19,4 @@ type Comparator interface {
 type Map interface {
 	HasKey(key interface{}) bool
 	HasValue(check Comparator) bool
-}
-
-type StringsSet struct {
-	String string
-	Set    map[string]struct{}
-}
-
-func NewStringsSet(str string) StringsSet {
-	s := make(map[string]struct{})
-	if len(str) > 0 {
-		for _, item := range strings.Split(str, ",") {
-			s[item] = struct{}{}
-		}
-	}
-	return StringsSet{
-		String: str,
-		Set:    s,
-	}
 }
