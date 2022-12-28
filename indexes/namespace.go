@@ -3,7 +3,7 @@ package indexes
 import (
 	"errors"
 	"fmt"
-	"github.com/shamcode/simd/indexes/fields"
+	"github.com/shamcode/simd/indexes/bytype"
 	"github.com/shamcode/simd/indexes/storage"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/record"
@@ -24,7 +24,7 @@ type Logger interface {
 type NamespaceWithIndexes struct {
 	logger  Logger
 	storage *storage.RecordsByID
-	byField map[string]*fields.Index
+	byField map[string]*bytype.Index
 }
 
 func (ns *NamespaceWithIndexes) Get(id int64) record.Record {
@@ -114,7 +114,7 @@ func (ns *NamespaceWithIndexes) Upsert(item record.Record) error {
 	return nil
 }
 
-func (ns *NamespaceWithIndexes) AddIndex(index *fields.Index) {
+func (ns *NamespaceWithIndexes) AddIndex(index *bytype.Index) {
 	ns.byField[index.Field] = index
 }
 
@@ -247,6 +247,6 @@ func CreateNamespace() NamespaceWithIndexes {
 	return NamespaceWithIndexes{
 		logger:  log.Default(),
 		storage: storage.NewRecordsByID(),
-		byField: make(map[string]*fields.Index),
+		byField: make(map[string]*bytype.Index),
 	}
 }

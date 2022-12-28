@@ -1,4 +1,4 @@
-package fields
+package bytype
 
 import (
 	"github.com/shamcode/simd/indexes/storage"

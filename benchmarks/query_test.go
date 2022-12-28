@@ -3,7 +3,7 @@ package benchmarks
 import (
 	"context"
 	"github.com/shamcode/simd/indexes"
-	"github.com/shamcode/simd/indexes/fields"
+	"github.com/shamcode/simd/indexes/bytype"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/sort"
@@ -14,10 +14,10 @@ import (
 
 func Benchmark_FetchAllAndTotal(b *testing.B) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
-	store.AddIndex(fields.NewStringIndex(userName))
-	store.AddIndex(fields.NewEnum8Index(userStatus))
-	store.AddIndex(fields.NewBoolIndex(userIsOnline))
+	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(bytype.NewStringIndex(userName))
+	store.AddIndex(bytype.NewEnum8Index(userStatus))
+	store.AddIndex(bytype.NewBoolIndex(userIsOnline))
 
 	for i := 1; i < 10_000; i++ {
 		err := store.Upsert(&User{
@@ -57,7 +57,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				Limit(100).
-				Sort(sort.ByInt64IndexAsc(&byIDAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 		},
 		{
@@ -65,7 +65,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				Limit(100).
-				Sort(sort.ByInt64IndexAsc(&byIDDesc{})).
+				Sort(sort.ByInt64IndexDesc(&byID{})).
 				Query(),
 		},
 		{
@@ -82,7 +82,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 				WhereInt64(userID, where.GT, 1000).
 				WhereBool(userIsOnline, where.EQ, true).
 				WhereEnum8(userStatus, where.EQ, StatusActive).
-				Sort(sort.ByInt64IndexAsc(&byIDDesc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Limit(100).
 				Query(),
 		},

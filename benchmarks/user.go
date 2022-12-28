@@ -2,7 +2,6 @@ package benchmarks
 
 import (
 	"github.com/shamcode/simd/record"
-	"github.com/shamcode/simd/sort"
 )
 
 type StatusEnum uint8
@@ -55,12 +54,6 @@ var userIsOnline = &record.BoolGetter{
 	Get:   func(item interface{}) bool { return item.(*User).IsOnline },
 }
 
-type byIDAsc struct{}
+type byID struct{}
 
-func (sorting *byIDAsc) CalcIndex(item record.Record) int64 { return item.(*User).ID }
-
-type byIDDesc struct{}
-
-func (sorting *byIDDesc) CalcIndex(item record.Record) int64 {
-	return sort.Int64IndexDesc(item.(*User).ID)
-}
+func (sorting *byID) CalcIndex(item record.Record) int64 { return item.(*User).ID }

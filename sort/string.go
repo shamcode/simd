@@ -25,7 +25,13 @@ func (bs *byString) Less(a, b record.Record) bool {
 }
 
 func (bs *byString) String() string {
-	return fmt.Sprintf("%#v", bs)
+	var direction string
+	if bs.asc {
+		direction = "ASC"
+	} else {
+		direction = "DESC"
+	}
+	return fmt.Sprintf("%#v %s", bs, direction)
 }
 
 func ByStringAsc(getter *record.StringGetter) By {

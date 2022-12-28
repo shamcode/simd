@@ -30,7 +30,13 @@ func (bi *byInt64Index) Less(a, b record.Record) bool {
 }
 
 func (bi *byInt64Index) String() string {
-	return fmt.Sprintf("%#v", bi.Int64IndexCalculation)
+	var direction string
+	if bi.asc {
+		direction = "ASC"
+	} else {
+		direction = "DESC"
+	}
+	return fmt.Sprintf("%#v %s", bi.Int64IndexCalculation, direction)
 }
 
 // ByInt64IndexAsc create sorting by int64 index in ASC direction

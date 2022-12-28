@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/indexes"
-	"github.com/shamcode/simd/indexes/fields"
+	"github.com/shamcode/simd/indexes/bytype"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
@@ -169,10 +169,10 @@ func (sorting *byOnline) CalcIndex(item record.Record) int64 {
 
 func Test_FetchAllAndTotal(t *testing.T) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
-	store.AddIndex(fields.NewStringIndex(userName))
-	store.AddIndex(fields.NewEnum8Index(userStatus))
-	store.AddIndex(fields.NewBoolIndex(userIsOnline))
+	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(bytype.NewStringIndex(userName))
+	store.AddIndex(bytype.NewEnum8Index(userStatus))
+	store.AddIndex(bytype.NewBoolIndex(userIsOnline))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
@@ -573,7 +573,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 
 func Test_Context(t *testing.T) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
+	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
@@ -591,7 +591,7 @@ func Test_Context(t *testing.T) {
 
 func Test_CallbackOnIteration(t *testing.T) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
+	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -630,7 +630,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 
 func Test_InsertAlreadyExisted(t *testing.T) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
+	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -646,8 +646,8 @@ func Test_InsertAlreadyExisted(t *testing.T) {
 
 func Test_Upsert(t *testing.T) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
-	store.AddIndex(fields.NewEnum8Index(userStatus))
+	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(bytype.NewEnum8Index(userStatus))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -681,7 +681,7 @@ func Test_Upsert(t *testing.T) {
 
 func Test_Delete(t *testing.T) {
 	store := indexes.CreateNamespace()
-	store.AddIndex(fields.NewInt64Index(userID))
+	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
