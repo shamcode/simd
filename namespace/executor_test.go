@@ -79,16 +79,10 @@ func (s *storage) SelectForExecutor(conditions where.Conditions) ([]record.Recor
 	return items, nil
 }
 
-type idAsc struct{}
+type byID struct{}
 
-func (sorting *idAsc) CalcIndex(item record.Record) int64 {
+func (sorting *byID) CalcIndex(item record.Record) int64 {
 	return item.GetID()
-}
-
-type idDesc struct{}
-
-func (sorting *idDesc) CalcIndex(item record.Record) int64 {
-	return sort.Int64IndexDesc(item.GetID())
 }
 
 func TestQueryExecutor(t *testing.T) {
@@ -108,12 +102,12 @@ func TestQueryExecutor(t *testing.T) {
 	}{
 		{
 			name:     "order by id asc",
-			query:    query.NewBuilder().Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    query.NewBuilder().Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
 			expected: []int64{1, 2, 3, 4, 5},
 		},
 		{
 			name:     "order by id desc",
-			query:    query.NewBuilder().Sort(sort.ByInt64Index(&idDesc{})).Query(),
+			query:    query.NewBuilder().Sort(sort.ByInt64IndexDesc(&byID{})).Query(),
 			expected: []int64{5, 4, 3, 2, 1},
 		},
 		{
@@ -133,22 +127,22 @@ func TestQueryExecutor(t *testing.T) {
 		},
 		{
 			name:     "where age > 18 and age < 22",
-			query:    query.NewBuilder().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    query.NewBuilder().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
 			expected: []int64{2, 3, 4},
 		},
 		{
 			name:     "where age >= 18 and age <= 22",
-			query:    query.NewBuilder().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    query.NewBuilder().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
 			expected: []int64{1, 2, 3, 4, 5},
 		},
 		{
 			name:     "where id = 2 or id = 5",
-			query:    query.NewBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
 			expected: []int64{2, 5},
 		},
 		{
 			name:     "where id = 2 or age > 20",
-			query:    query.NewBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    query.NewBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
 			expected: []int64{2, 4, 5},
 		},
 		{
@@ -160,7 +154,7 @@ func TestQueryExecutor(t *testing.T) {
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 4},
 		},
@@ -173,7 +167,7 @@ func TestQueryExecutor(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 4},
 		},
@@ -184,7 +178,7 @@ func TestQueryExecutor(t *testing.T) {
 				WhereInt(age, where.LT, 22).
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 4},
 		},
@@ -197,7 +191,7 @@ func TestQueryExecutor(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 4},
 		},
@@ -245,13 +239,13 @@ func TestQueryExecutor(t *testing.T) {
 			query: query.NewBuilder().
 				WhereInt(age, where.InArray, 20, 21, 22).
 				WhereInt64(id, where.GT, 3).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{4, 5},
 		},
 		{
 			name: "where name like \"th\"",
-			query: query.NewBuilder().WhereString(name, where.Like, "th").Sort(sort.ByInt64Index(&idAsc{})).
+			query: query.NewBuilder().WhereString(name, where.Like, "th").Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{3, 4, 5},
 		},
@@ -261,7 +255,7 @@ func TestQueryExecutor(t *testing.T) {
 				WhereString(name, where.Like, "th").
 				Or().
 				WhereString(name, where.Like, "first").
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 3, 4, 5},
 		},
@@ -277,7 +271,7 @@ func TestQueryExecutor(t *testing.T) {
 				WhereInt64(id, where.EQ, 2).
 				CloseBracket().
 				CloseBracket().
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 2},
 		},
@@ -299,7 +293,7 @@ func TestQueryExecutor(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 4).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byID{})).
 				Query(),
 			expected: []int64{1, 2, 3, 4},
 		},

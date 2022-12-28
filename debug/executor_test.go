@@ -113,17 +113,17 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 	}{
 		{
 			name:     "order by id asc",
-			query:    query.NewBuilder().Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    query.NewBuilder().Sort(sort.ByInt64IndexAsc(&idAsc{})).Query(),
 			expected: "SELECT *, COUNT(*) <Query dont implement QueryWithDumper interface, check QueryBuilder>",
 		},
 		{
 			name:     "order by id asc",
-			query:    newBuilder().Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    newBuilder().Sort(sort.ByInt64IndexAsc(&idAsc{})).Query(),
 			expected: "SELECT *, COUNT(*)  ORDER BY &debug.idAsc{}",
 		},
 		{
 			name:     "order by id desc",
-			query:    newBuilder().Sort(sort.ByInt64Index(&idDesc{})).Query(),
+			query:    newBuilder().Sort(sort.ByInt64IndexAsc(&idDesc{})).Query(),
 			expected: "SELECT *, COUNT(*)  ORDER BY &debug.idDesc{}",
 		},
 		{
@@ -143,22 +143,22 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 		},
 		{
 			name:     "where age > 18 and age < 22",
-			query:    newBuilder().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    newBuilder().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64IndexAsc(&idAsc{})).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age > 18 AND age < 22 ORDER BY &debug.idAsc{}",
 		},
 		{
 			name:     "where age >= 18 and age <= 22",
-			query:    newBuilder().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    newBuilder().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64IndexAsc(&idAsc{})).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age >= 18 AND age <= 22 ORDER BY &debug.idAsc{}",
 		},
 		{
 			name:     "where id = 2 or id = 5",
-			query:    newBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    newBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64IndexAsc(&idAsc{})).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 2 OR id = 5 ORDER BY &debug.idAsc{}",
 		},
 		{
 			name:     "where id = 2 or age > 20",
-			query:    newBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64Index(&idAsc{})).Query(),
+			query:    newBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64IndexAsc(&idAsc{})).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 2 OR age > 20 ORDER BY &debug.idAsc{}",
 		},
 		{
@@ -170,7 +170,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				WhereInt(age, where.GT, 20).
 				WhereInt(age, where.LT, 22).
 				CloseBracket().
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 1 OR (age > 20 AND age < 22) ORDER BY &debug.idAsc{}",
 		},
@@ -183,7 +183,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (age > 20 AND age < 22) OR id = 1 ORDER BY &debug.idAsc{}",
 		},
@@ -194,7 +194,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				WhereInt(age, where.LT, 22).
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age > 20 AND age < 22 OR id = 1 ORDER BY &debug.idAsc{}",
 		},
@@ -207,7 +207,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (age > 20 AND age < 22) OR id = 1 ORDER BY &debug.idAsc{}",
 		},
@@ -255,13 +255,13 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 			query: newBuilder().
 				WhereInt(age, where.InArray, 20, 21, 22).
 				WhereInt64(id, where.GT, 3).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age IN (20, 21, 22) AND id > 3 ORDER BY &debug.idAsc{}",
 		},
 		{
 			name: "where name like \"th\"",
-			query: newBuilder().WhereString(name, where.Like, "th").Sort(sort.ByInt64Index(&idAsc{})).
+			query: newBuilder().WhereString(name, where.Like, "th").Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE name LIKE \"th\" ORDER BY &debug.idAsc{}",
 		},
@@ -271,7 +271,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				WhereString(name, where.Like, "th").
 				Or().
 				WhereString(name, where.Like, "first").
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE name LIKE \"th\" OR name LIKE \"first\" ORDER BY &debug.idAsc{}",
 		},
@@ -287,7 +287,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				WhereInt64(id, where.EQ, 2).
 				CloseBracket().
 				CloseBracket().
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE ((id = 1) OR (id = 2)) ORDER BY &debug.idAsc{}",
 		},
@@ -309,7 +309,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				CloseBracket().
 				Or().
 				WhereInt64(id, where.EQ, 4).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (((id = 1) OR (id = 2)) OR id = 3) OR id = 4 ORDER BY &debug.idAsc{}",
 		},
@@ -319,7 +319,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				WhereInt64(id, where.GT, 1).
 				Limit(2).
 				Offset(1).
-				Sort(sort.ByInt64Index(&idAsc{})).
+				Sort(sort.ByInt64IndexAsc(&idAsc{})).
 				Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id > 1 ORDER BY &debug.idAsc{} OFFSET 1 LIMIT 2",
 		},

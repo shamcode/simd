@@ -57,7 +57,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				Limit(100).
-				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Sort(sort.ByInt64IndexAsc(&byIDAsc{})).
 				Query(),
 		},
 		{
@@ -65,7 +65,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 			Query: query.NewBuilder().
 				WhereInt64(userID, where.GT, 1000).
 				Limit(100).
-				Sort(sort.ByInt64Index(&byIDDesc{})).
+				Sort(sort.ByInt64IndexAsc(&byIDDesc{})).
 				Query(),
 		},
 		{
@@ -82,7 +82,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 				WhereInt64(userID, where.GT, 1000).
 				WhereBool(userIsOnline, where.EQ, true).
 				WhereEnum8(userStatus, where.EQ, StatusActive).
-				Sort(sort.ByInt64Index(&byIDDesc{})).
+				Sort(sort.ByInt64IndexAsc(&byIDDesc{})).
 				Limit(100).
 				Query(),
 		},
