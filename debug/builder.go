@@ -317,3 +317,11 @@ func WrapQueryBuilderWithDebug(qb query.Builder) query.Builder {
 		},
 	}
 }
+
+type QueryBuilderConstructor func() query.Builder
+
+func WrapCreateQueryBuilderWithDebug(constructor QueryBuilderConstructor) QueryBuilderConstructor {
+	return func() query.Builder {
+		return WrapQueryBuilderWithDebug(constructor())
+	}
+}

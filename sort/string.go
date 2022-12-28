@@ -31,7 +31,7 @@ func (bs *byString) String() string {
 	} else {
 		direction = "DESC"
 	}
-	return fmt.Sprintf("%#v %s", bs, direction)
+	return fmt.Sprintf("%s %s", bs.getter.Field, direction)
 }
 
 func ByStringAsc(getter *record.StringGetter) By {
