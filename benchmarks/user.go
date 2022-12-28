@@ -50,11 +50,6 @@ var userStatus = &record.Enum8Getter{
 	Get:   func(item interface{}) record.Enum8 { return item.(*User).Status },
 }
 
-var userScore = &record.IntGetter{
-	Field: "score",
-	Get:   func(item interface{}) int { return item.(*User).Score },
-}
-
 var userIsOnline = &record.BoolGetter{
 	Field: "is_online",
 	Get:   func(item interface{}) bool { return item.(*User).IsOnline },

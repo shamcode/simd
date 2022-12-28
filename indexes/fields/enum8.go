@@ -7,28 +7,28 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = (*enum8IndexComputation)(nil)
+var _ IndexComputer = enum8IndexComputation{}
 
 type enum8IndexComputation struct {
 	getter *record.Enum8Getter
 }
 
-func (idx *enum8IndexComputation) ForItem(item interface{}) interface{} {
+func (idx enum8IndexComputation) ForItem(item interface{}) interface{} {
 	return idx.getter.Get(item).Value()
 }
 
-func (idx *enum8IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*comparators.Enum8FieldComparator).Value {
+func (idx enum8IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+	for _, item := range comparator.(comparators.Enum8FieldComparator).Value {
 		cb(item.Value())
 	}
 }
 
-func (idx *enum8IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*comparators.Enum8FieldComparator).Value[0].Value()
+func (idx enum8IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
+	return comparator.(comparators.Enum8FieldComparator).Value[0].Value()
 }
 
-func (idx *enum8IndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*comparators.Enum8FieldComparator).CompareValue(value.(uint8))
+func (idx enum8IndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.Enum8FieldComparator).CompareValue(value.(uint8))
 }
 
 var _ Storage = (*enum8IndexStorage)(nil)
@@ -62,7 +62,7 @@ func (idx *enum8IndexStorage) Keys() []interface{} {
 func NewEnum8Index(getter *record.Enum8Getter) *Index {
 	return &Index{
 		Field:   getter.Field,
-		Compute: &enum8IndexComputation{getter: getter},
+		Compute: enum8IndexComputation{getter: getter},
 		Storage: WrapToThreadSafeStorage(&enum8IndexStorage{
 			byValue: make(map[uint8]*storage.IDStorage),
 		}),

@@ -118,11 +118,7 @@ func (ns *NamespaceWithIndexes) AddIndex(index *fields.Index) {
 	ns.byField[index.Field] = index
 }
 
-func (ns *NamespaceWithIndexes) QueryExecutor() namespace.QueryExecutor {
-	return namespace.CreateQueryExecutor(ns)
-}
-
-func (ns *NamespaceWithIndexes) Select(conditions where.Conditions) []record.Record {
+func (ns *NamespaceWithIndexes) SelectForExecutor(conditions where.Conditions) ([]record.Record, error) {
 	byLevel := make(resultByBracketLevel)
 	lastBracketLevel := 0
 
@@ -142,7 +138,10 @@ func (ns *NamespaceWithIndexes) Select(conditions where.Conditions) []record.Rec
 			}
 		}
 
-		exists, indexSize, indexes := ns.getIndexForCondition(condition)
+		exists, indexSize, indexes, err := ns.getIndexForCondition(condition)
+		if nil != err {
+			return nil, err
+		}
 		if !exists {
 			all := ns.storage.GetIDStorage()
 			indexes = append(indexes, all)
@@ -173,27 +172,32 @@ func (ns *NamespaceWithIndexes) Select(conditions where.Conditions) []record.Rec
 
 	if !hasItems {
 		ns.logger.Println("index not applied", conditions)
-		return ns.storage.GetAllData()
+		return ns.storage.GetAllData(), nil
 	}
 
 	if size >= ns.storage.Count() {
 		ns.logger.Println("index not applied (large select)", conditions)
-		return ns.storage.GetAllData()
+		return ns.storage.GetAllData(), nil
 	}
-	return ns.storage.GetData(items)
+	return ns.storage.GetData(items), nil
 }
 
 func (ns *NamespaceWithIndexes) SetLogger(logger Logger) {
 	ns.logger = logger
 }
 
-func (ns *NamespaceWithIndexes) getIndexForCondition(condition *where.Condition) (bool, int, []storage.LockableIDStorage) {
+func (ns *NamespaceWithIndexes) getIndexForCondition(condition where.Condition) (
+	bool,
+	int,
+	[]storage.LockableIDStorage,
+	error,
+) {
 	var indexes []storage.LockableIDStorage
 	indexSize := 0
 
 	index, exists := ns.byField[condition.Cmp.GetField()]
 	if !exists {
-		return false, indexSize, indexes
+		return false, indexSize, indexes, nil
 	}
 
 	cmpType := condition.Cmp.GetType()
@@ -205,7 +209,7 @@ func (ns *NamespaceWithIndexes) getIndexForCondition(condition *where.Condition)
 			indexSize = itemsByValue.Count()
 			indexes = append(indexes, itemsByValue)
 		}
-		return true, indexSize, indexes
+		return true, indexSize, indexes, nil
 	}
 
 	if cmpType == where.InArray && !condition.WithNot {
@@ -221,18 +225,22 @@ func (ns *NamespaceWithIndexes) getIndexForCondition(condition *where.Condition)
 				}
 			}
 		})
-		return true, indexSize, indexes
+		return true, indexSize, indexes, nil
 	}
 
 	keys := index.Storage.Keys()
 	for _, key := range keys {
-		if condition.WithNot != index.Compute.Compare(key, condition.Cmp) {
+		res, err := index.Compute.Compare(key, condition.Cmp)
+		if nil != err {
+			return false, 0, nil, err
+		}
+		if condition.WithNot != res {
 			indexSize += index.Storage.Count(key)
 			indexes = append(indexes, index.Storage.Get(key))
 		}
 	}
 
-	return true, indexSize, indexes
+	return true, indexSize, indexes, nil
 }
 
 func CreateNamespace() NamespaceWithIndexes {

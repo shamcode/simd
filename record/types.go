@@ -13,10 +13,10 @@ type Set interface {
 }
 
 type Comparator interface {
-	Compare(item interface{}) bool
+	Compare(item interface{}) (bool, error)
 }
 
 type Map interface {
 	HasKey(key interface{}) bool
-	HasValue(check Comparator) bool
+	HasValue(check Comparator) (bool, error)
 }

@@ -7,28 +7,28 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = (*int32IndexComputation)(nil)
+var _ IndexComputer = int32IndexComputation{}
 
 type int32IndexComputation struct {
 	getter *record.Int32Getter
 }
 
-func (idx *int32IndexComputation) ForItem(item interface{}) interface{} {
+func (idx int32IndexComputation) ForItem(item interface{}) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx *int32IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*comparators.Int32FieldComparator).Value {
+func (idx int32IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+	for _, item := range comparator.(comparators.Int32FieldComparator).Value {
 		cb(item)
 	}
 }
 
-func (idx *int32IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*comparators.Int32FieldComparator).Value[0]
+func (idx int32IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
+	return comparator.(comparators.Int32FieldComparator).Value[0]
 }
 
-func (idx *int32IndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*comparators.Int32FieldComparator).CompareValue(value.(int32))
+func (idx int32IndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.Int32FieldComparator).CompareValue(value.(int32))
 }
 
 var _ Storage = (*int32IndexStorage)(nil)
@@ -62,7 +62,7 @@ func (idx *int32IndexStorage) Keys() []interface{} {
 func NewInt32Index(getter *record.Int32Getter) *Index {
 	return &Index{
 		Field:   getter.Field,
-		Compute: &int32IndexComputation{getter: getter},
+		Compute: int32IndexComputation{getter: getter},
 		Storage: WrapToThreadSafeStorage(&int32IndexStorage{
 			byValue: make(map[int32]*storage.IDStorage),
 		}),

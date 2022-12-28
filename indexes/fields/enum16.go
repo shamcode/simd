@@ -7,28 +7,28 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = (*enum16IndexComputation)(nil)
+var _ IndexComputer = enum16IndexComputation{}
 
 type enum16IndexComputation struct {
 	getter *record.Enum16Getter
 }
 
-func (idx *enum16IndexComputation) ForItem(item interface{}) interface{} {
+func (idx enum16IndexComputation) ForItem(item interface{}) interface{} {
 	return idx.getter.Get(item).Value()
 }
 
-func (idx *enum16IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*comparators.Enum16FieldComparator).Value {
+func (idx enum16IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+	for _, item := range comparator.(comparators.Enum16FieldComparator).Value {
 		cb(item.Value())
 	}
 }
 
-func (idx *enum16IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*comparators.Enum16FieldComparator).Value[0].Value()
+func (idx enum16IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
+	return comparator.(comparators.Enum16FieldComparator).Value[0].Value()
 }
 
-func (idx *enum16IndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*comparators.Enum16FieldComparator).CompareValue(value.(uint16))
+func (idx enum16IndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.Enum16FieldComparator).CompareValue(value.(uint16))
 }
 
 var _ Storage = (*enum16IndexStorage)(nil)
@@ -62,7 +62,7 @@ func (idx *enum16IndexStorage) Keys() []interface{} {
 func NewEnum16Index(getter *record.Enum16Getter) *Index {
 	return &Index{
 		Field:   getter.Field,
-		Compute: &enum16IndexComputation{getter: getter},
+		Compute: enum16IndexComputation{getter: getter},
 		Storage: WrapToThreadSafeStorage(&enum16IndexStorage{
 			byValue: make(map[uint16]*storage.IDStorage),
 		}),

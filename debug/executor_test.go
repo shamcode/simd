@@ -72,16 +72,12 @@ func (s *storage) Upsert(item record.Record) error {
 	return nil
 }
 
-func (s *storage) QueryExecutor() namespace.QueryExecutor {
-	return namespace.CreateQueryExecutor(s)
-}
-
-func (s *storage) Select(_ where.Conditions) []record.Record {
+func (s *storage) SelectForExecutor(_ where.Conditions) ([]record.Record, error) {
 	items := make([]record.Record, 0, len(s.data))
 	for _, item := range s.data {
 		items = append(items, item)
 	}
-	return items
+	return items, nil
 }
 
 type idAsc struct{}
@@ -329,9 +325,11 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 		},
 	}
 
+	qe := namespace.CreateQueryExecutor(ns)
+
 	for _, test := range tests {
 		ctx := context.Background()
-		_, err := WrapWithDebug(ns.QueryExecutor(), func(q string) {
+		_, err := WrapWithDebug(qe, func(q string) {
 			asserts.Equals(t, test.expected, q, fmt.Sprintf("query for test \"%s\"", test.name))
 		}).FetchAll(ctx, test.query)
 		asserts.Equals(t, nil, err, fmt.Sprintf("err is nil for test \"%s\"", test.name))

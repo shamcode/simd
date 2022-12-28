@@ -71,16 +71,12 @@ func (s *storage) Upsert(item record.Record) error {
 	return nil
 }
 
-func (s *storage) QueryExecutor() QueryExecutor {
-	return CreateQueryExecutor(s)
-}
-
-func (s *storage) Select(conditions where.Conditions) []record.Record {
+func (s *storage) SelectForExecutor(conditions where.Conditions) ([]record.Record, error) {
 	items := make([]record.Record, 0, len(s.data))
 	for _, item := range s.data {
 		items = append(items, item)
 	}
-	return items
+	return items, nil
 }
 
 type idAsc struct{}
@@ -311,7 +307,7 @@ func TestQueryExecutor(t *testing.T) {
 
 	for _, test := range tests {
 		ctx := context.Background()
-		iter, err := ns.QueryExecutor().FetchAll(ctx, test.query)
+		iter, err := CreateQueryExecutor(ns).FetchAll(ctx, test.query)
 		res := make([]int64, 0, iter.Size())
 		for iter.Next(ctx) {
 			res = append(res, iter.Item().(*user).ID)

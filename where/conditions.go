@@ -12,13 +12,14 @@ type Condition struct {
 	Cmp          FieldComparator
 }
 
-func (c *Condition) String() string {
+func (c Condition) String() string {
 	return fmt.Sprintf("{%t %t %d %s %d}", c.WithNot, c.IsOr, c.BracketLevel, c.Cmp.GetField(), c.Cmp.GetType())
 }
 
-type Conditions []*Condition
+type Conditions []Condition
 
-func (w Conditions) Check(item record.Record) bool {
+// Check checks that the record satisfies all the conditions
+func (w Conditions) Check(item record.Record) (bool, error) {
 	stack := make(resultsByBracketLevel)
 	lastBracketLevel := 0
 
@@ -44,8 +45,13 @@ func (w Conditions) Check(item record.Record) bool {
 			}
 		}
 
+		compareResultForItem, err := condition.Cmp.Compare(item)
+		if nil != err {
+			return false, err
+		}
+
 		// Expression A != B it's analog for (A && !B) || (!A && B)
-		conditionResult := condition.WithNot != condition.Cmp.Compare(item)
+		conditionResult := condition.WithNot != compareResultForItem
 
 		if lastBracketLevel > condition.BracketLevel {
 			// ( ... ) AND B
@@ -71,8 +77,8 @@ func (w Conditions) Check(item record.Record) bool {
 	}
 
 	if 0 == len(stack) {
-		return true
+		return true, nil
 	}
 
-	return stack.reduce(lastBracketLevel, 0)
+	return stack.reduce(lastBracketLevel, 0), nil
 }

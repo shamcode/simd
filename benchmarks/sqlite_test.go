@@ -6,6 +6,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/fields"
+	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/where"
 	"log"
@@ -71,10 +72,11 @@ func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
 
 		stmt.Close()
 
+		qe := namespace.CreateQueryExecutor(&simd)
 		b.Run(strconv.Itoa(usersCount)+"_simd", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount; i++ {
-					cur, err := simd.QueryExecutor().FetchAll(
+					cur, err := qe.FetchAll(
 						context.Background(),
 						query.NewBuilder().
 							WhereInt64(userID, where.EQ, int64(i)).

@@ -2,15 +2,18 @@ package simd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/fields"
+	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"regexp"
+	_sort "sort"
 	"testing"
 )
 
@@ -82,18 +85,24 @@ func (c Counters) HasKey(key interface{}) bool {
 	_, ok = c[counterKey]
 	return ok
 }
-func (c Counters) HasValue(check record.Comparator) bool {
+func (c Counters) HasValue(check record.Comparator) (bool, error) {
 	for _, item := range c {
-		if check.Compare(item) {
-			return true
+		res, err := check.Compare(item)
+		if nil != err {
+			return false, err
+		}
+		if res {
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
 type HasCounterValueEqual uint32
 
-func (c HasCounterValueEqual) Compare(item interface{}) bool { return item.(uint32) == uint32(c) }
+func (c HasCounterValueEqual) Compare(item interface{}) (bool, error) {
+	return item.(uint32) == uint32(c), nil
+}
 
 type User struct {
 	ID       int64
@@ -151,6 +160,17 @@ type byIDDesc struct{}
 
 func (sorting *byIDDesc) CalcIndex(item record.Record) int64 {
 	return sort.Int64IndexDesc(item.(*User).ID)
+}
+
+type byOnline struct {
+	onlineToUp bool
+}
+
+func (sorting *byOnline) CalcIndex(item record.Record) int64 {
+	if sorting.onlineToUp == item.(*User).IsOnline {
+		return 0
+	}
+	return 1
 }
 
 func Test_FetchAllAndTotal(t *testing.T) {
@@ -514,11 +534,22 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
 		},
+		{
+			Name: "SELECT *, COUNT(*) WHERE True ORDER BY byOnline ASC id ASC",
+			Query: query.NewBuilder().
+				Sort(sort.ByInt64Index(&byOnline{onlineToUp: true})).
+				Sort(sort.ByInt64Index(&byIDAsc{})).
+				Query(),
+			ExpectedCount: 4,
+			ExpectedIDs:   []int64{4, 1, 2, 3},
+		},
 	}
+
+	qe := namespace.CreateQueryExecutor(&store)
 
 	for _, testCase := range testCases {
 		ctx := context.Background()
-		cursor, count, err := store.QueryExecutor().FetchAllAndTotal(ctx, testCase.Query)
+		cursor, count, err := qe.FetchAllAndTotal(ctx, testCase.Query)
 		asserts.Equals(t, nil, err, fmt.Sprintf("%s: nil == err", testCase.Name))
 		ids := make([]int64, 0, cursor.Size())
 		for cursor.Next(ctx) {
@@ -528,4 +559,146 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		asserts.Equals(t, testCase.ExpectedIDs, ids, fmt.Sprintf("%s: ids", testCase.Name))
 		asserts.Equals(t, testCase.ExpectedCount, count, fmt.Sprintf("%s: total count", testCase.Name))
 	}
+}
+
+func Test_Context(t *testing.T) {
+	store := indexes.CreateNamespace()
+	store.AddIndex(fields.NewInt64Index(userID))
+	asserts.Success(t, store.Insert(&User{
+		ID:     1,
+		Name:   "First",
+		Status: StatusActive,
+		Score:  10,
+	}))
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	_, err := namespace.CreateQueryExecutor(&store).FetchTotal(ctx, query.NewBuilder().Query())
+
+	asserts.Equals(t, "context canceled", err.Error(), "check error")
+	asserts.Equals(t, true, errors.Is(context.Canceled, err), "error is context.Canceled")
+}
+
+func Test_CallbackOnIteration(t *testing.T) {
+	store := indexes.CreateNamespace()
+	store.AddIndex(fields.NewInt64Index(userID))
+	asserts.Success(t, store.Insert(&User{
+		ID:     1,
+		Status: StatusActive,
+	}))
+	asserts.Success(t, store.Insert(&User{
+		ID:     2,
+		Status: StatusDisabled,
+	}))
+	asserts.Success(t, store.Insert(&User{
+		ID:     3,
+		Status: StatusActive,
+	}))
+
+	var idsFromCallback []int
+	var idsFromCursor []int64
+	cur, err := namespace.CreateQueryExecutor(&store).FetchAll(
+		context.Background(),
+		query.NewBuilder().
+			WhereEnum8(userStatus, where.EQ, StatusActive).
+			Limit(1).
+			Sort(sort.ByInt64Index(&byIDAsc{})).
+			OnIteration(func(item record.Record) {
+				idsFromCallback = append(idsFromCallback, int(item.GetID()))
+			}).
+			Query(),
+	)
+	asserts.Success(t, err)
+	for cur.Next(context.Background()) {
+		idsFromCursor = append(idsFromCursor, cur.Item().GetID())
+	}
+	_sort.Ints(idsFromCallback)
+	asserts.Success(t, cur.Err())
+	asserts.Equals(t, []int{1, 3}, idsFromCallback, "ids from callback")
+	asserts.Equals(t, []int64{1}, idsFromCursor, "ids from cursor")
+}
+
+func Test_InsertAlreadyExisted(t *testing.T) {
+	store := indexes.CreateNamespace()
+	store.AddIndex(fields.NewInt64Index(userID))
+	asserts.Success(t, store.Insert(&User{
+		ID:     1,
+		Status: StatusActive,
+	}))
+
+	err := store.Insert(&User{
+		ID:     1,
+		Status: StatusDisabled,
+	})
+
+	asserts.Equals(t, "simd: record with passed id already exists: ID == 1", err.Error(), "check error")
+}
+
+func Test_Upsert(t *testing.T) {
+	store := indexes.CreateNamespace()
+	store.AddIndex(fields.NewInt64Index(userID))
+	store.AddIndex(fields.NewEnum8Index(userStatus))
+	asserts.Success(t, store.Insert(&User{
+		ID:     1,
+		Status: StatusActive,
+	}))
+	asserts.Success(t, store.Insert(&User{
+		ID:     2,
+		Status: StatusDisabled,
+	}))
+	asserts.Success(t, store.Insert(&User{
+		ID:     3,
+		Status: StatusActive,
+	}))
+
+	err := store.Upsert(&User{
+		ID:     2,
+		Status: StatusActive,
+	})
+	asserts.Success(t, err)
+
+	cur, err := namespace.CreateQueryExecutor(&store).FetchAll(
+		context.Background(),
+		query.NewBuilder().
+			WhereInt64(userID, where.EQ, 2).
+			Query(),
+	)
+
+	asserts.Success(t, err)
+	asserts.Success(t, cur.Err())
+	asserts.Equals(t, StatusActive, cur.Item().(*User).Status, "status")
+}
+
+func Test_Delete(t *testing.T) {
+	store := indexes.CreateNamespace()
+	store.AddIndex(fields.NewInt64Index(userID))
+	asserts.Success(t, store.Insert(&User{
+		ID:     1,
+		Status: StatusActive,
+	}))
+	asserts.Success(t, store.Insert(&User{
+		ID:     2,
+		Status: StatusDisabled,
+	}))
+	asserts.Success(t, store.Insert(&User{
+		ID:     3,
+		Status: StatusActive,
+	}))
+
+	err := store.Delete(2)
+	asserts.Success(t, err)
+
+	var ids []int64
+	cur, err := namespace.CreateQueryExecutor(&store).FetchAll(
+		context.Background(),
+		query.NewBuilder().
+			Sort(sort.ByInt64Index(&byIDAsc{})).
+			Query(),
+	)
+	asserts.Success(t, err)
+	for cur.Next(context.Background()) {
+		ids = append(ids, cur.Item().GetID())
+	}
+	asserts.Success(t, cur.Err())
+	asserts.Equals(t, []int64{1, 3}, ids, "ids from cursor")
 }

@@ -7,26 +7,40 @@ import (
 )
 
 type MapFieldComparator struct {
-	BaseFieldComparator
+	Cmp    where.ComparatorType
 	Getter *record.MapGetter
 	Value  []interface{}
 }
 
-func (fc *MapFieldComparator) GetField() string {
+func (fc MapFieldComparator) GetType() where.ComparatorType {
+	return fc.Cmp
+}
+
+func (fc MapFieldComparator) GetField() string {
 	return fc.Getter.Field
 }
 
-func (fc *MapFieldComparator) CompareValue(value record.Map) bool {
+func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
 	switch fc.Cmp {
 	case where.MapHasValue:
-		return value.HasValue(fc.Value[0].(record.Comparator))
+		cmp, ok := fc.Value[0].(record.Comparator)
+		if !ok {
+			return false, fmt.Errorf(
+				"%w: %d, field = %s, value type = %T, expected type = record.Comparator",
+				ErrFailCastType,
+				fc.Cmp,
+				fc.GetField(),
+				fc.Value[0],
+			)
+		}
+		return value.HasValue(cmp)
 	case where.MapHasKey:
-		return value.HasKey(fc.Value[0])
+		return value.HasKey(fc.Value[0]), nil
 	default:
-		panic(fmt.Errorf("%w: %d, field = %s", errNotImplementComparator, fc.Cmp, fc.GetField()))
+		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
 	}
 }
 
-func (fc *MapFieldComparator) Compare(item interface{}) bool {
+func (fc MapFieldComparator) Compare(item interface{}) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

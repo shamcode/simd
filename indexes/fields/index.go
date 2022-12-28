@@ -16,7 +16,7 @@ type IndexComputer interface {
 	ForItem(item interface{}) interface{}
 	ForComparatorAllValues(comparator where.FieldComparator, cb func(index interface{}))
 	ForComparatorFirstValue(comparator where.FieldComparator) interface{}
-	Compare(value interface{}, comparator where.FieldComparator) bool
+	Compare(value interface{}, comparator where.FieldComparator) (bool, error)
 }
 
 type Index struct {

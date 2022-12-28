@@ -7,24 +7,28 @@ import (
 )
 
 type BoolFieldComparator struct {
-	BaseFieldComparator
+	Cmp    where.ComparatorType
 	Getter *record.BoolGetter
 	Value  []bool
 }
 
-func (fc *BoolFieldComparator) GetField() string {
+func (fc BoolFieldComparator) GetType() where.ComparatorType {
+	return fc.Cmp
+}
+
+func (fc BoolFieldComparator) GetField() string {
 	return fc.Getter.Field
 }
 
-func (fc *BoolFieldComparator) CompareValue(value bool) bool {
+func (fc BoolFieldComparator) CompareValue(value bool) (bool, error) {
 	switch fc.Cmp {
 	case where.EQ:
-		return value == fc.Value[0]
+		return value == fc.Value[0], nil
 	default:
-		panic(fmt.Errorf("%w: %d, field = %s", errNotImplementComparator, fc.Cmp, fc.GetField()))
+		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
 	}
 }
 
-func (fc *BoolFieldComparator) Compare(item interface{}) bool {
+func (fc BoolFieldComparator) Compare(item interface{}) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

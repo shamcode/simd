@@ -7,28 +7,28 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = (*boolIndexComputation)(nil)
+var _ IndexComputer = boolIndexComputation{}
 
 type boolIndexComputation struct {
 	getter *record.BoolGetter
 }
 
-func (idx *boolIndexComputation) ForItem(item interface{}) interface{} {
+func (idx boolIndexComputation) ForItem(item interface{}) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx *boolIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*comparators.BoolFieldComparator).Value {
+func (idx boolIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+	for _, item := range comparator.(comparators.BoolFieldComparator).Value {
 		cb(item)
 	}
 }
 
-func (idx *boolIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*comparators.BoolFieldComparator).Value[0]
+func (idx boolIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
+	return comparator.(comparators.BoolFieldComparator).Value[0]
 }
 
-func (idx *boolIndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
-	return comparator.(*comparators.BoolFieldComparator).CompareValue(value.(bool))
+func (idx boolIndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.BoolFieldComparator).CompareValue(value.(bool))
 }
 
 var _ Storage = (*boolIndexStorage)(nil)
@@ -62,7 +62,7 @@ func (idx *boolIndexStorage) Keys() []interface{} {
 func NewBoolIndex(getter *record.BoolGetter) *Index {
 	return &Index{
 		Field:   getter.Field,
-		Compute: &boolIndexComputation{getter: getter},
+		Compute: boolIndexComputation{getter: getter},
 		Storage: WrapToThreadSafeStorage(&boolIndexStorage{
 			byValue: make(map[bool]*storage.IDStorage),
 		}),

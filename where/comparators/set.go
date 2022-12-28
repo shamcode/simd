@@ -7,24 +7,28 @@ import (
 )
 
 type SetFieldComparator struct {
-	BaseFieldComparator
+	Cmp    where.ComparatorType
 	Getter *record.SetGetter
 	Value  []interface{}
 }
 
-func (fc *SetFieldComparator) GetField() string {
+func (fc SetFieldComparator) GetType() where.ComparatorType {
+	return fc.Cmp
+}
+
+func (fc SetFieldComparator) GetField() string {
 	return fc.Getter.Field
 }
 
-func (fc *SetFieldComparator) CompareValue(value record.Set) bool {
+func (fc SetFieldComparator) CompareValue(value record.Set) (bool, error) {
 	switch fc.Cmp {
 	case where.SetHas:
-		return value.Has(fc.Value[0])
+		return value.Has(fc.Value[0]), nil
 	default:
-		panic(fmt.Errorf("%w: %d, field = %s", errNotImplementComparator, fc.Cmp, fc.GetField()))
+		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
 	}
 }
 
-func (fc *SetFieldComparator) Compare(item interface{}) bool {
+func (fc SetFieldComparator) Compare(item interface{}) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

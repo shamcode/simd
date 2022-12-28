@@ -29,19 +29,27 @@ func (e *executor) FetchAllAndTotal(ctx context.Context, q query.Query) (Iterato
 
 func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Iterator, int, error) {
 	if err := q.Error(); nil != err {
-		return nil, 0, wrapErrors(ErrExecuteQuery, err)
+		return nil, 0, wrapErrors(ErrValidateQuery, err)
 	}
 
 	total := 0
 	items := newHeap(q.Sorting())
 	callback := q.OnIterationCallback()
 	conditions := q.Conditions()
-	for _, item := range e.storage.Select(conditions) {
+	itemsForCheck, err := e.storage.SelectForExecutor(conditions)
+	if nil != err {
+		return nil, 0, wrapErrors(ErrExecuteQuery, err)
+	}
+	for _, item := range itemsForCheck {
 		select {
 		case <-ctx.Done():
 			return nil, 0, ctx.Err()
 		default:
-			if !conditions.Check(item) {
+			res, err := conditions.Check(item)
+			if nil != err {
+				return nil, 0, wrapErrors(ErrExecuteQuery, err)
+			}
+			if !res {
 				continue
 			}
 			if nil != callback {

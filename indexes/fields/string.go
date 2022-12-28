@@ -7,31 +7,31 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = (*stringIndexComputation)(nil)
+type stringComparator interface {
+	CompareValue(value string) (bool, error)
+}
+
+var _ IndexComputer = stringIndexComputation{}
 
 type stringIndexComputation struct {
 	getter *record.StringGetter
 }
 
-func (idx *stringIndexComputation) ForItem(item interface{}) interface{} {
+func (idx stringIndexComputation) ForItem(item interface{}) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx *stringIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(*comparators.StringFieldComparator).Value {
+func (idx stringIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+	for _, item := range comparator.(comparators.StringFieldComparator).Value {
 		cb(item)
 	}
 }
 
-type stringComparator interface {
-	CompareValue(value string) bool
+func (idx stringIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
+	return comparator.(comparators.StringFieldComparator).Value[0]
 }
 
-func (idx *stringIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(*comparators.StringFieldComparator).Value[0]
-}
-
-func (idx *stringIndexComputation) Compare(value interface{}, comparator where.FieldComparator) bool {
+func (idx stringIndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
 	return comparator.(stringComparator).CompareValue(value.(string))
 }
 
@@ -66,7 +66,7 @@ func (idx *stringIndexStorage) Keys() []interface{} {
 func NewStringIndex(getter *record.StringGetter) *Index {
 	return &Index{
 		Field:   getter.Field,
-		Compute: &stringIndexComputation{getter: getter},
+		Compute: stringIndexComputation{getter: getter},
 		Storage: WrapToThreadSafeStorage(&stringIndexStorage{
 			byValue: make(map[string]*storage.IDStorage),
 		}),

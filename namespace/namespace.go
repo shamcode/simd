@@ -12,8 +12,7 @@ type Namespace interface {
 	Insert(item record.Record) error
 	Delete(id int64) error
 	Upsert(item record.Record) error
-	QueryExecutor() QueryExecutor
-	Select(conditions where.Conditions) []record.Record
+	SelectForExecutor(conditions where.Conditions) ([]record.Record, error)
 }
 
 type QueryExecutor interface {

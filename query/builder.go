@@ -9,6 +9,7 @@ import (
 	"regexp"
 )
 
+// Builder is a helper for build Query
 type Builder interface {
 	MakeCopy() Builder
 
@@ -37,6 +38,8 @@ type Builder interface {
 
 	Sort(by sort.By) Builder
 
+	// OnIteration registers a callback to be called for each record before sorting and applying offset/limits
+	// but after applying WHERE conditions
 	OnIteration(cb func(item record.Record)) Builder
 
 	Query() Query
@@ -75,7 +78,7 @@ func (q *queryBuilder) Error() error {
 }
 
 func (q *queryBuilder) AddWhere(cmp where.FieldComparator) Builder {
-	q.where = append(q.where, &where.Condition{
+	q.where = append(q.where, where.Condition{
 		WithNot:      q.withNot,
 		IsOr:         q.isOr,
 		BracketLevel: 1 + q.bracketLevel,
@@ -156,110 +159,88 @@ func (q *queryBuilder) CloseBracket() Builder {
 }
 
 func (q *queryBuilder) Where(getter *record.InterfaceGetter, condition where.ComparatorType, value ...interface{}) Builder {
-	return q.AddWhere(&comparators.InterfaceFieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.InterfaceFieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereInt(getter *record.IntGetter, condition where.ComparatorType, value ...int) Builder {
-	return q.AddWhere(&comparators.IntFieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.IntFieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereInt32(getter *record.Int32Getter, condition where.ComparatorType, value ...int32) Builder {
-	return q.AddWhere(&comparators.Int32FieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.Int32FieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereInt64(getter *record.Int64Getter, condition where.ComparatorType, value ...int64) Builder {
-	return q.AddWhere(&comparators.Int64FieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.Int64FieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereString(getter *record.StringGetter, condition where.ComparatorType, value ...string) Builder {
-	return q.AddWhere(&comparators.StringFieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.StringFieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereStringRegexp(getter *record.StringGetter, value *regexp.Regexp) Builder {
-	return q.AddWhere(&comparators.StringFieldRegexpComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: where.Regexp,
-		},
+	return q.AddWhere(comparators.StringFieldRegexpComparator{
+		Cmp:    where.Regexp,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereBool(getter *record.BoolGetter, condition where.ComparatorType, value ...bool) Builder {
-	return q.AddWhere(&comparators.BoolFieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.BoolFieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereEnum8(getter *record.Enum8Getter, condition where.ComparatorType, value ...record.Enum8) Builder {
-	return q.AddWhere(&comparators.Enum8FieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.Enum8FieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereEnum16(getter *record.Enum16Getter, condition where.ComparatorType, value ...record.Enum16) Builder {
-	return q.AddWhere(&comparators.Enum16FieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.Enum16FieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereMap(getter *record.MapGetter, condition where.ComparatorType, value ...interface{}) Builder {
-	return q.AddWhere(&comparators.MapFieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.MapFieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
 }
 
 func (q *queryBuilder) WhereSet(getter *record.SetGetter, condition where.ComparatorType, value ...interface{}) Builder {
-	return q.AddWhere(&comparators.SetFieldComparator{
-		BaseFieldComparator: comparators.BaseFieldComparator{
-			Cmp: condition,
-		},
+	return q.AddWhere(comparators.SetFieldComparator{
+		Cmp:    condition,
 		Getter: getter,
 		Value:  value,
 	})
