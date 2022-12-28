@@ -88,7 +88,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 		},
 	}
 
-	qe := namespace.CreateQueryExecutor(&store)
+	qe := namespace.CreateQueryExecutor(store)
 	for _, bench := range benchmarks {
 		b.Run(bench.Name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {

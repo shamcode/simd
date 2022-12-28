@@ -243,8 +243,8 @@ func (ns *NamespaceWithIndexes) getIndexForCondition(condition where.Condition) 
 	return true, indexSize, indexes, nil
 }
 
-func CreateNamespace() NamespaceWithIndexes {
-	return NamespaceWithIndexes{
+func CreateNamespace() *NamespaceWithIndexes {
+	return &NamespaceWithIndexes{
 		logger:  log.Default(),
 		storage: storage.NewRecordsByID(),
 		byField: make(map[string]*bytype.Index),

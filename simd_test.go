@@ -555,7 +555,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		},
 	}
 
-	qe := namespace.CreateQueryExecutor(&store)
+	qe := namespace.CreateQueryExecutor(store)
 
 	for _, testCase := range testCases {
 		ctx := context.Background()
@@ -583,7 +583,7 @@ func Test_Context(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := namespace.CreateQueryExecutor(&store).FetchTotal(ctx, query.NewBuilder().Query())
+	_, err := namespace.CreateQueryExecutor(store).FetchTotal(ctx, query.NewBuilder().Query())
 
 	asserts.Equals(t, "context canceled", err.Error(), "check error")
 	asserts.Equals(t, true, errors.Is(context.Canceled, err), "error is context.Canceled")
@@ -607,7 +607,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 
 	var idsFromCallback []int
 	var idsFromCursor []int64
-	cur, err := namespace.CreateQueryExecutor(&store).FetchAll(
+	cur, err := namespace.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder().
 			WhereEnum8(userStatus, where.EQ, StatusActive).
@@ -667,7 +667,7 @@ func Test_Upsert(t *testing.T) {
 	})
 	asserts.Success(t, err)
 
-	cur, err := namespace.CreateQueryExecutor(&store).FetchAll(
+	cur, err := namespace.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder().
 			WhereInt64(userID, where.EQ, 2).
@@ -699,7 +699,7 @@ func Test_Delete(t *testing.T) {
 	asserts.Success(t, err)
 
 	var ids []int64
-	cur, err := namespace.CreateQueryExecutor(&store).FetchAll(
+	cur, err := namespace.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder().
 			Sort(sort.ByInt64IndexAsc(&byID{})).
