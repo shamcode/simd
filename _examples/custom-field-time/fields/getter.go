@@ -6,4 +6,3 @@ type TimeGetter struct {
 	Field string
 	Get   func(item interface{}) time.Time
 }
-
