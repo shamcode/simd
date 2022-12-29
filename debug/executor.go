@@ -49,7 +49,7 @@ func (e *debugExecutor) DumpQuery(query query.Query, onlyTotal bool) {
 	e.dump(result.String())
 }
 
-func WrapWithDebug(executor namespace.QueryExecutor, dump func(string)) namespace.QueryExecutor {
+func WrapQueryExecutor(executor namespace.QueryExecutor, dump func(string)) namespace.QueryExecutor {
 	return &debugExecutor{
 		executor: executor,
 		dump:     dump,

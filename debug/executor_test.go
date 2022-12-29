@@ -96,8 +96,8 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 	ns.insert(&user{ID: 4, Name: "fourth", Age: 21})
 	ns.insert(&user{ID: 5, Name: "fifth", Age: 22})
 
-	newBuilder := func() query.Builder {
-		return WrapQueryBuilderWithDebug(query.NewBuilder())
+	newBuilder := func() query.BaseQueryBuilder {
+		return WrapQueryBuilder(query.NewBuilder())
 	}
 
 	tests := []struct {
@@ -323,7 +323,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 
 	for _, test := range tests {
 		ctx := context.Background()
-		_, err := WrapWithDebug(qe, func(q string) {
+		_, err := WrapQueryExecutor(qe, func(q string) {
 			asserts.Equals(t, test.expected, q, fmt.Sprintf("query for test \"%s\"", test.name))
 		}).FetchAll(ctx, test.query)
 		asserts.Equals(t, nil, err, fmt.Sprintf("err is nil for test \"%s\"", test.name))

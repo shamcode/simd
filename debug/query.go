@@ -17,3 +17,10 @@ type debugQuery struct {
 func (dq *debugQuery) String() string {
 	return dq.queryDump
 }
+
+func NewQueryWithDumper(query query.Query, dumpString string) QueryWithDumper {
+	return &debugQuery{
+		Query:     query,
+		queryDump: dumpString,
+	}
+}
