@@ -1,5 +1,5 @@
 run_test:
-	go test -v -race ./... -cover -coverprofile=coverage.out -coverpkg=./... && echo "Tests finished with success"
+	go test -v -race  -covermode=atomic -coverprofile=coverage.out -coverpkg=./... ./... && echo "Tests finished with success"
 
 coverage:
 	go tool cover -html=coverage.out
