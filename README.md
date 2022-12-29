@@ -1,6 +1,9 @@
 simd
 =================
+![Project status](https://img.shields.io/badge/version-0.0.2-green.svg)
+[![Go Report Card](https://goreportcard.com/badge/github.com/shamcode/simd)](https://goreportcard.com/report/github.com/shamcode/simd)
 [![Coverage Status](https://coveralls.io/repos/github/shamcode/simd/badge.svg?branch=master)](https://coveralls.io/github/shamcode/simd?branch=master)
+[![GoDoc](https://godoc.org/github.com/shamcode/simd?status.svg)](https://pkg.go.dev/github.com/shamcode/simd/v0)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 simd (**S**imple **I**n **M**emory **D**atabase) &mdash; is an embeddable golang database with support for conditional queries, custom sorting and custom field types.
@@ -19,7 +22,7 @@ Usage
 ##### Examples:
 
 - [Simple](https://github.com/shamcode/simd/blob/master/_examples/common/main.go)
-- [Custom Field Type](https://github.com/shamcode/simd/blob/master/_examples/custome-field-time)
+- [Custom Field Type](https://github.com/shamcode/simd/blob/master/_examples/custom-field-time)
 
 
 Benchmarks
