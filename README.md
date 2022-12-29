@@ -1,6 +1,7 @@
 simd
 =================
 ![Project status](https://img.shields.io/badge/version-0.0.2-green.svg)
+![Build](https://github.com/shamcode/simd/actions/workflows/workflow.yml/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/shamcode/simd)](https://goreportcard.com/report/github.com/shamcode/simd)
 [![Coverage Status](https://coveralls.io/repos/github/shamcode/simd/badge.svg?branch=master)](https://coveralls.io/github/shamcode/simd?branch=master)
 [![GoDoc](https://godoc.org/github.com/shamcode/simd?status.svg)](https://pkg.go.dev/github.com/shamcode/simd/v0)
