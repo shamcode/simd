@@ -75,7 +75,7 @@ func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
 		qe := namespace.CreateQueryExecutor(simd)
 		b.Run(strconv.Itoa(usersCount)+"_simd", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				for i := 1; i < usersCount; i++ {
+				for i := 1; i < usersCount / 4; i++ {
 					cur, err := qe.FetchAll(
 						context.Background(),
 						query.NewBuilder().
@@ -99,7 +99,7 @@ func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
 		}
 		b.Run(strconv.Itoa(usersCount)+"_sqlite", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				for i := 1; i < usersCount; i++ {
+				for i := 1; i < usersCount / 4; i++ {
 					rows, err := stmt.QueryContext(context.Background(), i)
 					if nil != err {
 						b.Fatal(err)
