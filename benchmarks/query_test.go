@@ -2,9 +2,9 @@ package benchmarks
 
 import (
 	"context"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
-	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
@@ -88,7 +88,7 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 		},
 	}
 
-	qe := namespace.CreateQueryExecutor(store)
+	qe := executor.CreateQueryExecutor(store)
 	for _, bench := range benchmarks {
 		b.Run(bench.Name, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {

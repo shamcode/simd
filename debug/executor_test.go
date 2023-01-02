@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/shamcode/simd/asserts"
-	"github.com/shamcode/simd/namespace"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
@@ -319,7 +319,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 		},
 	}
 
-	qe := namespace.CreateQueryExecutor(ns)
+	qe := executor.CreateQueryExecutor(ns)
 
 	for _, test := range tests {
 		ctx := context.Background()

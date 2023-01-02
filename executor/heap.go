@@ -1,4 +1,4 @@
-package namespace
+package executor
 
 import (
 	"github.com/shamcode/simd/record"

@@ -2,20 +2,20 @@ package debug
 
 import (
 	"context"
-	"github.com/shamcode/simd/namespace"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 	"strings"
 )
 
 type QueryExecutorWithDump interface {
-	namespace.QueryExecutor
+	executor.QueryExecutor
 	DumpQuery(query query.Query, onlyTotal bool)
 }
 
-var _ namespace.QueryExecutor = (*debugExecutor)(nil)
+var _ executor.QueryExecutor = (*debugExecutor)(nil)
 
 type debugExecutor struct {
-	executor namespace.QueryExecutor
+	executor executor.QueryExecutor
 	dump     func(string)
 }
 
@@ -24,12 +24,12 @@ func (e *debugExecutor) FetchTotal(ctx context.Context, query query.Query) (int,
 	return e.executor.FetchTotal(ctx, query)
 }
 
-func (e *debugExecutor) FetchAll(ctx context.Context, query query.Query) (namespace.Iterator, error) {
+func (e *debugExecutor) FetchAll(ctx context.Context, query query.Query) (executor.Iterator, error) {
 	e.DumpQuery(query, false)
 	return e.executor.FetchAll(ctx, query)
 }
 
-func (e *debugExecutor) FetchAllAndTotal(ctx context.Context, query query.Query) (namespace.Iterator, int, error) {
+func (e *debugExecutor) FetchAllAndTotal(ctx context.Context, query query.Query) (executor.Iterator, int, error) {
 	e.DumpQuery(query, false)
 	return e.executor.FetchAllAndTotal(ctx, query)
 }
@@ -49,7 +49,7 @@ func (e *debugExecutor) DumpQuery(query query.Query, onlyTotal bool) {
 	e.dump(result.String())
 }
 
-func WrapQueryExecutor(executor namespace.QueryExecutor, dump func(string)) namespace.QueryExecutor {
+func WrapQueryExecutor(executor executor.QueryExecutor, dump func(string)) executor.QueryExecutor {
 	return &debugExecutor{
 		executor: executor,
 		dump:     dump,

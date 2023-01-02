@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
-	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
@@ -555,7 +555,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		},
 	}
 
-	qe := namespace.CreateQueryExecutor(store)
+	qe := executor.CreateQueryExecutor(store)
 
 	for _, testCase := range testCases {
 		ctx := context.Background()
@@ -583,7 +583,7 @@ func Test_Context(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
-	_, err := namespace.CreateQueryExecutor(store).FetchTotal(ctx, query.NewBuilder().Query())
+	_, err := executor.CreateQueryExecutor(store).FetchTotal(ctx, query.NewBuilder().Query())
 
 	asserts.Equals(t, "context canceled", err.Error(), "check error")
 	asserts.Equals(t, true, errors.Is(context.Canceled, err), "error is context.Canceled")
@@ -607,7 +607,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 
 	var idsFromCallback []int
 	var idsFromCursor []int64
-	cur, err := namespace.CreateQueryExecutor(store).FetchAll(
+	cur, err := executor.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder().
 			WhereEnum8(userStatus, where.EQ, StatusActive).
@@ -667,7 +667,7 @@ func Test_Upsert(t *testing.T) {
 	})
 	asserts.Success(t, err)
 
-	cur, err := namespace.CreateQueryExecutor(store).FetchAll(
+	cur, err := executor.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder().
 			WhereInt64(userID, where.EQ, 2).
@@ -699,7 +699,7 @@ func Test_Delete(t *testing.T) {
 	asserts.Success(t, err)
 
 	var ids []int64
-	cur, err := namespace.CreateQueryExecutor(store).FetchAll(
+	cur, err := executor.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder().
 			Sort(sort.ByInt64IndexAsc(&byID{})).

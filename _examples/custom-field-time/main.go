@@ -8,7 +8,7 @@ import (
 	"github.com/shamcode/simd/_examples/custom-field-time/fields/querybuilder"
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/indexes"
-	"github.com/shamcode/simd/namespace"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
@@ -42,7 +42,7 @@ func main() {
 	store := indexes.CreateNamespace()
 
 	queryBuilder := querybuilder.Create
-	queryExecutor := namespace.CreateQueryExecutor(store)
+	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
 		queryBuilder = querybuilder.WrapWithDebug(queryBuilder)

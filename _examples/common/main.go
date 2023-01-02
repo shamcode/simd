@@ -6,7 +6,7 @@ import (
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
-	"github.com/shamcode/simd/namespace"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
@@ -38,7 +38,7 @@ func main() {
 
 	store := indexes.CreateNamespace()
 	queryBuilder := query.NewBuilder
-	queryExecutor := namespace.CreateQueryExecutor(store)
+	queryExecutor := executor.CreateQueryExecutor(store)
 
 	// if debug enabled, add logging for query
 	if *debugEnabled {

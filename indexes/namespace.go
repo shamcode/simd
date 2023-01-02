@@ -3,9 +3,9 @@ package indexes
 import (
 	"errors"
 	"fmt"
+	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/bytype"
 	"github.com/shamcode/simd/indexes/storage"
-	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"log"
@@ -14,7 +14,7 @@ import (
 var ErrRecordExists = errors.New("simd: record with passed id already exists")
 
 var (
-	_ namespace.Namespace = (*NamespaceWithIndexes)(nil)
+	_ executor.Namespace = (*NamespaceWithIndexes)(nil)
 )
 
 type Logger interface {

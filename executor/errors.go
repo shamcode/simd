@@ -1,4 +1,4 @@
-package namespace
+package executor
 
 import (
 	"errors"
