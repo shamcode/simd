@@ -13,11 +13,11 @@ type enum8IndexComputation struct {
 	getter *record.Enum8Getter
 }
 
-func (idx enum8IndexComputation) ForItem(item interface{}) interface{} {
+func (idx enum8IndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item).Value()
 }
 
-func (idx enum8IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+func (idx enum8IndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
 	for _, item := range comparator.(comparators.Enum8FieldComparator).Value {
 		cb(item.Value())
 	}

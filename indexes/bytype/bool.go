@@ -13,11 +13,11 @@ type boolIndexComputation struct {
 	getter *record.BoolGetter
 }
 
-func (idx boolIndexComputation) ForItem(item interface{}) interface{} {
+func (idx boolIndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx boolIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+func (idx boolIndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
 	for _, item := range comparator.(comparators.BoolFieldComparator).Value {
 		cb(item)
 	}

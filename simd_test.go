@@ -85,7 +85,7 @@ func (c Counters) HasKey(key interface{}) bool {
 	_, ok = c[counterKey]
 	return ok
 }
-func (c Counters) HasValue(check record.Comparator) (bool, error) {
+func (c Counters) HasValue(check record.MapValueComparator) (bool, error) {
 	for _, item := range c {
 		res, err := check.Compare(item)
 		if nil != err {

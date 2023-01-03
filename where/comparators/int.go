@@ -44,6 +44,6 @@ func (fc IntFieldComparator) CompareValue(value int) (bool, error) {
 	}
 }
 
-func (fc IntFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc IntFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

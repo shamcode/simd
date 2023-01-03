@@ -29,6 +29,6 @@ func (fc SetFieldComparator) CompareValue(value record.Set) (bool, error) {
 	}
 }
 
-func (fc SetFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc SetFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

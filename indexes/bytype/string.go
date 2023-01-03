@@ -17,11 +17,11 @@ type stringIndexComputation struct {
 	getter *record.StringGetter
 }
 
-func (idx stringIndexComputation) ForItem(item interface{}) interface{} {
+func (idx stringIndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx stringIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+func (idx stringIndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
 	for _, item := range comparator.(comparators.StringFieldComparator).Value {
 		cb(item)
 	}

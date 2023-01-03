@@ -11,14 +11,14 @@ import (
 	"strings"
 )
 
-type QueryBuilderWithDump interface {
+type QueryBuilderDumper interface {
 	SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{})
 	Dump() string
 }
 
-type BaseQueryBuilderWithDump interface {
+type BaseQueryBuilderWithDumper interface {
 	query.BaseQueryBuilder
-	QueryBuilderWithDump
+	QueryBuilderDumper
 }
 
 const (
@@ -28,7 +28,7 @@ const (
 	chunkSort
 )
 
-var _ BaseQueryBuilderWithDump = (*debugQueryBuilder)(nil)
+var _ BaseQueryBuilderWithDumper = (*debugQueryBuilder)(nil)
 
 type debugQueryBuilder struct {
 	chunks    map[uint8]*strings.Builder
@@ -290,7 +290,7 @@ func (q *debugQueryBuilder) Dump() string {
 	return result.String()
 }
 
-func CreateDebugQueryBuilder() BaseQueryBuilderWithDump {
+func CreateDebugQueryBuilder() BaseQueryBuilderWithDumper {
 	return &debugQueryBuilder{
 		chunks: map[uint8]*strings.Builder{
 			chunkLimit:  {},

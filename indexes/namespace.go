@@ -1,7 +1,6 @@
 package indexes
 
 import (
-	"errors"
 	"fmt"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/bytype"
@@ -11,15 +10,7 @@ import (
 	"log"
 )
 
-var ErrRecordExists = errors.New("simd: record with passed id already exists")
-
-var (
-	_ executor.Namespace = (*NamespaceWithIndexes)(nil)
-)
-
-type Logger interface {
-	Println(...interface{})
-}
+var _ executor.Namespace = (*NamespaceWithIndexes)(nil)
 
 type NamespaceWithIndexes struct {
 	logger  Logger
@@ -43,7 +34,7 @@ func (ns *NamespaceWithIndexes) insert(item record.Record) {
 	item.ComputeFields()
 	id := item.GetID()
 	for _, idx := range ns.byField {
-		key := idx.Compute.ForItem(item)
+		key := idx.Compute.ForRecord(item)
 		records := idx.Storage.Get(key)
 		if nil == records {
 			records = storage.NewIDStorage()
@@ -60,7 +51,7 @@ func (ns *NamespaceWithIndexes) Delete(id int64) error {
 		return nil
 	}
 	for _, idx := range ns.byField {
-		records := idx.Storage.Get(idx.Compute.ForItem(item))
+		records := idx.Storage.Get(idx.Compute.ForRecord(item))
 		if nil != records {
 			records.Delete(id)
 		}
@@ -84,8 +75,8 @@ func (ns *NamespaceWithIndexes) Upsert(item record.Record) error {
 	item.ComputeFields()
 	for _, idx := range ns.byField {
 
-		oldValue := idx.Compute.ForItem(oldItem)
-		newValue := idx.Compute.ForItem(item)
+		oldValue := idx.Compute.ForRecord(oldItem)
+		newValue := idx.Compute.ForRecord(item)
 
 		if newValue == oldValue {
 
@@ -138,13 +129,13 @@ func (ns *NamespaceWithIndexes) SelectForExecutor(conditions where.Conditions) (
 			}
 		}
 
-		exists, indexSize, indexes, err := ns.getIndexForCondition(condition)
+		exists, indexSize, ids, err := ns.getIndexForCondition(condition)
 		if nil != err {
 			return nil, err
 		}
 		if !exists {
 			all := ns.storage.GetIDStorage()
-			indexes = append(indexes, all)
+			ids = append(ids, all)
 			indexSize = ns.storage.Count()
 		}
 
@@ -153,18 +144,18 @@ func (ns *NamespaceWithIndexes) SelectForExecutor(conditions where.Conditions) (
 			if hasItems {
 				switch op {
 				case union:
-					indexes = append(indexes, subLevelItems...)
+					ids = append(ids, subLevelItems...)
 					indexSize += subLevelSize
 				case intersection:
 					if subLevelSize < indexSize {
-						indexes = subLevelItems
+						ids = subLevelItems
 						indexSize = subLevelSize
 					}
 				}
 			}
 		}
 
-		byLevel.save(condition.BracketLevel, indexes, indexSize, op)
+		byLevel.save(condition.BracketLevel, ids, indexSize, op)
 		lastBracketLevel = condition.BracketLevel
 	}
 
@@ -187,18 +178,16 @@ func (ns *NamespaceWithIndexes) SetLogger(logger Logger) {
 }
 
 func (ns *NamespaceWithIndexes) getIndexForCondition(condition where.Condition) (
-	bool,
-	int,
-	[]storage.LockableIDStorage,
-	error,
+	indexExists bool,
+	count int,
+	ids []storage.LockableIDStorage,
+	err error,
 ) {
-	var indexes []storage.LockableIDStorage
-	indexSize := 0
-
 	index, exists := ns.byField[condition.Cmp.GetField()]
 	if !exists {
-		return false, indexSize, indexes, nil
+		return
 	}
+	indexExists = true
 
 	cmpType := condition.Cmp.GetType()
 	if cmpType == where.EQ && !condition.WithNot {
@@ -206,41 +195,42 @@ func (ns *NamespaceWithIndexes) getIndexForCondition(condition where.Condition) 
 		// A == '1'
 		itemsByValue := index.Storage.Get(index.Compute.ForComparatorFirstValue(condition.Cmp))
 		if nil != itemsByValue {
-			indexSize = itemsByValue.Count()
-			indexes = append(indexes, itemsByValue)
+			count = itemsByValue.Count()
+			ids = append(ids, itemsByValue)
 		}
-		return true, indexSize, indexes, nil
+		return
 	}
 
 	if cmpType == where.InArray && !condition.WithNot {
 
 		// A IN ('1', '2', '3')
-		index.Compute.ForComparatorAllValues(condition.Cmp, func(conditionValue interface{}) {
+		index.Compute.EachComparatorValues(condition.Cmp, func(conditionValue interface{}) {
 			itemsByValue := index.Storage.Get(conditionValue)
 			if nil != itemsByValue {
-				count := itemsByValue.Count()
-				if count > 0 {
-					indexSize += count
-					indexes = append(indexes, itemsByValue)
+				countForValue := itemsByValue.Count()
+				if countForValue > 0 {
+					count += countForValue
+					ids = append(ids, itemsByValue)
 				}
 			}
 		})
-		return true, indexSize, indexes, nil
+		return
 	}
 
 	keys := index.Storage.Keys()
 	for _, key := range keys {
-		res, err := index.Compute.Compare(key, condition.Cmp)
-		if nil != err {
-			return false, 0, nil, err
+		resultForValue, errorForValue := index.Compute.Compare(key, condition.Cmp)
+		if nil != errorForValue {
+			err = errorForValue
+			return
 		}
-		if condition.WithNot != res {
-			indexSize += index.Storage.Count(key)
-			indexes = append(indexes, index.Storage.Get(key))
+		if condition.WithNot != resultForValue {
+			count += index.Storage.Count(key)
+			ids = append(ids, index.Storage.Get(key))
 		}
 	}
 
-	return true, indexSize, indexes, nil
+	return
 }
 
 func CreateNamespace() *NamespaceWithIndexes {

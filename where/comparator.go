@@ -19,7 +19,7 @@ const (
 )
 
 type FieldComparator interface {
-	record.Comparator
 	GetField() string
 	GetType() ComparatorType
+	Compare(item record.Record) (bool, error)
 }

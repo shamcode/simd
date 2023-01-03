@@ -13,11 +13,11 @@ type int64IndexComputation struct {
 	getter *record.Int64Getter
 }
 
-func (idx int64IndexComputation) ForItem(item interface{}) interface{} {
+func (idx int64IndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx int64IndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+func (idx int64IndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
 	for _, item := range comparator.(comparators.Int64FieldComparator).Value {
 		cb(item)
 	}

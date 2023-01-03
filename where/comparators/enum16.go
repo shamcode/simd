@@ -36,6 +36,6 @@ func (fc Enum16FieldComparator) CompareValue(value uint16) (bool, error) {
 	}
 }
 
-func (fc Enum16FieldComparator) Compare(item interface{}) (bool, error) {
+func (fc Enum16FieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item).Value())
 }

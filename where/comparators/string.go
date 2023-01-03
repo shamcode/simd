@@ -48,7 +48,7 @@ func (fc StringFieldComparator) CompareValue(value string) (bool, error) {
 	}
 }
 
-func (fc StringFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc StringFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
@@ -76,6 +76,6 @@ func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
 	}
 }
 
-func (fc StringFieldRegexpComparator) Compare(item interface{}) (bool, error) {
+func (fc StringFieldRegexpComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

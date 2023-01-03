@@ -5,6 +5,13 @@ import (
 	"sync"
 )
 
+type Storage interface {
+	Get(key interface{}) *storage.IDStorage
+	Set(key interface{}, records *storage.IDStorage)
+	Count(key interface{}) int
+	Keys() []interface{}
+}
+
 var _ Storage = (*rwStorage)(nil)
 
 // rwStorage is a thread safe wrapper for Storage

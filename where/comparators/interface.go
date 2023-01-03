@@ -36,6 +36,6 @@ func (fc InterfaceFieldComparator) CompareValue(value interface{}) (bool, error)
 	}
 }
 
-func (fc InterfaceFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc InterfaceFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

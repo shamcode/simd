@@ -5,6 +5,7 @@ import (
 	"github.com/shamcode/simd/_examples/custom-field-time/fields/comparators"
 	"github.com/shamcode/simd/indexes/bytype"
 	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"time"
 )
@@ -15,11 +16,11 @@ type timeIndexComputation struct {
 	getter *fields.TimeGetter
 }
 
-func (idx timeIndexComputation) ForItem(item interface{}) interface{} {
+func (idx timeIndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item).Unix()
 }
 
-func (idx timeIndexComputation) ForComparatorAllValues(comparator where.FieldComparator, cb func(interface{})) {
+func (idx timeIndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
 	for _, item := range comparator.(comparators.TimeFieldComparator).Value {
 		cb(item.Unix())
 	}

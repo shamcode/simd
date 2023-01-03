@@ -29,6 +29,6 @@ func (fc BoolFieldComparator) CompareValue(value bool) (bool, error) {
 	}
 }
 
-func (fc BoolFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc BoolFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

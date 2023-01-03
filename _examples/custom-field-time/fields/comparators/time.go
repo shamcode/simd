@@ -3,6 +3,7 @@ package comparators
 import (
 	"fmt"
 	"github.com/shamcode/simd/_examples/custom-field-time/fields"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
 	"time"
@@ -39,6 +40,6 @@ func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
 	}
 }
 
-func (fc TimeFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc TimeFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

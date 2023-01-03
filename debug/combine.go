@@ -11,7 +11,7 @@ import (
 var _ query.BaseQueryBuilder = (*combineBuilder)(nil)
 
 type combineBuilder struct {
-	debug BaseQueryBuilderWithDump
+	debug BaseQueryBuilderWithDumper
 	base  query.BaseQueryBuilder
 }
 
@@ -135,7 +135,7 @@ func (q *combineBuilder) WhereSet(getter *record.SetGetter, condition where.Comp
 
 func (q *combineBuilder) MakeCopy() query.BaseQueryBuilder {
 	return &combineBuilder{
-		debug: q.debug.MakeCopy().(BaseQueryBuilderWithDump),
+		debug: q.debug.MakeCopy().(BaseQueryBuilderWithDumper),
 		base:  q.base.MakeCopy(),
 	}
 }

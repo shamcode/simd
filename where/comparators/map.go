@@ -23,10 +23,10 @@ func (fc MapFieldComparator) GetField() string {
 func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
 	switch fc.Cmp {
 	case where.MapHasValue:
-		cmp, ok := fc.Value[0].(record.Comparator)
+		cmp, ok := fc.Value[0].(record.MapValueComparator)
 		if !ok {
 			return false, fmt.Errorf(
-				"%w: %d, field = %s, value type = %T, expected type = record.Comparator",
+				"%w: %d, field = %s, value type = %T, expected type = record.MapValueComparator",
 				ErrFailCastType,
 				fc.Cmp,
 				fc.GetField(),
@@ -41,6 +41,6 @@ func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
 	}
 }
 
-func (fc MapFieldComparator) Compare(item interface{}) (bool, error) {
+func (fc MapFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }

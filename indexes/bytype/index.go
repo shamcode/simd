@@ -1,21 +1,14 @@
 package bytype
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )
 
-type Storage interface {
-	Get(key interface{}) *storage.IDStorage
-	Set(key interface{}, records *storage.IDStorage)
-	Count(key interface{}) int
-	Keys() []interface{}
-}
-
 type IndexComputer interface {
-	ForItem(item interface{}) interface{}
-	ForComparatorAllValues(comparator where.FieldComparator, cb func(index interface{}))
+	ForRecord(item record.Record) interface{}
 	ForComparatorFirstValue(comparator where.FieldComparator) interface{}
+	EachComparatorValues(comparator where.FieldComparator, cb func(index interface{}))
 	Compare(value interface{}, comparator where.FieldComparator) (bool, error)
 }
 

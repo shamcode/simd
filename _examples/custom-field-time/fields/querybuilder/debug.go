@@ -15,7 +15,7 @@ var _ QueryBuilder = (*debugQueryBuilder)(nil)
 
 type debugQueryBuilder struct {
 	builder QueryBuilder
-	debug   debug.BaseQueryBuilderWithDump
+	debug   debug.BaseQueryBuilderWithDumper
 }
 
 func (d *debugQueryBuilder) Query() query.Query {
@@ -28,7 +28,7 @@ func (d *debugQueryBuilder) Query() query.Query {
 func (d *debugQueryBuilder) MakeCopy() QueryBuilder {
 	return &debugQueryBuilder{
 		builder: d.MakeCopy(),
-		debug:   d.debug.MakeCopy().(debug.BaseQueryBuilderWithDump),
+		debug:   d.debug.MakeCopy().(debug.BaseQueryBuilderWithDumper),
 	}
 }
 

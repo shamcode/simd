@@ -44,6 +44,6 @@ func (fc Int64FieldComparator) CompareValue(value int64) (bool, error) {
 	}
 }
 
-func (fc Int64FieldComparator) Compare(item interface{}) (bool, error) {
+func (fc Int64FieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
