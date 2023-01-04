@@ -129,11 +129,11 @@ func (ns *NamespaceWithIndexes) SelectForExecutor(conditions where.Conditions) (
 			}
 		}
 
-		exists, indexSize, ids, err := ns.getIndexForCondition(condition)
+		indexExists, indexSize, ids, err := ns.selectFromIndexForCondition(condition)
 		if nil != err {
 			return nil, err
 		}
-		if !exists {
+		if !indexExists {
 			all := ns.storage.GetIDStorage()
 			ids = append(ids, all)
 			indexSize = ns.storage.Count()
@@ -177,46 +177,55 @@ func (ns *NamespaceWithIndexes) SetLogger(logger Logger) {
 	ns.logger = logger
 }
 
-func (ns *NamespaceWithIndexes) getIndexForCondition(condition where.Condition) (
+func (ns *NamespaceWithIndexes) selectFromIndexForCondition(condition where.Condition) (
 	indexExists bool,
 	count int,
 	ids []storage.LockableIDStorage,
 	err error,
 ) {
-	index, exists := ns.byField[condition.Cmp.GetField()]
-	if !exists {
+	var index *bytype.Index
+	index, indexExists = ns.byField[condition.Cmp.GetField()]
+	if !indexExists {
 		return
 	}
-	indexExists = true
-
-	cmpType := condition.Cmp.GetType()
-	if cmpType == where.EQ && !condition.WithNot {
-
-		// A == '1'
-		itemsByValue := index.Storage.Get(index.Compute.ForComparatorFirstValue(condition.Cmp))
-		if nil != itemsByValue {
-			count = itemsByValue.Count()
-			ids = append(ids, itemsByValue)
+	if !condition.WithNot {
+		switch condition.Cmp.GetType() {
+		case where.EQ: // A == '1'
+			count, ids = ns.selectFromIndexForEqual(index, condition)
+			return
+		case where.InArray: // A IN ('1', '2', '3')
+			count, ids = ns.selectFromIndexForInArray(index, condition)
+			return
 		}
-		return
 	}
+	count, ids, err = ns.selectFromIndexForOther(index, condition)
+	return
+}
 
-	if cmpType == where.InArray && !condition.WithNot {
+func (ns *NamespaceWithIndexes) selectFromIndexForEqual(index *bytype.Index, condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+	itemsByValue := index.Storage.Get(index.Compute.ForComparatorFirstValue(condition.Cmp))
+	if nil != itemsByValue {
+		count = itemsByValue.Count()
+		ids = append(ids, itemsByValue)
+	}
+	return
+}
 
-		// A IN ('1', '2', '3')
-		index.Compute.EachComparatorValues(condition.Cmp, func(conditionValue interface{}) {
-			itemsByValue := index.Storage.Get(conditionValue)
-			if nil != itemsByValue {
-				countForValue := itemsByValue.Count()
-				if countForValue > 0 {
-					count += countForValue
-					ids = append(ids, itemsByValue)
-				}
+func (ns *NamespaceWithIndexes) selectFromIndexForInArray(index *bytype.Index, condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+	index.Compute.EachComparatorValues(condition.Cmp, func(conditionValue interface{}) {
+		itemsByValue := index.Storage.Get(conditionValue)
+		if nil != itemsByValue {
+			countForValue := itemsByValue.Count()
+			if countForValue > 0 {
+				count += countForValue
+				ids = append(ids, itemsByValue)
 			}
-		})
-		return
-	}
+		}
+	})
+	return
+}
 
+func (ns *NamespaceWithIndexes) selectFromIndexForOther(index *bytype.Index, condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
 	keys := index.Storage.Keys()
 	for _, key := range keys {
 		resultForValue, errorForValue := index.Compute.Compare(key, condition.Cmp)
@@ -229,7 +238,6 @@ func (ns *NamespaceWithIndexes) getIndexForCondition(condition where.Condition) 
 			ids = append(ids, index.Storage.Get(key))
 		}
 	}
-
 	return
 }
 

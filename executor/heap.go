@@ -32,16 +32,6 @@ func (h *binaryHeap) Push(item record.Record) {
 	h.up(len(h.records) - 1)
 }
 
-func (h *binaryHeap) Pop() record.Record {
-	old := h.records
-	n := len(old) - 1
-	h.swap(0, n)
-	h.down(0, n)
-	x := old[n]
-	h.records = old[0:n]
-	return x
-}
-
 // Remove removes and returns the element at index i from the binaryHeap.
 // The complexity is O(log n) where n = h.Len().
 func (h *binaryHeap) Remove(i int) record.Record {
