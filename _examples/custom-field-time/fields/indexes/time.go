@@ -17,7 +17,7 @@ type timeIndexComputation struct {
 }
 
 func (idx timeIndexComputation) ForRecord(item record.Record) interface{} {
-	return idx.getter.Get(item).Unix()
+	return idx.getter.Get(item).UnixNano()
 }
 
 func (idx timeIndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
@@ -31,7 +31,7 @@ func (idx timeIndexComputation) ForComparatorFirstValue(comparator where.FieldCo
 }
 
 func (idx timeIndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
-	return comparator.(comparators.TimeFieldComparator).CompareValue(time.Unix(value.(int64), 0))
+	return comparator.(comparators.TimeFieldComparator).CompareValue(time.Unix( 0, value.(int64)))
 }
 
 var _ bytype.Storage = (*timeIndexStorage)(nil)
