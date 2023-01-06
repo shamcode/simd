@@ -52,6 +52,14 @@ func (fc StringFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
+func (fc StringFieldComparator) Values() []interface{} {
+	values := make([]interface{}, len(fc.Value))
+	for i, v := range fc.Value {
+		values[i] = v
+	}
+	return values
+}
+
 // StringFieldRegexpComparator is a special comparator for handling Regexp
 type StringFieldRegexpComparator struct {
 	Cmp    where.ComparatorType
@@ -78,4 +86,8 @@ func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
 
 func (fc StringFieldRegexpComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
+}
+
+func (fc StringFieldRegexpComparator) Values() []interface{} {
+	return []interface{}{fc.Value}
 }

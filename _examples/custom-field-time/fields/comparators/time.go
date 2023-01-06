@@ -43,3 +43,11 @@ func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
 func (fc TimeFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
+
+func (fc TimeFieldComparator) Values() []interface{} {
+	values := make([]interface{}, len(fc.Value))
+	for i, v := range fc.Value {
+		values[i] = v
+	}
+	return values
+}

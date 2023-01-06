@@ -71,10 +71,10 @@ func main() {
 		}
 	}
 
-	q := queryBuilder().
-		WhereInt64(id, where.GT, 1).
-		Sort(sort.ByStringAsc(name)).
-		Query()
+	q := queryBuilder(
+		query.WhereInt64(id, where.GT, 1),
+		query.Sort(sort.ByStringAsc(name)),
+	).Query()
 
 	ctx := context.Background()
 	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)

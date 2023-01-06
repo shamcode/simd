@@ -7,8 +7,9 @@ import (
 	indexesByType "github.com/shamcode/simd/_examples/custom-field-time/fields/indexes"
 	"github.com/shamcode/simd/_examples/custom-field-time/fields/querybuilder"
 	"github.com/shamcode/simd/debug"
-	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/executor"
+	"github.com/shamcode/simd/indexes"
+	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
@@ -41,11 +42,11 @@ func main() {
 
 	store := indexes.CreateNamespace()
 
-	queryBuilder := querybuilder.Create
+	queryBuilder := query.NewBuilder
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
-		queryBuilder = querybuilder.WrapWithDebug(queryBuilder)
+		queryBuilder = debug.WrapCreateQueryBuilder(queryBuilder)
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -73,10 +74,10 @@ func main() {
 		}
 	}
 
-	q := queryBuilder().
-		WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local)).
-		Sort(sort.ByInt64IndexAsc(&byID{})).
-		Query()
+	q := queryBuilder(
+		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local)),
+		query.Sort(sort.ByInt64IndexAsc(&byID{})),
+	).Query()
 
 	ctx := context.Background()
 	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)

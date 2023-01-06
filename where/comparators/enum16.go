@@ -39,3 +39,11 @@ func (fc Enum16FieldComparator) CompareValue(value uint16) (bool, error) {
 func (fc Enum16FieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item).Value())
 }
+
+func (fc Enum16FieldComparator) Values() []interface{} {
+	values := make([]interface{}, len(fc.Value))
+	for i, v := range fc.Value {
+		values[i] = v
+	}
+	return values
+}

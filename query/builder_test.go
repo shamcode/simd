@@ -18,57 +18,57 @@ var userID = &record.Int64Getter{
 
 func TestBuilderErrors(t *testing.T) {
 	testCases := []struct {
-		query         Query
-		expectedError string
+		builderOptions []BuilderOption
+		expectedError  string
 	}{
 		{
-			query: NewBuilder().
-				Or().
-				WhereInt64(userID, where.EQ, 1).
-				WhereInt64(userID, where.EQ, 2).
-				Query(),
+			builderOptions: []BuilderOption{
+				Or(),
+				WhereInt64(userID, where.EQ, 1),
+				WhereInt64(userID, where.EQ, 2),
+			},
 			expectedError: "1 error occurred:\n\t* .Or() before any condition not supported, add any condition before .Or()\n\n",
 		},
 		{
-			query: NewBuilder().
-				Not().
-				OpenBracket().
-				WhereInt64(userID, where.EQ, 1).
-				WhereInt64(userID, where.EQ, 2).
-				CloseBracket().
-				Query(),
+			builderOptions: []BuilderOption{
+				Not(),
+				OpenBracket(),
+				WhereInt64(userID, where.EQ, 1),
+				WhereInt64(userID, where.EQ, 2),
+				CloseBracket(),
+			},
 			expectedError: "1 error occurred:\n\t* .Not().OpenBracket() not supported\n\n",
 		},
 		{
-			query: NewBuilder().
-				OpenBracket().
-				WhereInt64(userID, where.EQ, 1).
-				WhereInt64(userID, where.EQ, 2).
-				CloseBracket().
-				CloseBracket().
-				Query(),
+			builderOptions: []BuilderOption{
+				OpenBracket(),
+				WhereInt64(userID, where.EQ, 1),
+				WhereInt64(userID, where.EQ, 2),
+				CloseBracket(),
+				CloseBracket(),
+			},
 			expectedError: "1 error occurred:\n\t* close bracket without open\n\n",
 		},
 		{
-			query: NewBuilder().
-				OpenBracket().
-				WhereInt64(userID, where.EQ, 1).
-				WhereInt64(userID, where.EQ, 2).
-				CloseBracket().
-				OpenBracket().
-				Query(),
+			builderOptions: []BuilderOption{
+				OpenBracket(),
+				WhereInt64(userID, where.EQ, 1),
+				WhereInt64(userID, where.EQ, 2),
+				CloseBracket(),
+				OpenBracket(),
+			},
 			expectedError: "1 error occurred:\n\t* invalid bracket balance: has not closed bracket\n\n",
 		},
 		{
-			query: NewBuilder().
-				Not().
-				Or().
-				OpenBracket().
-				WhereInt64(userID, where.EQ, 1).
-				WhereInt64(userID, where.EQ, 2).
-				CloseBracket().
-				OpenBracket().
-				Query(),
+			builderOptions: []BuilderOption{
+				Not(),
+				Or(),
+				OpenBracket(),
+				WhereInt64(userID, where.EQ, 1),
+				WhereInt64(userID, where.EQ, 2),
+				CloseBracket(),
+				OpenBracket(),
+			},
 			expectedError: "3 errors occurred:" +
 				"\n\t* .Or() before any condition not supported, add any condition before .Or()" +
 				"\n\t* .Not().OpenBracket() not supported" +
@@ -76,6 +76,7 @@ func TestBuilderErrors(t *testing.T) {
 		},
 	}
 	for _, testCase := range testCases {
-		asserts.Equals(t, testCase.expectedError, testCase.query.Error().Error(), "check expected error")
+		err := NewBuilder(testCase.builderOptions...).Query().Error().Error()
+		asserts.Equals(t, testCase.expectedError, err, "check expected error")
 	}
 }

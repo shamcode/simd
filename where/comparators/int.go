@@ -47,3 +47,11 @@ func (fc IntFieldComparator) CompareValue(value int) (bool, error) {
 func (fc IntFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
+
+func (fc IntFieldComparator) Values() []interface{} {
+	values := make([]interface{}, len(fc.Value))
+	for i, v := range fc.Value {
+		values[i] = v
+	}
+	return values
+}

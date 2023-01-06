@@ -78,9 +78,9 @@ func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
 				for i := 1; i < usersCount/4; i++ {
 					cur, err := qe.FetchAll(
 						context.Background(),
-						query.NewBuilder().
-							WhereInt64(userID, where.EQ, int64(i)).
-							Query(),
+						query.NewBuilder(
+							query.WhereInt64(userID, where.EQ, int64(i)),
+						).Query(),
 					)
 					if nil != err {
 						b.Fatalf("query: %s", err)

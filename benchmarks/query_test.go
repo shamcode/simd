@@ -38,53 +38,53 @@ func Benchmark_FetchAllAndTotal(b *testing.B) {
 	}{
 		{
 			Name:  "is_online = true",
-			Query: query.NewBuilder().WhereBool(userIsOnline, where.EQ, true).Query(),
+			Query: query.NewBuilder(query.WhereBool(userIsOnline, where.EQ, true)).Query(),
 		},
 		{
 			Name: "is_online = true offset 1000 limit 100",
-			Query: query.NewBuilder().
-				WhereBool(userIsOnline, where.EQ, true).
-				Offset(1000).
-				Limit(100).
-				Query(),
+			Query: query.NewBuilder(
+				query.WhereBool(userIsOnline, where.EQ, true),
+				query.Offset(1000),
+				query.Limit(100),
+			).Query(),
 		},
 		{
 			Name:  "id > 1000",
-			Query: query.NewBuilder().WhereInt64(userID, where.GT, 1000).Query(),
+			Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 1000)).Query(),
 		},
 		{
 			Name: "id > 1000 limit 100 asc",
-			Query: query.NewBuilder().
-				WhereInt64(userID, where.GT, 1000).
-				Limit(100).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.GT, 1000),
+				query.Limit(100),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 		},
 		{
 			Name: "id > 1000 limit 100 desc",
-			Query: query.NewBuilder().
-				WhereInt64(userID, where.GT, 1000).
-				Limit(100).
-				Sort(sort.ByInt64IndexDesc(&byID{})).
-				Query(),
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.GT, 1000),
+				query.Limit(100),
+				query.Sort(sort.ByInt64IndexDesc(&byID{})),
+			).Query(),
 		},
 		{
 			Name: "id > 1000 and is_online = true and status = ACTIVE",
-			Query: query.NewBuilder().
-				WhereInt64(userID, where.GT, 1000).
-				WhereBool(userIsOnline, where.EQ, true).
-				WhereEnum8(userStatus, where.EQ, StatusActive).
-				Query(),
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.GT, 1000),
+				query.WhereBool(userIsOnline, where.EQ, true),
+				query.WhereEnum8(userStatus, where.EQ, StatusActive),
+			).Query(),
 		},
 		{
 			Name: "id > 1000 and is_online = true and status = ACTIVE limit 100 desc",
-			Query: query.NewBuilder().
-				WhereInt64(userID, where.GT, 1000).
-				WhereBool(userIsOnline, where.EQ, true).
-				WhereEnum8(userStatus, where.EQ, StatusActive).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Limit(100).
-				Query(),
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.GT, 1000),
+				query.WhereBool(userIsOnline, where.EQ, true),
+				query.WhereEnum8(userStatus, where.EQ, StatusActive),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Limit(100),
+			).Query(),
 		},
 	}
 

@@ -1,0 +1,20 @@
+package querybuilder
+
+import (
+	"github.com/shamcode/simd/_examples/custom-field-time/fields"
+	"github.com/shamcode/simd/_examples/custom-field-time/fields/comparators"
+	"github.com/shamcode/simd/query"
+	"github.com/shamcode/simd/where"
+	"time"
+)
+
+// WhereTime add condition for check field with time.Time type
+func WhereTime(getter *fields.TimeGetter, condition where.ComparatorType, value ...time.Time) query.BuilderOption {
+	return query.AddWhereOption{
+		Cmp: comparators.TimeFieldComparator{
+			Cmp:    condition,
+			Getter: getter,
+			Value:  value,
+		},
+	}
+}

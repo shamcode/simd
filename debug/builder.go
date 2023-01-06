@@ -6,19 +6,14 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"regexp"
 	"strconv"
 	"strings"
 )
 
-type QueryBuilderDumper interface {
+type QueryBuilderWithDumper interface {
+	query.Builder
 	SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{})
 	Dump() string
-}
-
-type BaseQueryBuilderWithDumper interface {
-	query.BaseQueryBuilder
-	QueryBuilderDumper
 }
 
 const (
@@ -28,7 +23,7 @@ const (
 	chunkSort
 )
 
-var _ BaseQueryBuilderWithDumper = (*debugQueryBuilder)(nil)
+var _ QueryBuilderWithDumper = (*debugQueryBuilder)(nil)
 
 type debugQueryBuilder struct {
 	chunks    map[uint8]*strings.Builder
@@ -37,35 +32,27 @@ type debugQueryBuilder struct {
 	isOr      bool
 }
 
-func (q *debugQueryBuilder) OnIteration(_ func(item record.Record)) query.BaseQueryBuilder {
-	return q
-}
-
-func (q *debugQueryBuilder) Limit(limitItems int) query.BaseQueryBuilder {
+func (q *debugQueryBuilder) Limit(limitItems int) {
 	w := q.chunks[chunkLimit]
 	w.WriteString("LIMIT ")
 	w.WriteString(strconv.Itoa(limitItems))
-	return q
 }
 
-func (q *debugQueryBuilder) Offset(startOffset int) query.BaseQueryBuilder {
+func (q *debugQueryBuilder) Offset(startOffset int) {
 	w := q.chunks[chunkOffset]
 	w.WriteString("OFFSET ")
 	w.WriteString(strconv.Itoa(startOffset))
-	return q
 }
 
-func (q *debugQueryBuilder) Or() query.BaseQueryBuilder {
-	q.isOr = true
-	return q
-}
-
-func (q *debugQueryBuilder) Not() query.BaseQueryBuilder {
+func (q *debugQueryBuilder) Not() {
 	q.withNot = !q.withNot
-	return q
 }
 
-func (q *debugQueryBuilder) OpenBracket() query.BaseQueryBuilder {
+func (q *debugQueryBuilder) Or() {
+	q.isOr = true
+}
+
+func (q *debugQueryBuilder) OpenBracket() {
 	w := q.chunks[chunkWhere]
 	if q.requireOp {
 		if q.isOr {
@@ -76,13 +63,51 @@ func (q *debugQueryBuilder) OpenBracket() query.BaseQueryBuilder {
 	}
 	w.WriteString("(")
 	q.requireOp = false
-	return q
 }
 
-func (q *debugQueryBuilder) CloseBracket() query.BaseQueryBuilder {
+func (q *debugQueryBuilder) CloseBracket() {
 	q.chunks[chunkWhere].WriteString(")")
 	q.requireOp = true
-	return q
+}
+func (q *debugQueryBuilder) AddWhere(cmp where.FieldComparator) {
+	q.SaveWhereForDump(cmp.GetField(), cmp.GetType(), cmp.Values()...)
+	q.withNot = false
+	q.isOr = false
+}
+
+func (q *debugQueryBuilder) Sort(sortBy sort.By) {
+	w := q.chunks[chunkSort]
+	if w.Len() > 0 {
+		w.WriteString(", ")
+	}
+	w.WriteString(sortBy.String())
+}
+
+func (q *debugQueryBuilder) OnIteration(_ func(item record.Record)) {
+}
+
+func (q *debugQueryBuilder) Append(options ...query.BuilderOption) {
+	for _, opt := range options {
+		opt.Apply(q)
+	}
+}
+
+func (q *debugQueryBuilder) MakeCopy() query.Builder {
+	chunks := make(map[uint8]*strings.Builder, len(q.chunks))
+	for key := range q.chunks {
+		chunks[key] = &strings.Builder{}
+		chunks[key].WriteString(q.chunks[key].String())
+	}
+	return &debugQueryBuilder{
+		chunks:    chunks,
+		requireOp: q.requireOp,
+		withNot:   q.withNot,
+		isOr:      q.isOr,
+	}
+}
+
+func (q *debugQueryBuilder) Query() query.Query {
+	return nil
 }
 
 func (q *debugQueryBuilder) SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{}) {
@@ -149,126 +174,6 @@ func (q *debugQueryBuilder) SaveWhereForDump(field string, condition where.Compa
 	q.isOr = false
 }
 
-func (q *debugQueryBuilder) AddWhere(_ where.FieldComparator) query.BaseQueryBuilder {
-	q.withNot = false
-	q.isOr = false
-	return q
-}
-
-func (q *debugQueryBuilder) Where(getter *record.InterfaceGetter, condition where.ComparatorType, value ...interface{}) query.BaseQueryBuilder {
-	q.SaveWhereForDump(getter.Field, condition, value)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereInt(getter *record.IntGetter, condition where.ComparatorType, value ...int) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereInt32(getter *record.Int32Getter, condition where.ComparatorType, value ...int32) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereInt64(getter *record.Int64Getter, condition where.ComparatorType, value ...int64) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereString(getter *record.StringGetter, condition where.ComparatorType, value ...string) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereStringRegexp(getter *record.StringGetter, value *regexp.Regexp) query.BaseQueryBuilder {
-	q.SaveWhereForDump(getter.Field, where.Regexp, []interface{}{value})
-	return q
-}
-
-func (q *debugQueryBuilder) WhereBool(getter *record.BoolGetter, condition where.ComparatorType, value ...bool) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereEnum8(getter *record.Enum8Getter, condition where.ComparatorType, value ...record.Enum8) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereEnum16(getter *record.Enum16Getter, condition where.ComparatorType, value ...record.Enum16) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	for i := range value {
-		items[i] = value[i]
-	}
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereMap(getter *record.MapGetter, condition where.ComparatorType, value ...interface{}) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	copy(items, value)
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) WhereSet(getter *record.SetGetter, condition where.ComparatorType, value ...interface{}) query.BaseQueryBuilder {
-	items := make([]interface{}, len(value))
-	copy(items, value)
-	q.SaveWhereForDump(getter.Field, condition, items...)
-	return q
-}
-
-func (q *debugQueryBuilder) MakeCopy() query.BaseQueryBuilder {
-	chunks := make(map[uint8]*strings.Builder, len(q.chunks))
-	for key := range q.chunks {
-		chunks[key] = &strings.Builder{}
-		chunks[key].WriteString(q.chunks[key].String())
-	}
-	return &debugQueryBuilder{
-		chunks:    chunks,
-		requireOp: q.requireOp,
-		withNot:   q.withNot,
-		isOr:      q.isOr,
-	}
-}
-
-func (q *debugQueryBuilder) Sort(sortBy sort.By) query.BaseQueryBuilder {
-	w := q.chunks[chunkSort]
-	if w.Len() > 0 {
-		w.WriteString(", ")
-	}
-	w.WriteString(sortBy.String())
-	return q
-}
-
-func (q *debugQueryBuilder) Query() query.Query {
-	return nil
-}
-
 func (q *debugQueryBuilder) Dump() string {
 	var result strings.Builder
 	if q.chunks[chunkWhere].Len() > 0 {
@@ -290,8 +195,8 @@ func (q *debugQueryBuilder) Dump() string {
 	return result.String()
 }
 
-func CreateDebugQueryBuilder() BaseQueryBuilderWithDumper {
-	return &debugQueryBuilder{
+func CreateDebugQueryBuilder(options ...query.BuilderOption) QueryBuilderWithDumper {
+	qb := &debugQueryBuilder{
 		chunks: map[uint8]*strings.Builder{
 			chunkLimit:  {},
 			chunkOffset: {},
@@ -299,4 +204,8 @@ func CreateDebugQueryBuilder() BaseQueryBuilderWithDumper {
 			chunkSort:   {},
 		},
 	}
+	for _, opt := range options {
+		opt.Apply(qb)
+	}
+	return qb
 }

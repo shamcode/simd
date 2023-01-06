@@ -96,9 +96,7 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 	ns.insert(&user{ID: 4, Name: "fourth", Age: 21})
 	ns.insert(&user{ID: 5, Name: "fifth", Age: 22})
 
-	newBuilder := func() query.BaseQueryBuilder {
-		return WrapQueryBuilder(query.NewBuilder())
-	}
+	newBuilder := WrapCreateQueryBuilder(query.NewBuilder)
 
 	tests := []struct {
 		name     string
@@ -107,214 +105,240 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 	}{
 		{
 			name:     "order by id asc",
-			query:    query.NewBuilder().Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
+			query:    query.NewBuilder(query.Sort(sort.ByInt64IndexAsc(&byID{}))).Query(),
 			expected: "SELECT *, COUNT(*) <Query dont implement QueryWithDumper interface, check QueryBuilder>",
 		},
 		{
 			name:     "order by id asc",
-			query:    newBuilder().Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
+			query:    newBuilder(query.Sort(sort.ByInt64IndexAsc(&byID{}))).Query(),
 			expected: "SELECT *, COUNT(*)  ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name:     "order by id desc",
-			query:    newBuilder().Sort(sort.ByInt64IndexDesc(&byID{})).Query(),
+			query:    newBuilder(query.Sort(sort.ByInt64IndexDesc(&byID{}))).Query(),
 			expected: "SELECT *, COUNT(*)  ORDER BY &debug.byID{} DESC",
 		},
 		{
 			name:     "where id = int64(3)",
-			query:    newBuilder().WhereInt64(id, where.EQ, 3).Query(),
+			query:    newBuilder(query.WhereInt64(id, where.EQ, 3)).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 3",
 		},
 		{
-			name:     "where id = int64(3) and age == int(20)",
-			query:    newBuilder().WhereInt64(id, where.EQ, 3).WhereInt(age, where.EQ, 20).Query(),
+			name: "where id = int64(3) and age == int(20)",
+			query: newBuilder(
+				query.WhereInt64(id, where.EQ, 3),
+				query.WhereInt(age, where.EQ, 20),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 3 AND age = 20",
 		},
 		{
-			name:     "where id = int64(3) and age == int(18)",
-			query:    newBuilder().WhereInt64(id, where.EQ, 3).WhereInt(age, where.EQ, 18).Query(),
+			name: "where id = int64(3) and age == int(18)",
+			query: newBuilder(
+				query.WhereInt64(id, where.EQ, 3),
+				query.WhereInt(age, where.EQ, 18),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 3 AND age = 18",
 		},
 		{
-			name:     "where age > 18 and age < 22",
-			query:    newBuilder().WhereInt(age, where.GT, 18).WhereInt(age, where.LT, 22).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
+			name: "where age > 18 and age < 22",
+			query: newBuilder(
+				query.WhereInt(age, where.GT, 18),
+				query.WhereInt(age, where.LT, 22),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age > 18 AND age < 22 ORDER BY &debug.byID{} ASC",
 		},
 		{
-			name:     "where age >= 18 and age <= 22",
-			query:    newBuilder().WhereInt(age, where.GE, 18).WhereInt(age, where.LE, 22).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
+			name: "where age >= 18 and age <= 22",
+			query: newBuilder(
+				query.WhereInt(age, where.GE, 18),
+				query.WhereInt(age, where.LE, 22),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age >= 18 AND age <= 22 ORDER BY &debug.byID{} ASC",
 		},
 		{
-			name:     "where id = 2 or id = 5",
-			query:    newBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt64(id, where.EQ, 5).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
+			name: "where id = 2 or id = 5",
+			query: newBuilder(
+				query.WhereInt64(id, where.EQ, 2),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 5),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 2 OR id = 5 ORDER BY &debug.byID{} ASC",
 		},
 		{
-			name:     "where id = 2 or age > 20",
-			query:    newBuilder().WhereInt64(id, where.EQ, 2).Or().WhereInt(age, where.GT, 20).Sort(sort.ByInt64IndexAsc(&byID{})).Query(),
+			name: "where id = 2 or age > 20",
+			query: newBuilder(
+				query.WhereInt64(id, where.EQ, 2),
+				query.Or(),
+				query.WhereInt(age, where.GT, 20),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 2 OR age > 20 ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where id = 1 or ( age > 20 and age < 22)",
-			query: newBuilder().
-				WhereInt64(id, where.EQ, 1).
-				Or().
-				OpenBracket().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				CloseBracket().
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.WhereInt64(id, where.EQ, 1),
+				query.Or(),
+				query.OpenBracket(),
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.CloseBracket(),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id = 1 OR (age > 20 AND age < 22) ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where ( age > 20 and age < 22) or id = 1",
-			query: newBuilder().
-				OpenBracket().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				CloseBracket().
-				Or().
-				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.OpenBracket(),
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.CloseBracket(),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (age > 20 AND age < 22) OR id = 1 ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where age > 20 and age < 22 or id = 1",
-			query: newBuilder().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				Or().
-				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age > 20 AND age < 22 OR id = 1 ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where (age > 20 and age < 22) or id = 1",
-			query: newBuilder().
-				OpenBracket().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				CloseBracket().
-				Or().
-				WhereInt64(id, where.EQ, 1).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.OpenBracket(),
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.CloseBracket(),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (age > 20 AND age < 22) OR id = 1 ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2)",
-			query: newBuilder().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				OpenBracket().
-				WhereInt64(id, where.EQ, 1).
-				Or().
-				WhereInt64(id, where.EQ, 2).
-				CloseBracket().
-				Query(),
+			query: newBuilder(
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.OpenBracket(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 2),
+				query.CloseBracket(),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age > 20 AND age < 22 AND (id = 1 OR id = 2)",
 		},
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2 or id = 4)",
-			query: newBuilder().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				OpenBracket().
-				WhereInt64(id, where.EQ, 1).
-				Or().
-				WhereInt64(id, where.EQ, 2).
-				Or().
-				WhereInt64(id, where.EQ, 4).
-				CloseBracket().
-				Query(),
+			query: newBuilder(
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.OpenBracket(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 2),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 4),
+				query.CloseBracket(),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age > 20 AND age < 22 AND (id = 1 OR id = 2 OR id = 4)",
 		},
 		{
 			name: "where (age > 20 and age < 22) and id = 4",
-			query: newBuilder().
-				OpenBracket().
-				WhereInt(age, where.GT, 20).
-				WhereInt(age, where.LT, 22).
-				CloseBracket().
-				WhereInt64(id, where.EQ, 4).
-				Query(),
+			query: newBuilder(
+				query.OpenBracket(),
+				query.WhereInt(age, where.GT, 20),
+				query.WhereInt(age, where.LT, 22),
+				query.CloseBracket(),
+				query.WhereInt64(id, where.EQ, 4),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (age > 20 AND age < 22) AND id = 4",
 		},
 		{
 			name: "where age in {20, 21, 22} and id > 3",
-			query: newBuilder().
-				WhereInt(age, where.InArray, 20, 21, 22).
-				WhereInt64(id, where.GT, 3).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.WhereInt(age, where.InArray, 20, 21, 22),
+				query.WhereInt64(id, where.GT, 3),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE age IN (20, 21, 22) AND id > 3 ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where name like \"th\"",
-			query: newBuilder().WhereString(name, where.Like, "th").Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.WhereString(name, where.Like, "th"),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE name LIKE \"th\" ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where name like \"th\" or name like \"first\"",
-			query: newBuilder().
-				WhereString(name, where.Like, "th").
-				Or().
-				WhereString(name, where.Like, "first").
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.WhereString(name, where.Like, "th"),
+				query.Or(),
+				query.WhereString(name, where.Like, "first"),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE name LIKE \"th\" OR name LIKE \"first\" ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where ((id = 1) or (id = 2))",
-			query: newBuilder().
-				OpenBracket().
-				OpenBracket().
-				WhereInt64(id, where.EQ, 1).
-				CloseBracket().
-				Or().
-				OpenBracket().
-				WhereInt64(id, where.EQ, 2).
-				CloseBracket().
-				CloseBracket().
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.OpenBracket(),
+				query.OpenBracket(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.CloseBracket(),
+				query.Or(),
+				query.OpenBracket(),
+				query.WhereInt64(id, where.EQ, 2),
+				query.CloseBracket(),
+				query.CloseBracket(),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE ((id = 1) OR (id = 2)) ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where (((id = 1) or (id = 2)) or id = 3) or id = 4",
-			query: newBuilder().
-				OpenBracket().
-				OpenBracket().
-				OpenBracket().
-				WhereInt64(id, where.EQ, 1).
-				CloseBracket().
-				Or().
-				OpenBracket().
-				WhereInt64(id, where.EQ, 2).
-				CloseBracket().
-				CloseBracket().
-				Or().
-				WhereInt64(id, where.EQ, 3).
-				CloseBracket().
-				Or().
-				WhereInt64(id, where.EQ, 4).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.OpenBracket(),
+				query.OpenBracket(),
+				query.OpenBracket(),
+				query.WhereInt64(id, where.EQ, 1),
+				query.CloseBracket(),
+				query.Or(),
+				query.OpenBracket(),
+				query.WhereInt64(id, where.EQ, 2),
+				query.CloseBracket(),
+				query.CloseBracket(),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 3),
+				query.CloseBracket(),
+				query.Or(),
+				query.WhereInt64(id, where.EQ, 4),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE (((id = 1) OR (id = 2)) OR id = 3) OR id = 4 ORDER BY &debug.byID{} ASC",
 		},
 		{
 			name: "where id > 1 limit 2 offset 1 order by &debug.byID{} ASC",
-			query: newBuilder().
-				WhereInt64(id, where.GT, 1).
-				Limit(2).
-				Offset(1).
-				Sort(sort.ByInt64IndexAsc(&byID{})).
-				Query(),
+			query: newBuilder(
+				query.WhereInt64(id, where.GT, 1),
+				query.Limit(2),
+				query.Offset(1),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
 			expected: "SELECT *, COUNT(*)  WHERE id > 1 ORDER BY &debug.byID{} ASC OFFSET 1 LIMIT 2",
 		},
 	}

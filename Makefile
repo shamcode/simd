@@ -6,5 +6,10 @@ coverage:
 
 test: run_test coverage
 
-bench:
-	go test -bench=. -benchmem ./benchmarks/...
+bench_query_builder:
+	go test -bench=. -benchmem -benchtime=7s -run=^_ ./query/...
+
+bench_comparing:
+	go test -bench=. -benchmem -benchtime=5s ./benchmarks/...
+
+make bench: bench_query_builder bench_comparing
