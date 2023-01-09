@@ -85,11 +85,11 @@ func TestQueryExecutor(t *testing.T) {
 	ns := &storage{
 		data: make(map[int64]record.Record),
 	}
-	ns.Insert(&user{ID: 1, Name: "first", Age: 18})
-	ns.Insert(&user{ID: 2, Name: "second", Age: 19})
-	ns.Insert(&user{ID: 3, Name: "third", Age: 20})
-	ns.Insert(&user{ID: 4, Name: "fourth", Age: 21})
-	ns.Insert(&user{ID: 5, Name: "fifth", Age: 22})
+	asserts.Success(t, ns.Insert(&user{ID: 1, Name: "first", Age: 18}))
+	asserts.Success(t, ns.Insert(&user{ID: 2, Name: "second", Age: 19}))
+	asserts.Success(t, ns.Insert(&user{ID: 3, Name: "third", Age: 20}))
+	asserts.Success(t, ns.Insert(&user{ID: 4, Name: "fourth", Age: 21}))
+	asserts.Success(t, ns.Insert(&user{ID: 5, Name: "fifth", Age: 22}))
 
 	tests := []struct {
 		name     string
