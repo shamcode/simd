@@ -1,7 +1,6 @@
 package comparators
 
 import (
-	"fmt"
 	"github.com/shamcode/simd/_examples/custom-field-time/fields"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
@@ -36,7 +35,7 @@ func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
 	case where.LE:
 		return value.Equal(fc.Value[0]) || value.Before(fc.Value[0]), nil
 	default:
-		return false, fmt.Errorf("%w: %d, field = %s", comparators.ErrNotImplementComparator, fc.Cmp, fc.GetField())
+		return false, comparators.NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
 	}
 }
 

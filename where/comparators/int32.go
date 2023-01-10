@@ -1,7 +1,6 @@
 package comparators
 
 import (
-	"fmt"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )
@@ -40,7 +39,7 @@ func (fc Int32FieldComparator) CompareValue(value int32) (bool, error) {
 		}
 		return false, nil
 	default:
-		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
+		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
 	}
 }
 

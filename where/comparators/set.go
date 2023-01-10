@@ -1,7 +1,6 @@
 package comparators
 
 import (
-	"fmt"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )
@@ -25,7 +24,7 @@ func (fc SetFieldComparator) CompareValue(value record.Set) (bool, error) {
 	case where.SetHas:
 		return value.Has(fc.Value[0]), nil
 	default:
-		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
+		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
 	}
 }
 

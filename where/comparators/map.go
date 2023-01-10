@@ -1,7 +1,6 @@
 package comparators
 
 import (
-	"fmt"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )
@@ -25,19 +24,13 @@ func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
 	case where.MapHasValue:
 		cmp, ok := fc.Value[0].(record.MapValueComparator)
 		if !ok {
-			return false, fmt.Errorf(
-				"%w: %d, field = %s, value type = %T, expected type = record.MapValueComparator",
-				ErrFailCastType,
-				fc.Cmp,
-				fc.GetField(),
-				fc.Value[0],
-			)
+			return false, NewErrFailCastType(fc.GetField(), fc.Cmp, fc.Value[0], "record.MapValueComparator")
 		}
 		return value.HasValue(cmp)
 	case where.MapHasKey:
 		return value.HasKey(fc.Value[0]), nil
 	default:
-		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
+		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
 	}
 }
 

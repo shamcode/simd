@@ -1,7 +1,6 @@
 package comparators
 
 import (
-	"fmt"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"regexp"
@@ -44,7 +43,7 @@ func (fc StringFieldComparator) CompareValue(value string) (bool, error) {
 		}
 		return false, nil
 	default:
-		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
+		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
 	}
 }
 
@@ -80,7 +79,7 @@ func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
 	case where.Regexp:
 		return fc.Value.MatchString(value), nil
 	default:
-		return false, fmt.Errorf("%w: %d, field = %s", ErrNotImplementComparator, fc.Cmp, fc.GetField())
+		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
 	}
 }
 
