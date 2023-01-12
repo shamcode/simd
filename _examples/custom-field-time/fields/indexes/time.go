@@ -20,17 +20,11 @@ func (idx timeIndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item).UnixNano()
 }
 
-func (idx timeIndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(comparators.TimeFieldComparator).Value {
-		cb(item.Unix())
-	}
+func (idx timeIndexComputation) ForValue(item interface{}) interface{} {
+	return item.(time.Time).UnixNano()
 }
 
-func (idx timeIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(comparators.TimeFieldComparator).Value[0].Unix()
-}
-
-func (idx timeIndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
+func (idx timeIndexComputation) Check(value interface{}, comparator where.FieldComparator) (bool, error) {
 	return comparator.(comparators.TimeFieldComparator).CompareValue(time.Unix( 0, value.(int64)))
 }
 

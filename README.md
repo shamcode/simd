@@ -33,16 +33,17 @@ goos: linux
 goarch: amd64
 pkg: github.com/shamcode/simd/benchmarks
 cpu: 11th Gen Intel(R) Core(TM) i7-11700K @ 3.60GHz
-Benchmark_CompareSIMDWithSQLite/10_simd-16         6106621	      1035 ns/op	     504 B/op	      12 allocs/op
-Benchmark_CompareSIMDWithSQLite/10_sqlite-16       2933868	      2088 ns/op	     576 B/op	      25 allocs/op
-Benchmark_CompareSIMDWithSQLite/100_simd-16         236976	     25478 ns/op	   12102 B/op	     288 allocs/op
-Benchmark_CompareSIMDWithSQLite/100_sqlite-16       120069	     48522 ns/op	   13824 B/op	     600 allocs/op
-Benchmark_CompareSIMDWithSQLite/1000_simd-16         18895	    354572 ns/op	  125571 B/op	    2988 allocs/op
-Benchmark_CompareSIMDWithSQLite/1000_sqlite-16       11125	    529965 ns/op	  143424 B/op	    6225 allocs/op
-Benchmark_CompareSIMDWithSQLite/5000_simd-16          4045	   2027158 ns/op	  638062 B/op	   15983 allocs/op
-Benchmark_CompareSIMDWithSQLite/5000_sqlite-16        2059	   2767068 ns/op	  735330 B/op	   33213 allocs/op
-Benchmark_CompareSIMDWithSQLite/10000_simd-16         2557	   2573430 ns/op	 1278173 B/op	   32233 allocs/op
-Benchmark_CompareSIMDWithSQLite/10000_sqlite-16       1074	   5329826 ns/op	 1475332 B/op	   66963 allocs/op
+Benchmark_CompareSIMDWithSQLite/10_simd-16           10547110	       727.4 ns/op	     504 B/op	      12 allocs/op
+Benchmark_CompareSIMDWithSQLite/10_sqlite-16          2903997	      2102 ns/op	     576 B/op	      25 allocs/op
+Benchmark_CompareSIMDWithSQLite/100_simd-16            414952	     14197 ns/op	   12102 B/op	     288 allocs/op
+Benchmark_CompareSIMDWithSQLite/100_sqlite-16          115293	     50065 ns/op	   13824 B/op	     600 allocs/op
+Benchmark_CompareSIMDWithSQLite/1000_simd-16            37306	    163277 ns/op	  125571 B/op	    2988 allocs/op
+Benchmark_CompareSIMDWithSQLite/1000_sqlite-16          10000	    535937 ns/op	  143424 B/op	    6225 allocs/op
+Benchmark_CompareSIMDWithSQLite/5000_simd-16             6632	    932205 ns/op	  646027 B/op	   16977 allocs/op
+Benchmark_CompareSIMDWithSQLite/5000_sqlite-16           2176	   2690178 ns/op	  735330 B/op	   33213 allocs/op
+Benchmark_CompareSIMDWithSQLite/10000_simd-16            3278	   1863865 ns/op	 1296142 B/op	   34478 allocs/op
+Benchmark_CompareSIMDWithSQLite/10000_sqlite-16          1068	   5345874 ns/op	 1475334 B/op	   66963 allocs/op
+
 
 ```
 

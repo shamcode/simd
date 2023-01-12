@@ -32,10 +32,10 @@ func (fc BoolFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc BoolFieldComparator) Values() []interface{} {
-	values := make([]interface{}, len(fc.Value))
-	for i, v := range fc.Value {
-		values[i] = v
-	}
-	return values
+func (fc BoolFieldComparator) ValuesCount() int {
+	return len(fc.Value)
+}
+
+func (fc BoolFieldComparator) ValueAt(index int) interface{} {
+	return fc.Value[index]
 }

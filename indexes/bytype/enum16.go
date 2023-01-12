@@ -17,18 +17,12 @@ func (idx enum16IndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item).Value()
 }
 
-func (idx enum16IndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(comparators.Enum16FieldComparator).Value {
-		cb(item.Value())
-	}
+func (idx enum16IndexComputation) ForValue(value interface{}) interface{} {
+	return value.(record.Enum16).Value()
 }
 
-func (idx enum16IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(comparators.Enum16FieldComparator).Value[0].Value()
-}
-
-func (idx enum16IndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
-	return comparator.(comparators.Enum16FieldComparator).CompareValue(value.(uint16))
+func (idx enum16IndexComputation) Check(indexKey interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.Enum16FieldComparator).CompareValue(indexKey.(uint16))
 }
 
 var _ Storage = (*enum16IndexStorage)(nil)

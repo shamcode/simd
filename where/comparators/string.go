@@ -51,12 +51,12 @@ func (fc StringFieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc StringFieldComparator) Values() []interface{} {
-	values := make([]interface{}, len(fc.Value))
-	for i, v := range fc.Value {
-		values[i] = v
-	}
-	return values
+func (fc StringFieldComparator) ValuesCount() int {
+	return len(fc.Value)
+}
+
+func (fc StringFieldComparator) ValueAt(index int) interface{} {
+	return fc.Value[index]
 }
 
 // StringFieldRegexpComparator is a special comparator for handling Regexp
@@ -87,6 +87,13 @@ func (fc StringFieldRegexpComparator) Compare(item record.Record) (bool, error) 
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc StringFieldRegexpComparator) Values() []interface{} {
-	return []interface{}{fc.Value}
+func (fc StringFieldRegexpComparator) ValuesCount() int {
+	return 1
+}
+
+func (fc StringFieldRegexpComparator) ValueAt(index int) interface{} {
+	if 0 == index {
+		return fc.Value
+	}
+	return nil
 }

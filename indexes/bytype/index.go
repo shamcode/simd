@@ -7,9 +7,8 @@ import (
 
 type IndexComputer interface {
 	ForRecord(item record.Record) interface{}
-	ForComparatorFirstValue(comparator where.FieldComparator) interface{}
-	EachComparatorValues(comparator where.FieldComparator, cb func(index interface{}))
-	Compare(value interface{}, comparator where.FieldComparator) (bool, error)
+	ForValue(value interface{}) interface{}
+	Check(indexKey interface{}, comparator where.FieldComparator) (bool, error)
 }
 
 type Index struct {

@@ -12,7 +12,7 @@ import (
 
 type QueryBuilderWithDumper interface {
 	query.Builder
-	SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{})
+	SaveFieldComparatorForDump(cmp where.FieldComparator)
 	Dump() string
 }
 
@@ -70,7 +70,7 @@ func (q *debugQueryBuilder) CloseBracket() {
 	q.requireOp = true
 }
 func (q *debugQueryBuilder) AddWhere(cmp where.FieldComparator) {
-	q.SaveWhereForDump(cmp.GetField(), cmp.GetType(), cmp.Values()...)
+	q.SaveFieldComparatorForDump(cmp)
 	q.withNot = false
 	q.isOr = false
 }
@@ -110,7 +110,7 @@ func (q *debugQueryBuilder) Query() query.Query {
 	return nil
 }
 
-func (q *debugQueryBuilder) SaveWhereForDump(field string, condition where.ComparatorType, value ...interface{}) {
+func (q *debugQueryBuilder) SaveFieldComparatorForDump(cmp where.FieldComparator) {
 	w := q.chunks[chunkWhere]
 	if q.requireOp {
 		if q.isOr {
@@ -124,51 +124,49 @@ func (q *debugQueryBuilder) SaveWhereForDump(field string, condition where.Compa
 	if q.withNot {
 		w.WriteString("NOT ")
 	}
-	w.WriteString(field)
-	switch condition {
+	w.WriteString(cmp.GetField())
+	switch cmp.GetType() {
 	case where.EQ:
 		w.WriteString(" = ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.GT:
 		w.WriteString(" > ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.GE:
 		w.WriteString(" >= ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.LT:
 		w.WriteString(" < ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.LE:
 		w.WriteString(" <= ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.InArray:
 		w.WriteString(" IN (")
-		first := true
-		for _, item := range value {
-			if !first {
+		for i := 0; i < cmp.ValuesCount(); i++ {
+			if 0 != i {
 				w.WriteString(", ")
-			} else {
-				first = false
 			}
-			w.WriteString(fmt.Sprintf("%v", item))
+			w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(i)))
 		}
 		w.WriteString(")")
 	case where.Like:
 		w.WriteString(" LIKE ")
-		w.WriteString(fmt.Sprintf("\"%v\"", value[0]))
+		w.WriteString(fmt.Sprintf("\"%v\"", cmp.ValueAt(0)))
 	case where.Regexp:
 		w.WriteString(" REGEXP ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.SetHas:
 		w.WriteString(" SET_HAS ")
-		w.WriteString(fmt.Sprintf("%v", value[0]))
+		w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.MapHasValue:
 		w.WriteString(" MAP_HAS_VALUE FIELD ")
-		w.WriteString(value[0].(where.FieldComparator).GetField())
-		w.WriteString(fmt.Sprintf(" COMPARE %v", value[0].(where.FieldComparator)))
+		mapCmp := cmp.ValueAt(0).(where.FieldComparator)
+		w.WriteString(mapCmp.GetField())
+		w.WriteString(fmt.Sprintf(" COMPARE %v", mapCmp))
 	case where.MapHasKey:
 		w.WriteString(" MAP_HAS_KEY ")
-		w.WriteString(fmt.Sprintf("\"%v\"", value[0]))
+		w.WriteString(fmt.Sprintf("\"%v\"", cmp.ValueAt(0)))
 	}
 	q.withNot = false
 	q.isOr = false

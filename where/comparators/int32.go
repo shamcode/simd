@@ -47,10 +47,10 @@ func (fc Int32FieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc Int32FieldComparator) Values() []interface{} {
-	values := make([]interface{}, len(fc.Value))
-	for i, v := range fc.Value {
-		values[i] = v
-	}
-	return values
+func (fc Int32FieldComparator) ValuesCount() int {
+	return len(fc.Value)
+}
+
+func (fc Int32FieldComparator) ValueAt(index int) interface{} {
+	return fc.Value[index]
 }

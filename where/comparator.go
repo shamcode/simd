@@ -22,5 +22,6 @@ type FieldComparator interface {
 	GetField() string
 	GetType() ComparatorType
 	Compare(item record.Record) (bool, error)
-	Values() []interface{}
+	ValuesCount() int
+	ValueAt(index int) interface{}
 }

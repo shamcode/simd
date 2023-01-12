@@ -17,18 +17,12 @@ func (idx int64IndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx int64IndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(comparators.Int64FieldComparator).Value {
-		cb(item)
-	}
+func (idx int64IndexComputation) ForValue(value interface{}) interface{} {
+	return value.(int64)
 }
 
-func (idx int64IndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(comparators.Int64FieldComparator).Value[0]
-}
-
-func (idx int64IndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
-	return comparator.(comparators.Int64FieldComparator).CompareValue(value.(int64))
+func (idx int64IndexComputation) Check(indexKey interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.Int64FieldComparator).CompareValue(indexKey.(int64))
 }
 
 var _ Storage = (*int64IndexStorage)(nil)

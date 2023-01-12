@@ -39,10 +39,10 @@ func (fc Enum8FieldComparator) Compare(item record.Record) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item).Value())
 }
 
-func (fc Enum8FieldComparator) Values() []interface{} {
-	values := make([]interface{}, len(fc.Value))
-	for i, v := range fc.Value {
-		values[i] = v
-	}
-	return values
+func (fc Enum8FieldComparator) ValuesCount() int {
+	return len(fc.Value)
+}
+
+func (fc Enum8FieldComparator) ValueAt(index int) interface{} {
+	return fc.Value[index]
 }

@@ -17,18 +17,12 @@ func (idx boolIndexComputation) ForRecord(item record.Record) interface{} {
 	return idx.getter.Get(item)
 }
 
-func (idx boolIndexComputation) EachComparatorValues(comparator where.FieldComparator, cb func(interface{})) {
-	for _, item := range comparator.(comparators.BoolFieldComparator).Value {
-		cb(item)
-	}
+func (idx boolIndexComputation) ForValue(value interface{}) interface{} {
+	return value.(bool)
 }
 
-func (idx boolIndexComputation) ForComparatorFirstValue(comparator where.FieldComparator) interface{} {
-	return comparator.(comparators.BoolFieldComparator).Value[0]
-}
-
-func (idx boolIndexComputation) Compare(value interface{}, comparator where.FieldComparator) (bool, error) {
-	return comparator.(comparators.BoolFieldComparator).CompareValue(value.(bool))
+func (idx boolIndexComputation) Check(indexKey interface{}, comparator where.FieldComparator) (bool, error) {
+	return comparator.(comparators.BoolFieldComparator).CompareValue(indexKey.(bool))
 }
 
 var _ Storage = (*boolIndexStorage)(nil)
