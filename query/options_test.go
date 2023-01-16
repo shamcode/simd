@@ -29,11 +29,16 @@ func (w *whereStructHeap) Apply(b Builder) {
 	b.AddWhere(w.cmp)
 }
 
+type user int64
+
+func (u user) GetID() int64   { return int64(u) }
+func (u user) ComputeFields() {}
+
 func Benchmark_OptionsStructAndFunction(b *testing.B) {
 	var userID = &record.Int64Getter{
 		Field: "id",
-		Get: func(item interface{}) int64 {
-			return item.(int64)
+		Get: func(item record.Record) int64 {
+			return item.(user).GetID()
 		},
 	}
 

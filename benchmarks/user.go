@@ -36,22 +36,22 @@ func (u *User) ComputeFields() {}
 
 var userID = &record.Int64Getter{
 	Field: "id",
-	Get:   func(item interface{}) int64 { return item.(*User).ID },
+	Get:   func(item record.Record) int64 { return item.(*User).ID },
 }
 
 var userName = &record.StringGetter{
 	Field: "name",
-	Get:   func(item interface{}) string { return item.(*User).Name },
+	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
 var userStatus = &record.Enum8Getter{
 	Field: "status",
-	Get:   func(item interface{}) record.Enum8 { return item.(*User).Status },
+	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }
 
 var userIsOnline = &record.BoolGetter{
 	Field: "is_online",
-	Get:   func(item interface{}) bool { return item.(*User).IsOnline },
+	Get:   func(item record.Record) bool { return item.(*User).IsOnline },
 }
 
 type byID struct{}

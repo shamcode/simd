@@ -119,37 +119,37 @@ func (u *User) ComputeFields() {}
 
 var userID = &record.Int64Getter{
 	Field: "id",
-	Get:   func(item interface{}) int64 { return item.(*User).ID },
+	Get:   func(item record.Record) int64 { return item.(*User).ID },
 }
 
 var userName = &record.StringGetter{
 	Field: "name",
-	Get:   func(item interface{}) string { return item.(*User).Name },
+	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
 var userStatus = &record.Enum8Getter{
 	Field: "status",
-	Get:   func(item interface{}) record.Enum8 { return item.(*User).Status },
+	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }
 
 var userScore = &record.IntGetter{
 	Field: "score",
-	Get:   func(item interface{}) int { return item.(*User).Score },
+	Get:   func(item record.Record) int { return item.(*User).Score },
 }
 
 var userIsOnline = &record.BoolGetter{
 	Field: "is_online",
-	Get:   func(item interface{}) bool { return item.(*User).IsOnline },
+	Get:   func(item record.Record) bool { return item.(*User).IsOnline },
 }
 
 var userTags = &record.SetGetter{
 	Field: "tags",
-	Get:   func(item interface{}) record.Set { return item.(*User).Tags },
+	Get:   func(item record.Record) record.Set { return item.(*User).Tags },
 }
 
 var userCounters = &record.MapGetter{
 	Field: "counters",
-	Get:   func(item interface{}) record.Map { return item.(*User).Counters },
+	Get:   func(item record.Record) record.Map { return item.(*User).Counters },
 }
 
 type byID struct{}

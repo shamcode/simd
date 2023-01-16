@@ -26,21 +26,21 @@ func (u *user) ComputeFields() {}
 
 var id = &record.Int64Getter{
 	Field: "id",
-	Get: func(item interface{}) int64 {
+	Get: func(item record.Record) int64 {
 		return item.(*user).ID
 	},
 }
 
 var name = &record.StringGetter{
 	Field: "name",
-	Get: func(item interface{}) string {
+	Get: func(item record.Record) string {
 		return item.(*user).Name
 	},
 }
 
 var age = &record.IntGetter{
 	Field: "age",
-	Get: func(item interface{}) int {
+	Get: func(item record.Record) int {
 		return item.(*user).Age
 	},
 }

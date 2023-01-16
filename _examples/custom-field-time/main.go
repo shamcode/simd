@@ -27,7 +27,7 @@ func (u *Item) ComputeFields() {}
 
 var createdAt = &fields.TimeGetter{
 	Field: "created_at",
-	Get: func(item interface{}) time.Time {
+	Get: func(item record.Record) time.Time {
 		return item.(*Item).CreateAt
 	},
 }

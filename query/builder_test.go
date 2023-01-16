@@ -11,9 +11,12 @@ type testUser struct {
 	id int64
 }
 
+func (u testUser) GetID() int64   { return u.id }
+func (u testUser) ComputeFields() {}
+
 var userID = &record.Int64Getter{
 	Field: "id",
-	Get:   func(item interface{}) int64 { return item.(*testUser).id },
+	Get:   func(item record.Record) int64 { return item.(*testUser).id },
 }
 
 func TestBuilderErrors(t *testing.T) {

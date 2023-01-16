@@ -1,8 +1,11 @@
 package fields
 
-import "time"
+import (
+	"github.com/shamcode/simd/record"
+	"time"
+)
 
 type TimeGetter struct {
 	Field string
-	Get   func(item interface{}) time.Time
+	Get   func(item record.Record) time.Time
 }
