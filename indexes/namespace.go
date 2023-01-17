@@ -213,7 +213,7 @@ func (ns *NamespaceWithIndexes) selectFromIndexForEqual(index *bytype.Index, con
 
 func (ns *NamespaceWithIndexes) selectFromIndexForInArray(index *bytype.Index, condition where.Condition) (count int, ids []storage.LockableIDStorage) {
 	for i := 0; i < condition.Cmp.ValuesCount(); i++ {
-		itemsByValue := index.Storage.Get(condition.Cmp.ValueAt(i))
+		itemsByValue := index.Storage.Get(index.Compute.ForValue(condition.Cmp.ValueAt(i)))
 		if nil != itemsByValue {
 			countForValue := itemsByValue.Count()
 			if countForValue > 0 {
