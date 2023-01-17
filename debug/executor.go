@@ -40,11 +40,11 @@ func (e *debugExecutor) DumpQuery(query query.Query, onlyTotal bool) {
 	if !onlyTotal {
 		result.WriteString("*, ")
 	}
-	result.WriteString("COUNT(*) ")
+	result.WriteString("COUNT(*)")
 	if dq, ok := query.(QueryWithDumper); ok {
 		result.WriteString(dq.String())
 	} else {
-		result.WriteString("<Query dont implement QueryWithDumper interface, check QueryBuilder>")
+		result.WriteString(" <Query dont implement QueryWithDumper interface, check QueryBuilder>")
 	}
 	e.dump(result.String())
 }
