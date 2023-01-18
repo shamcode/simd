@@ -3,7 +3,6 @@ package simd
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes"
@@ -558,16 +557,21 @@ func Test_FetchAllAndTotal(t *testing.T) {
 	qe := executor.CreateQueryExecutor(store)
 
 	for _, testCase := range testCases {
-		ctx := context.Background()
-		cursor, count, err := qe.FetchAllAndTotal(ctx, testCase.Query)
-		asserts.Equals(t, nil, err, fmt.Sprintf("%s: nil == err", testCase.Name))
-		ids := make([]int64, 0, cursor.Size())
-		for cursor.Next(ctx) {
-			ids = append(ids, cursor.Item().(*User).ID)
-		}
-		asserts.Equals(t, nil, cursor.Err(), fmt.Sprintf("%s: nil == cursor.Err", testCase.Name))
-		asserts.Equals(t, testCase.ExpectedIDs, ids, fmt.Sprintf("%s: ids", testCase.Name))
-		asserts.Equals(t, testCase.ExpectedCount, count, fmt.Sprintf("%s: total count", testCase.Name))
+		testCase := testCase
+		t.Run(testCase.Name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			cursor, count, err := qe.FetchAllAndTotal(ctx, testCase.Query)
+			asserts.Success(t, err)
+			ids := make([]int64, 0, cursor.Size())
+			for cursor.Next(ctx) {
+				ids = append(ids, cursor.Item().(*User).ID)
+			}
+			asserts.Success(t, cursor.Err())
+			asserts.Equals(t, testCase.ExpectedIDs, ids, "ids")
+			asserts.Equals(t, testCase.ExpectedCount, count, "total count")
+		})
 	}
 }
 

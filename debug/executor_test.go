@@ -2,7 +2,6 @@ package debug
 
 import (
 	"context"
-	"fmt"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
@@ -346,10 +345,16 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 	qe := executor.CreateQueryExecutor(ns)
 
 	for _, test := range tests {
-		ctx := context.Background()
-		_, err := WrapQueryExecutor(qe, func(q string) {
-			asserts.Equals(t, test.expected, q, fmt.Sprintf("query for test \"%s\"", test.name))
-		}).FetchAll(ctx, test.query)
-		asserts.Equals(t, nil, err, fmt.Sprintf("err is nil for test \"%s\"", test.name))
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			_, err := WrapQueryExecutor(qe, func(q string) {
+				asserts.Equals(t, test.expected, q, "query")
+			}).FetchAll(ctx, test.query)
+
+			asserts.Success(t, err)
+		})
 	}
 }

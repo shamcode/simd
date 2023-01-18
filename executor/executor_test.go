@@ -2,7 +2,6 @@ package executor
 
 import (
 	"context"
-	"fmt"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
@@ -322,13 +321,17 @@ func TestQueryExecutor(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		ctx := context.Background()
-		iter, err := CreateQueryExecutor(ns).FetchAll(ctx, test.query)
-		asserts.Equals(t, nil, err, fmt.Sprintf("err is nil for test \"%s\"", test.name))
-		res := make([]int64, 0, iter.Size())
-		for iter.Next(ctx) {
-			res = append(res, iter.Item().(*user).ID)
-		}
-		asserts.Equals(t, test.expected, res, fmt.Sprintf("res for test \"%s\"", test.name))
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			ctx := context.Background()
+			iter, err := CreateQueryExecutor(ns).FetchAll(ctx, test.query)
+			asserts.Success(t, err)
+			res := make([]int64, 0, iter.Size())
+			for iter.Next(ctx) {
+				res = append(res, iter.Item().(*user).ID)
+			}
+			asserts.Equals(t, test.expected, res, "ids")
+		})
 	}
 }
