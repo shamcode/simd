@@ -43,9 +43,9 @@ func (r *RecordsByID) Count() int {
 	return len(r.data)
 }
 
-func (r *RecordsByID) GetData(stores []LockableIDStorage) []record.Record {
+func (r *RecordsByID) GetData(stores []LockableIDStorage, totalCount int) []record.Record {
 	var items []record.Record
-	var added = make(map[int64]struct{})
+	added := make(map[int64]struct{}, totalCount)
 	r.RLock()
 	for _, store := range stores {
 		store.RLock()

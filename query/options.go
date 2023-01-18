@@ -176,11 +176,10 @@ func WhereSet(getter *record.SetGetter, condition where.ComparatorType, value ..
 	}
 }
 
-type OnIterationOption struct {
-	cb func(item record.Record)
-}
+type onIterationOption func(item record.Record)
 
-func (o OnIterationOption) Apply(b Builder) { b.OnIteration(o.cb) }
+func (o onIterationOption) Apply(b Builder) { b.OnIteration(o) }
+
 func OnIteration(cb func(item record.Record)) BuilderOption {
-	return OnIterationOption{cb: cb}
+	return onIterationOption(cb)
 }

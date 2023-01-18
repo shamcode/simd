@@ -133,7 +133,7 @@ func (qb *queryBuilder) Query() Query {
 	if qb.bracketLevel > 0 {
 		qb.error = multierror.Append(qb.error, ErrInvalidBracketBalance)
 	}
-	return &query{
+	return query{
 		offset:              qb.startOffset,
 		limit:               qb.limitItems,
 		withLimit:           qb.withLimit,

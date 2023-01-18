@@ -170,7 +170,7 @@ func (ns *NamespaceWithIndexes) SelectForExecutor(conditions where.Conditions) (
 		ns.logger.Println("index not applied (large select)", conditions)
 		return ns.storage.GetAllData(), nil
 	}
-	return ns.storage.GetData(items), nil
+	return ns.storage.GetData(items, size), nil
 }
 
 func (ns *NamespaceWithIndexes) SetLogger(logger Logger) {
