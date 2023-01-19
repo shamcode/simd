@@ -5,9 +5,14 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-var (
-	_ Iterator = (*heapIterator)(nil)
-)
+type Iterator interface {
+	Next(ctx context.Context) bool
+	Item() record.Record
+	Size() int
+	Err() error
+}
+
+var _ Iterator = (*heapIterator)(nil)
 
 type heapIterator struct {
 	from      int

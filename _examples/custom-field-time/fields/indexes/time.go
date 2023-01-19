@@ -3,14 +3,14 @@ package indexes
 import (
 	"github.com/shamcode/simd/_examples/custom-field-time/fields"
 	"github.com/shamcode/simd/_examples/custom-field-time/fields/comparators"
-	"github.com/shamcode/simd/indexes/bytype"
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 	"time"
 )
 
-var _ bytype.IndexComputer = timeIndexComputation{}
+var _ indexes.IndexComputer = timeIndexComputation{}
 
 type timeIndexComputation struct {
 	getter *fields.TimeGetter
@@ -28,7 +28,7 @@ func (idx timeIndexComputation) Check(value interface{}, comparator where.FieldC
 	return comparator.(comparators.TimeFieldComparator).CompareValue(time.Unix( 0, value.(int64)))
 }
 
-var _ bytype.Storage = (*timeIndexStorage)(nil)
+var _ indexes.Storage = (*timeIndexStorage)(nil)
 
 type timeIndexStorage struct {
 	byValue map[int64]*storage.IDStorage
@@ -56,11 +56,11 @@ func (idx *timeIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewTimeIndex(getter *fields.TimeGetter) *bytype.Index {
-	return &bytype.Index{
+func NewTimeIndex(getter *fields.TimeGetter) *indexes.Index {
+	return &indexes.Index{
 		Field:   getter.Field,
 		Compute: timeIndexComputation{getter: getter},
-		Storage: bytype.WrapToThreadSafeStorage(&timeIndexStorage{
+		Storage: indexes.WrapToThreadSafeStorage(&timeIndexStorage{
 			byValue: make(map[int64]*storage.IDStorage),
 		}),
 	}

@@ -1,13 +1,14 @@
 package bytype
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = enum8IndexComputation{}
+var _ indexes.IndexComputer = enum8IndexComputation{}
 
 type enum8IndexComputation struct {
 	getter *record.Enum8Getter
@@ -25,7 +26,7 @@ func (idx enum8IndexComputation) Check(indexKey interface{}, comparator where.Fi
 	return comparator.(comparators.Enum8FieldComparator).CompareValue(indexKey.(uint8))
 }
 
-var _ Storage = (*enum8IndexStorage)(nil)
+var _ indexes.Storage = (*enum8IndexStorage)(nil)
 
 type enum8IndexStorage struct {
 	byValue map[uint8]*storage.IDStorage
@@ -53,11 +54,11 @@ func (idx *enum8IndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewEnum8Index(getter *record.Enum8Getter) *Index {
-	return &Index{
+func NewEnum8Index(getter *record.Enum8Getter) *indexes.Index {
+	return &indexes.Index{
 		Field:   getter.Field,
 		Compute: enum8IndexComputation{getter: getter},
-		Storage: WrapToThreadSafeStorage(&enum8IndexStorage{
+		Storage: indexes.WrapToThreadSafeStorage(&enum8IndexStorage{
 			byValue: make(map[uint8]*storage.IDStorage),
 		}),
 	}

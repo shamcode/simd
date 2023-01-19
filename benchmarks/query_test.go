@@ -3,8 +3,8 @@ package benchmarks
 import (
 	"context"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
@@ -13,7 +13,7 @@ import (
 )
 
 func Benchmark_FetchAllAndTotal(b *testing.B) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	store.AddIndex(bytype.NewStringIndex(userName))
 	store.AddIndex(bytype.NewEnum8Index(userStatus))

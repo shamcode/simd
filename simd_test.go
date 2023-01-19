@@ -5,8 +5,8 @@ import (
 	"errors"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
@@ -167,7 +167,7 @@ func (sorting *byOnline) CalcIndex(item record.Record) int64 {
 }
 
 func Test_FetchAllAndTotal(t *testing.T) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	store.AddIndex(bytype.NewStringIndex(userName))
 	store.AddIndex(bytype.NewEnum8Index(userStatus))
@@ -576,7 +576,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 }
 
 func Test_Context(t *testing.T) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
@@ -594,7 +594,7 @@ func Test_Context(t *testing.T) {
 }
 
 func Test_CallbackOnIteration(t *testing.T) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
@@ -633,7 +633,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 }
 
 func Test_InsertAlreadyExisted(t *testing.T) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
@@ -649,7 +649,7 @@ func Test_InsertAlreadyExisted(t *testing.T) {
 }
 
 func Test_Upsert(t *testing.T) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	store.AddIndex(bytype.NewEnum8Index(userStatus))
 	asserts.Success(t, store.Insert(&User{
@@ -684,7 +684,7 @@ func Test_Upsert(t *testing.T) {
 }
 
 func Test_Delete(t *testing.T) {
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	store.AddIndex(bytype.NewInt64Index(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,

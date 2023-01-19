@@ -5,12 +5,16 @@ import (
 	"github.com/shamcode/simd/query"
 )
 
-var (
-	_ QueryExecutor = (*executor)(nil)
-)
+type QueryExecutor interface {
+	FetchTotal(ctx context.Context, q query.Query) (int, error)
+	FetchAll(ctx context.Context, q query.Query) (Iterator, error)
+	FetchAllAndTotal(ctx context.Context, q query.Query) (Iterator, int, error)
+}
+
+var _ QueryExecutor = (*executor)(nil)
 
 type executor struct {
-	storage Namespace
+	selector Selector
 }
 
 func (e *executor) FetchTotal(ctx context.Context, q query.Query) (int, error) {
@@ -36,7 +40,7 @@ func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Ite
 	items := newHeap(q.Sorting())
 	callback := q.OnIterationCallback()
 	conditions := q.Conditions()
-	itemsForCheck, err := e.storage.SelectForExecutor(conditions)
+	itemsForCheck, err := e.selector.PreselectForExecutor(conditions)
 	if nil != err {
 		return nil, 0, wrapErrors(ErrExecuteQuery, err)
 	}
@@ -86,8 +90,8 @@ func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Ite
 	return newHeapIterator(items, q.Offset(), last, size), total, nil
 }
 
-func CreateQueryExecutor(storage Namespace) QueryExecutor {
+func CreateQueryExecutor(selector Selector) QueryExecutor {
 	return &executor{
-		storage: storage,
+		selector: selector,
 	}
 }

@@ -1,13 +1,14 @@
 package bytype
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = int32IndexComputation{}
+var _ indexes.IndexComputer = int32IndexComputation{}
 
 type int32IndexComputation struct {
 	getter *record.Int32Getter
@@ -25,7 +26,7 @@ func (idx int32IndexComputation) Check(indexKey interface{}, comparator where.Fi
 	return comparator.(comparators.Int32FieldComparator).CompareValue(indexKey.(int32))
 }
 
-var _ Storage = (*int32IndexStorage)(nil)
+var _ indexes.Storage = (*int32IndexStorage)(nil)
 
 type int32IndexStorage struct {
 	byValue map[int32]*storage.IDStorage
@@ -53,11 +54,11 @@ func (idx *int32IndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewInt32Index(getter *record.Int32Getter) *Index {
-	return &Index{
+func NewInt32Index(getter *record.Int32Getter) *indexes.Index {
+	return &indexes.Index{
 		Field:   getter.Field,
 		Compute: int32IndexComputation{getter: getter},
-		Storage: WrapToThreadSafeStorage(&int32IndexStorage{
+		Storage: indexes.WrapToThreadSafeStorage(&int32IndexStorage{
 			byValue: make(map[int32]*storage.IDStorage),
 		}),
 	}

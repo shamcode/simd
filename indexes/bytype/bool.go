@@ -1,13 +1,14 @@
 package bytype
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = boolIndexComputation{}
+var _ indexes.IndexComputer = boolIndexComputation{}
 
 type boolIndexComputation struct {
 	getter *record.BoolGetter
@@ -25,7 +26,7 @@ func (idx boolIndexComputation) Check(indexKey interface{}, comparator where.Fie
 	return comparator.(comparators.BoolFieldComparator).CompareValue(indexKey.(bool))
 }
 
-var _ Storage = (*boolIndexStorage)(nil)
+var _ indexes.Storage = (*boolIndexStorage)(nil)
 
 type boolIndexStorage struct {
 	byValue map[bool]*storage.IDStorage
@@ -53,11 +54,11 @@ func (idx *boolIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewBoolIndex(getter *record.BoolGetter) *Index {
-	return &Index{
+func NewBoolIndex(getter *record.BoolGetter) *indexes.Index {
+	return &indexes.Index{
 		Field:   getter.Field,
 		Compute: boolIndexComputation{getter: getter},
-		Storage: WrapToThreadSafeStorage(&boolIndexStorage{
+		Storage: indexes.WrapToThreadSafeStorage(&boolIndexStorage{
 			byValue: make(map[bool]*storage.IDStorage),
 		}),
 	}

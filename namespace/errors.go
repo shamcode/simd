@@ -1,4 +1,4 @@
-package indexes
+package namespace
 
 import "errors"
 

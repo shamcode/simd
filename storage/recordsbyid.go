@@ -5,31 +5,43 @@ import (
 	"sync"
 )
 
-type RecordsByID struct {
+type RecordsByID interface {
+	GetIDStorage() LockableIDStorage
+	Get(id int64) record.Record
+	Set(id int64, item record.Record)
+	Delete(id int64)
+	Count() int
+	GetData(stores []LockableIDStorage, totalCount int) []record.Record
+	GetAllData() []record.Record
+}
+
+var _ RecordsByID = (*recordsByID)(nil)
+
+type recordsByID struct {
 	sync.RWMutex
 	data map[int64]record.Record
 	ids  *innerIDStorage
 }
 
-func (r *RecordsByID) GetIDStorage() LockableIDStorage {
+func (r *recordsByID) GetIDStorage() LockableIDStorage {
 	return r.ids
 }
 
-func (r *RecordsByID) Get(id int64) record.Record {
+func (r *recordsByID) Get(id int64) record.Record {
 	r.RLock()
 	defer r.RUnlock()
 	return r.data[id]
 
 }
 
-func (r *RecordsByID) Set(id int64, item record.Record) {
+func (r *recordsByID) Set(id int64, item record.Record) {
 	r.Lock()
 	r.data[id] = item
 	r.ids.data[id] = struct{}{}
 	r.Unlock()
 }
 
-func (r *RecordsByID) Delete(id int64) {
+func (r *recordsByID) Delete(id int64) {
 	r.Lock()
 	delete(r.data, id)
 	delete(r.ids.data, id)
@@ -37,13 +49,13 @@ func (r *RecordsByID) Delete(id int64) {
 
 }
 
-func (r *RecordsByID) Count() int {
+func (r *recordsByID) Count() int {
 	r.RLock()
 	defer r.RUnlock()
 	return len(r.data)
 }
 
-func (r *RecordsByID) GetData(stores []LockableIDStorage, totalCount int) []record.Record {
+func (r *recordsByID) GetData(stores []LockableIDStorage, totalCount int) []record.Record {
 	var items []record.Record
 	added := make(map[int64]struct{}, totalCount)
 	r.RLock()
@@ -61,7 +73,7 @@ func (r *RecordsByID) GetData(stores []LockableIDStorage, totalCount int) []reco
 	return items
 }
 
-func (r *RecordsByID) GetAllData() []record.Record {
+func (r *recordsByID) GetAllData() []record.Record {
 	r.RLock()
 	items := make([]record.Record, 0, len(r.data))
 	for _, item := range r.data {
@@ -71,9 +83,9 @@ func (r *RecordsByID) GetAllData() []record.Record {
 	return items
 }
 
-func NewRecordsByID() *RecordsByID {
-	return &RecordsByID{
-		ids:  newInnerIDStorage(),
+func CreateRecordsByID() RecordsByID {
+	return &recordsByID{
+		ids:  createInnerIDStorage(),
 		data: make(map[int64]record.Record),
 	}
 }

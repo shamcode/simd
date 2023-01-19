@@ -1,7 +1,7 @@
-package bytype
+package indexes
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/storage"
 	"sync"
 )
 

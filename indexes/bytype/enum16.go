@@ -1,13 +1,14 @@
 package bytype
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
 )
 
-var _ IndexComputer = enum16IndexComputation{}
+var _ indexes.IndexComputer = enum16IndexComputation{}
 
 type enum16IndexComputation struct {
 	getter *record.Enum16Getter
@@ -25,7 +26,7 @@ func (idx enum16IndexComputation) Check(indexKey interface{}, comparator where.F
 	return comparator.(comparators.Enum16FieldComparator).CompareValue(indexKey.(uint16))
 }
 
-var _ Storage = (*enum16IndexStorage)(nil)
+var _ indexes.Storage = (*enum16IndexStorage)(nil)
 
 type enum16IndexStorage struct {
 	byValue map[uint16]*storage.IDStorage
@@ -53,11 +54,11 @@ func (idx *enum16IndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewEnum16Index(getter *record.Enum16Getter) *Index {
-	return &Index{
+func NewEnum16Index(getter *record.Enum16Getter) *indexes.Index {
+	return &indexes.Index{
 		Field:   getter.Field,
 		Compute: enum16IndexComputation{getter: getter},
-		Storage: WrapToThreadSafeStorage(&enum16IndexStorage{
+		Storage: indexes.WrapToThreadSafeStorage(&enum16IndexStorage{
 			byValue: make(map[uint16]*storage.IDStorage),
 		}),
 	}

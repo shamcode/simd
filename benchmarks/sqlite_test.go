@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/where"
 	"log"
@@ -44,7 +44,7 @@ func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
 			b.Fatal(err)
 		}
 
-		simd := indexes.CreateNamespace()
+		simd := namespace.CreateNamespace()
 		simd.AddIndex(bytype.NewInt64Index(userID))
 
 		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)")

@@ -1,4 +1,4 @@
-package bytype
+package indexes
 
 import (
 	"github.com/shamcode/simd/record"

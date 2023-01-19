@@ -66,7 +66,7 @@ func (s *storage) Upsert(item record.Record) error {
 	return nil
 }
 
-func (s *storage) SelectForExecutor(_ where.Conditions) ([]record.Record, error) {
+func (s *storage) PreselectForExecutor(_ where.Conditions) ([]record.Record, error) {
 	items := make([]record.Record, 0, len(s.data))
 	for _, item := range s.data {
 		items = append(items, item)

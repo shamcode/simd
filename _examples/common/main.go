@@ -5,8 +5,8 @@ import (
 	"flag"
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
@@ -36,7 +36,7 @@ func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 	flag.Parse()
 
-	store := indexes.CreateNamespace()
+	store := namespace.CreateNamespace()
 	queryBuilder := query.NewBuilder
 	queryExecutor := executor.CreateQueryExecutor(store)
 

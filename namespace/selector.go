@@ -1,6 +1,6 @@
-package indexes
+package namespace
 
-import "github.com/shamcode/simd/indexes/storage"
+import "github.com/shamcode/simd/storage"
 
 type selectorOperation uint8
 

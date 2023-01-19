@@ -1,8 +1,9 @@
 package bytype
 
 import (
-	"github.com/shamcode/simd/indexes/storage"
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 )
 
@@ -10,7 +11,7 @@ type stringComparator interface {
 	CompareValue(value string) (bool, error)
 }
 
-var _ IndexComputer = stringIndexComputation{}
+var _ indexes.IndexComputer = stringIndexComputation{}
 
 type stringIndexComputation struct {
 	getter *record.StringGetter
@@ -28,7 +29,7 @@ func (idx stringIndexComputation) Check(indexKey interface{}, comparator where.F
 	return comparator.(stringComparator).CompareValue(indexKey.(string))
 }
 
-var _ Storage = (*stringIndexStorage)(nil)
+var _ indexes.Storage = (*stringIndexStorage)(nil)
 
 type stringIndexStorage struct {
 	byValue map[string]*storage.IDStorage
@@ -56,11 +57,11 @@ func (idx *stringIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewStringIndex(getter *record.StringGetter) *Index {
-	return &Index{
+func NewStringIndex(getter *record.StringGetter) *indexes.Index {
+	return &indexes.Index{
 		Field:   getter.Field,
 		Compute: stringIndexComputation{getter: getter},
-		Storage: WrapToThreadSafeStorage(&stringIndexStorage{
+		Storage: indexes.WrapToThreadSafeStorage(&stringIndexStorage{
 			byValue: make(map[string]*storage.IDStorage),
 		}),
 	}
