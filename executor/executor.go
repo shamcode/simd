@@ -33,7 +33,7 @@ func (e *executor) FetchAllAndTotal(ctx context.Context, q query.Query) (Iterato
 
 func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Iterator, int, error) {
 	if err := q.Error(); nil != err {
-		return nil, 0, wrapErrors(ErrValidateQuery, err)
+		return nil, 0, NewErrValidateQuery(err)
 	}
 
 	total := 0
@@ -42,7 +42,7 @@ func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Ite
 	conditions := q.Conditions()
 	itemsForCheck, err := e.selector.PreselectForExecutor(conditions)
 	if nil != err {
-		return nil, 0, wrapErrors(ErrExecuteQuery, err)
+		return nil, 0, NewErrExecuteQuery(err)
 	}
 	for _, item := range itemsForCheck {
 		select {
@@ -51,7 +51,7 @@ func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Ite
 		default:
 			res, err := conditions.Check(item)
 			if nil != err {
-				return nil, 0, wrapErrors(ErrExecuteQuery, err)
+				return nil, 0, NewErrExecuteQuery(err)
 			}
 			if !res {
 				continue

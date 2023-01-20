@@ -1,7 +1,6 @@
 package namespace
 
 import (
-	"fmt"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
@@ -32,7 +31,7 @@ func (ns *WithIndexes) Get(id int64) record.Record {
 
 func (ns *WithIndexes) Insert(item record.Record) error {
 	if nil != ns.Get(item.GetID()) {
-		return fmt.Errorf("%w: ID == %d", ErrRecordExists, item.GetID())
+		return NewErrRecordExists(item.GetID())
 	}
 	ns.insert(item)
 	return nil
