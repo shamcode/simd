@@ -5,7 +5,7 @@ import (
 	"flag"
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/where"
@@ -27,7 +27,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(bytype.NewEnum8Index(status))
+	store.AddIndex(hash.NewEnum8HashIndex(status))
 
 	for _, user := range []*User{
 		{

@@ -1,4 +1,4 @@
-package bytype
+package hash
 
 import (
 	"github.com/shamcode/simd/indexes"
@@ -26,25 +26,21 @@ func (idx boolIndexComputation) Check(indexKey interface{}, comparator where.Fie
 	return comparator.(comparators.BoolFieldComparator).CompareValue(indexKey.(bool))
 }
 
-var _ indexes.Storage = (*boolIndexStorage)(nil)
+var _ indexes.Storage = (*boolHashIndexStorage)(nil)
 
-type boolIndexStorage struct {
+type boolHashIndexStorage struct {
 	byValue map[bool]*storage.IDStorage
 }
 
-func (idx *boolIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *boolHashIndexStorage) Get(key interface{}) *storage.IDStorage {
 	return idx.byValue[key.(bool)]
 }
 
-func (idx *boolIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *boolHashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
 	idx.byValue[key.(bool)] = records
 }
 
-func (idx *boolIndexStorage) Count(key interface{}) int {
-	return idx.byValue[key.(bool)].Count()
-}
-
-func (idx *boolIndexStorage) Keys() []interface{} {
+func (idx *boolHashIndexStorage) Keys() []interface{} {
 	i := 0
 	keys := make([]interface{}, len(idx.byValue))
 	for key := range idx.byValue {
@@ -54,12 +50,12 @@ func (idx *boolIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewBoolIndex(getter *record.BoolGetter) *indexes.Index {
-	return &indexes.Index{
-		Field:   getter.Field,
-		Compute: boolIndexComputation{getter: getter},
-		Storage: indexes.WrapToThreadSafeStorage(&boolIndexStorage{
+func NewBoolHashIndex(getter *record.BoolGetter) indexes.Index {
+	return NewIndex(
+		getter.Field,
+		boolIndexComputation{getter: getter},
+		indexes.WrapToThreadSafeStorage(&boolHashIndexStorage{
 			byValue: make(map[bool]*storage.IDStorage),
 		}),
-	}
+	)
 }

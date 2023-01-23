@@ -3,6 +3,7 @@ package main
 import "github.com/shamcode/simd/record"
 
 type Status uint8
+
 func (s Status) Value() uint8 { return uint8(s) }
 
 const (
@@ -11,10 +12,10 @@ const (
 )
 
 type User struct {
-	ID   int64
-	Name string
+	ID     int64
+	Name   string
 	Status Status
-	Score int64
+	Score  int64
 }
 
 func (u *User) GetID() int64   { return u.ID }
@@ -32,6 +33,5 @@ var name = &record.StringGetter{
 
 var status = &record.Enum8Getter{
 	Field: "status",
-	Get: func(item record.Record) record.Enum8 { return item.(*User).Status },
+	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }
-

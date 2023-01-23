@@ -1,4 +1,4 @@
-package bytype
+package hash
 
 import (
 	"github.com/shamcode/simd/indexes"
@@ -26,25 +26,21 @@ func (idx enum16IndexComputation) Check(indexKey interface{}, comparator where.F
 	return comparator.(comparators.Enum16FieldComparator).CompareValue(indexKey.(uint16))
 }
 
-var _ indexes.Storage = (*enum16IndexStorage)(nil)
+var _ indexes.Storage = (*enum16HashIndexStorage)(nil)
 
-type enum16IndexStorage struct {
+type enum16HashIndexStorage struct {
 	byValue map[uint16]*storage.IDStorage
 }
 
-func (idx *enum16IndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *enum16HashIndexStorage) Get(key interface{}) *storage.IDStorage {
 	return idx.byValue[key.(uint16)]
 }
 
-func (idx *enum16IndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *enum16HashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
 	idx.byValue[key.(uint16)] = records
 }
 
-func (idx *enum16IndexStorage) Count(key interface{}) int {
-	return idx.byValue[key.(uint16)].Count()
-}
-
-func (idx *enum16IndexStorage) Keys() []interface{} {
+func (idx *enum16HashIndexStorage) Keys() []interface{} {
 	i := 0
 	keys := make([]interface{}, len(idx.byValue))
 	for key := range idx.byValue {
@@ -54,12 +50,12 @@ func (idx *enum16IndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewEnum16Index(getter *record.Enum16Getter) *indexes.Index {
-	return &indexes.Index{
-		Field:   getter.Field,
-		Compute: enum16IndexComputation{getter: getter},
-		Storage: indexes.WrapToThreadSafeStorage(&enum16IndexStorage{
+func NewEnum16HashIndex(getter *record.Enum16Getter) indexes.Index {
+	return NewIndex(
+		getter.Field,
+		enum16IndexComputation{getter: getter},
+		indexes.WrapToThreadSafeStorage(&enum16HashIndexStorage{
 			byValue: make(map[uint16]*storage.IDStorage),
 		}),
-	}
+	)
 }

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
@@ -168,10 +168,10 @@ func (sorting *byOnline) CalcIndex(item record.Record) int64 {
 
 func Test_FetchAllAndTotal(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
-	store.AddIndex(bytype.NewStringIndex(userName))
-	store.AddIndex(bytype.NewEnum8Index(userStatus))
-	store.AddIndex(bytype.NewBoolIndex(userIsOnline))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewStringHashIndex(userName))
+	store.AddIndex(hash.NewEnum8HashIndex(userStatus))
+	store.AddIndex(hash.NewBoolHashIndex(userIsOnline))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
@@ -577,7 +577,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 
 func Test_Context(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
@@ -595,7 +595,7 @@ func Test_Context(t *testing.T) {
 
 func Test_CallbackOnIteration(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -634,7 +634,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 
 func Test_InsertAlreadyExisted(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -650,8 +650,8 @@ func Test_InsertAlreadyExisted(t *testing.T) {
 
 func Test_Upsert(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
-	store.AddIndex(bytype.NewEnum8Index(userStatus))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewEnum8HashIndex(userStatus))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -685,7 +685,7 @@ func Test_Upsert(t *testing.T) {
 
 func Test_Delete(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,

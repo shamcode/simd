@@ -71,7 +71,7 @@ func (ns *WithIndexes) Upsert(item record.Record) error {
 	return nil
 }
 
-func (ns *WithIndexes) AddIndex(index *indexes.Index) {
+func (ns *WithIndexes) AddIndex(index indexes.Index) {
 	ns.indexes.Add(index)
 }
 

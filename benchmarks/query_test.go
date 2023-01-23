@@ -3,7 +3,7 @@ package benchmarks
 import (
 	"context"
 	"github.com/shamcode/simd/executor"
-	"github.com/shamcode/simd/indexes/bytype"
+	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/sort"
@@ -14,10 +14,10 @@ import (
 
 func Benchmark_FetchAllAndTotal(b *testing.B) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(bytype.NewInt64Index(userID))
-	store.AddIndex(bytype.NewStringIndex(userName))
-	store.AddIndex(bytype.NewEnum8Index(userStatus))
-	store.AddIndex(bytype.NewBoolIndex(userIsOnline))
+	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewStringHashIndex(userName))
+	store.AddIndex(hash.NewEnum8HashIndex(userStatus))
+	store.AddIndex(hash.NewBoolHashIndex(userIsOnline))
 
 	for i := 1; i < 10_000; i++ {
 		err := store.Upsert(&User{

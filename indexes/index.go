@@ -2,6 +2,7 @@ package indexes
 
 import (
 	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 )
 
@@ -11,8 +12,16 @@ type IndexComputer interface {
 	Check(indexKey interface{}, comparator where.FieldComparator) (bool, error)
 }
 
-type Index struct {
-	Field   string
-	Compute IndexComputer
-	Storage Storage
+type Index interface {
+	Field() string
+	Compute() IndexComputer
+	Weight(condition where.Condition) (canApplyIndex bool, weight IndexWeight)
+	Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error)
+	Storage() Storage
+}
+
+type Storage interface {
+	Get(key interface{}) *storage.IDStorage
+	Set(key interface{}, records *storage.IDStorage)
+	Keys() []interface{}
 }

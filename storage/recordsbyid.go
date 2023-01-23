@@ -56,6 +56,26 @@ func (r *recordsByID) Count() int {
 }
 
 func (r *recordsByID) GetData(stores []LockableIDStorage, totalCount int) []record.Record {
+	if 1 == len(stores) {
+		// Optimization for one store case
+		return r.selectByStore(stores[0], totalCount)
+	}
+	return r.selectUniq(stores, totalCount)
+}
+
+func (r *recordsByID) selectByStore(store LockableIDStorage, totalCount int) []record.Record {
+	items := make([]record.Record, 0, totalCount)
+	r.RLock()
+	store.RLock()
+	for id := range store.ThreadUnsafeData() {
+		items = append(items, r.data[id])
+	}
+	store.RUnlock()
+	r.RUnlock()
+	return items
+}
+
+func (r *recordsByID) selectUniq(stores []LockableIDStorage, totalCount int) []record.Record {
 	var items []record.Record
 	added := make(map[int64]struct{}, totalCount)
 	r.RLock()

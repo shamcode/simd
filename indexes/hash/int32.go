@@ -1,4 +1,4 @@
-package bytype
+package hash
 
 import (
 	"github.com/shamcode/simd/indexes"
@@ -26,25 +26,21 @@ func (idx int32IndexComputation) Check(indexKey interface{}, comparator where.Fi
 	return comparator.(comparators.Int32FieldComparator).CompareValue(indexKey.(int32))
 }
 
-var _ indexes.Storage = (*int32IndexStorage)(nil)
+var _ indexes.Storage = (*int32HashIndexStorage)(nil)
 
-type int32IndexStorage struct {
+type int32HashIndexStorage struct {
 	byValue map[int32]*storage.IDStorage
 }
 
-func (idx *int32IndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *int32HashIndexStorage) Get(key interface{}) *storage.IDStorage {
 	return idx.byValue[key.(int32)]
 }
 
-func (idx *int32IndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *int32HashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
 	idx.byValue[key.(int32)] = records
 }
 
-func (idx *int32IndexStorage) Count(key interface{}) int {
-	return idx.byValue[key.(int32)].Count()
-}
-
-func (idx *int32IndexStorage) Keys() []interface{} {
+func (idx *int32HashIndexStorage) Keys() []interface{} {
 	i := 0
 	keys := make([]interface{}, len(idx.byValue))
 	for key := range idx.byValue {
@@ -54,12 +50,12 @@ func (idx *int32IndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewInt32Index(getter *record.Int32Getter) *indexes.Index {
-	return &indexes.Index{
-		Field:   getter.Field,
-		Compute: int32IndexComputation{getter: getter},
-		Storage: indexes.WrapToThreadSafeStorage(&int32IndexStorage{
+func NewInt32HashIndex(getter *record.Int32Getter) indexes.Index {
+	return NewIndex(
+		getter.Field,
+		int32IndexComputation{getter: getter},
+		indexes.WrapToThreadSafeStorage(&int32HashIndexStorage{
 			byValue: make(map[int32]*storage.IDStorage),
 		}),
-	}
+	)
 }

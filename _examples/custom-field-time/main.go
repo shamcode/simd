@@ -52,7 +52,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(indexesByType.NewTimeIndex(createdAt))
+	store.AddIndex(indexesByType.NewTimeHashIndex(createdAt))
 
 	for _, user := range []*Item{
 		{

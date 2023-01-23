@@ -1,4 +1,4 @@
-package bytype
+package hash
 
 import (
 	"github.com/shamcode/simd/indexes"
@@ -29,25 +29,21 @@ func (idx stringIndexComputation) Check(indexKey interface{}, comparator where.F
 	return comparator.(stringComparator).CompareValue(indexKey.(string))
 }
 
-var _ indexes.Storage = (*stringIndexStorage)(nil)
+var _ indexes.Storage = (*stringHashIndexStorage)(nil)
 
-type stringIndexStorage struct {
+type stringHashIndexStorage struct {
 	byValue map[string]*storage.IDStorage
 }
 
-func (idx *stringIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *stringHashIndexStorage) Get(key interface{}) *storage.IDStorage {
 	return idx.byValue[key.(string)]
 }
 
-func (idx *stringIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *stringHashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
 	idx.byValue[key.(string)] = records
 }
 
-func (idx *stringIndexStorage) Count(key interface{}) int {
-	return idx.byValue[key.(string)].Count()
-}
-
-func (idx *stringIndexStorage) Keys() []interface{} {
+func (idx *stringHashIndexStorage) Keys() []interface{} {
 	i := 0
 	keys := make([]interface{}, len(idx.byValue))
 	for key := range idx.byValue {
@@ -57,12 +53,12 @@ func (idx *stringIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewStringIndex(getter *record.StringGetter) *indexes.Index {
-	return &indexes.Index{
-		Field:   getter.Field,
-		Compute: stringIndexComputation{getter: getter},
-		Storage: indexes.WrapToThreadSafeStorage(&stringIndexStorage{
+func NewStringHashIndex(getter *record.StringGetter) indexes.Index {
+	return NewIndex(
+		getter.Field,
+		stringIndexComputation{getter: getter},
+		indexes.WrapToThreadSafeStorage(&stringHashIndexStorage{
 			byValue: make(map[string]*storage.IDStorage),
 		}),
-	}
+	)
 }
