@@ -6,23 +6,23 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-var _ indexes.Index = (*Index)(nil)
+var _ indexes.Index = (*index)(nil)
 
-type Index struct {
+type index struct {
 	field   string
 	compute indexes.IndexComputer
 	storage indexes.Storage
 }
 
-func (index *Index) Field() string {
+func (index *index) Field() string {
 	return index.field
 }
 
-func (index *Index) Compute() indexes.IndexComputer {
+func (index *index) Compute() indexes.IndexComputer {
 	return index.compute
 }
 
-func (index *Index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
+func (index *index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
 	cmp := condition.Cmp.GetType()
 	if !condition.WithNot && (where.EQ == cmp || where.InArray == cmp) {
 
@@ -34,7 +34,7 @@ func (index *Index) Weight(condition where.Condition) (canApplyIndex bool, weigh
 	return true, indexes.IndexWeightHigh
 }
 
-func (index *Index) Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+func (index *index) Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
 	if !condition.WithNot {
 		switch condition.Cmp.GetType() {
 		case where.EQ:
@@ -48,7 +48,7 @@ func (index *Index) Select(condition where.Condition) (count int, ids []storage.
 	return index.selectForOther(condition)
 }
 
-func (index *Index) selectForEqual(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+func (index *index) selectForEqual(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
 	itemsByValue := index.storage.Get(index.compute.ForValue(condition.Cmp.ValueAt(0)))
 	if nil != itemsByValue {
 		count = itemsByValue.Count()
@@ -57,7 +57,7 @@ func (index *Index) selectForEqual(condition where.Condition) (count int, ids []
 	return
 }
 
-func (index *Index) selectForInArray(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+func (index *index) selectForInArray(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
 	for i := 0; i < condition.Cmp.ValuesCount(); i++ {
 		itemsByValue := index.storage.Get(index.compute.ForValue(condition.Cmp.ValueAt(i)))
 		if nil != itemsByValue {
@@ -71,7 +71,7 @@ func (index *Index) selectForInArray(condition where.Condition) (count int, ids 
 	return
 }
 
-func (index *Index) selectForOther(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+func (index *index) selectForOther(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
 	keys := index.storage.Keys()
 	for _, key := range keys {
 		resultForValue, errorForValue := index.compute.Check(key, condition.Cmp)
@@ -88,12 +88,12 @@ func (index *Index) selectForOther(condition where.Condition) (count int, ids []
 	return
 }
 
-func (index *Index) Storage() indexes.Storage {
+func (index *index) Storage() indexes.Storage {
 	return index.storage
 }
 
 func NewIndex(field string, compute indexes.IndexComputer, storage indexes.Storage) indexes.Index {
-	return &Index{
+	return &index{
 		field:   field,
 		compute: compute,
 		storage: storage,
