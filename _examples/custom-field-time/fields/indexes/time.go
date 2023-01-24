@@ -55,7 +55,7 @@ func NewTimeHashIndex(getter *fields.TimeGetter) indexes.Index {
 	return hash.NewIndex(
 		getter.Field,
 		timeIndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&timeHashIndexStorage{
+		indexes.CreateConcurrentStorage(&timeHashIndexStorage{
 			byValue: make(map[int64]*storage.IDStorage),
 		}),
 	)

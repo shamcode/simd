@@ -54,7 +54,7 @@ func NewBoolHashIndex(getter *record.BoolGetter) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		boolIndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&boolHashIndexStorage{
+		indexes.CreateConcurrentStorage(&boolHashIndexStorage{
 			byValue: make(map[bool]*storage.IDStorage),
 		}),
 	)

@@ -31,12 +31,7 @@ func (ibf byField) Insert(item record.Record) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
 			key := idx.Compute().ForRecord(item)
-			records := idx.Storage().Get(key)
-			if nil == records {
-				records = storage.NewIDStorage()
-				idx.Storage().Set(key, records)
-			}
-			records.Add(item.GetID())
+			idx.Storage().GetOrCreate(key).Add(item.GetID())
 		}
 	}
 }
@@ -73,16 +68,8 @@ func (ibf byField) Update(oldItem, item record.Record) {
 				oldRecords.Delete(item.GetID())
 			}
 
-			records := idx.Storage().Get(newValue)
-			if nil == records {
-
-				// It's first item in index, create index storage
-				records = storage.NewIDStorage()
-				idx.Storage().Set(newValue, records)
-			}
-
 			// Add new item to index
-			records.Add(item.GetID())
+			idx.Storage().GetOrCreate(newValue).Add(item.GetID())
 		}
 	}
 }

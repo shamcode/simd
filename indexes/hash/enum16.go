@@ -54,7 +54,7 @@ func NewEnum16HashIndex(getter *record.Enum16Getter) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		enum16IndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&enum16HashIndexStorage{
+		indexes.CreateConcurrentStorage(&enum16HashIndexStorage{
 			byValue: make(map[uint16]*storage.IDStorage),
 		}),
 	)

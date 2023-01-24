@@ -17,11 +17,19 @@ type Index interface {
 	Compute() IndexComputer
 	Weight(condition where.Condition) (canApplyIndex bool, weight IndexWeight)
 	Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error)
-	Storage() Storage
+	Storage() ConcurrentStorage
 }
 
 type Storage interface {
 	Get(key interface{}) *storage.IDStorage
 	Set(key interface{}, records *storage.IDStorage)
+	Keys() []interface{}
+}
+
+type ConcurrentStorage interface {
+	RLock()
+	RUnlock()
+	Get(key interface{}) *storage.IDStorage
+	GetOrCreate(key interface{}) *storage.IDStorage
 	Keys() []interface{}
 }

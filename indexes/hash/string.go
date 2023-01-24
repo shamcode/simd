@@ -57,7 +57,7 @@ func NewStringHashIndex(getter *record.StringGetter) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		stringIndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&stringHashIndexStorage{
+		indexes.CreateConcurrentStorage(&stringHashIndexStorage{
 			byValue: make(map[string]*storage.IDStorage),
 		}),
 	)

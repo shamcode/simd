@@ -54,7 +54,7 @@ func NewInt32HashIndex(getter *record.Int32Getter) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		int32IndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&int32HashIndexStorage{
+		indexes.CreateConcurrentStorage(&int32HashIndexStorage{
 			byValue: make(map[int32]*storage.IDStorage),
 		}),
 	)

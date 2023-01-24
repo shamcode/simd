@@ -54,7 +54,7 @@ func NewEnum8HashIndex(getter *record.Enum8Getter) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		enum8IndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&enum8HashIndexStorage{
+		indexes.CreateConcurrentStorage(&enum8HashIndexStorage{
 			byValue: make(map[uint8]*storage.IDStorage),
 		}),
 	)

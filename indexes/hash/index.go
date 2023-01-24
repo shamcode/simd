@@ -11,18 +11,18 @@ var _ indexes.Index = (*index)(nil)
 type index struct {
 	field   string
 	compute indexes.IndexComputer
-	storage indexes.Storage
+	storage indexes.ConcurrentStorage
 }
 
-func (index *index) Field() string {
-	return index.field
+func (idx *index) Field() string {
+	return idx.field
 }
 
-func (index *index) Compute() indexes.IndexComputer {
-	return index.compute
+func (idx *index) Compute() indexes.IndexComputer {
+	return idx.compute
 }
 
-func (index *index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
+func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
 	cmp := condition.Cmp.GetType()
 	if !condition.WithNot && (where.EQ == cmp || where.InArray == cmp) {
 
@@ -34,22 +34,22 @@ func (index *index) Weight(condition where.Condition) (canApplyIndex bool, weigh
 	return true, indexes.IndexWeightHigh
 }
 
-func (index *index) Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+func (idx *index) Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
 	if !condition.WithNot {
 		switch condition.Cmp.GetType() {
 		case where.EQ:
-			count, ids = index.selectForEqual(condition)
+			count, ids = idx.selectForEqual(condition)
 			return
 		case where.InArray:
-			count, ids = index.selectForInArray(condition)
+			count, ids = idx.selectForInArray(condition)
 			return
 		}
 	}
-	return index.selectForOther(condition)
+	return idx.selectForOther(condition)
 }
 
-func (index *index) selectForEqual(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
-	itemsByValue := index.storage.Get(index.compute.ForValue(condition.Cmp.ValueAt(0)))
+func (idx *index) selectForEqual(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+	itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 	if nil != itemsByValue {
 		count = itemsByValue.Count()
 		ids = []storage.LockableIDStorage{itemsByValue}
@@ -57,9 +57,9 @@ func (index *index) selectForEqual(condition where.Condition) (count int, ids []
 	return
 }
 
-func (index *index) selectForInArray(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+func (idx *index) selectForInArray(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
 	for i := 0; i < condition.Cmp.ValuesCount(); i++ {
-		itemsByValue := index.storage.Get(index.compute.ForValue(condition.Cmp.ValueAt(i)))
+		itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 		if nil != itemsByValue {
 			countForValue := itemsByValue.Count()
 			if countForValue > 0 {
@@ -71,16 +71,16 @@ func (index *index) selectForInArray(condition where.Condition) (count int, ids 
 	return
 }
 
-func (index *index) selectForOther(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
-	keys := index.storage.Keys()
+func (idx *index) selectForOther(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+	keys := idx.storage.Keys()
 	for _, key := range keys {
-		resultForValue, errorForValue := index.compute.Check(key, condition.Cmp)
+		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
 		if nil != errorForValue {
 			err = errorForValue
 			return
 		}
 		if condition.WithNot != resultForValue {
-			idsForKey := index.storage.Get(key)
+			idsForKey := idx.storage.Get(key)
 			count += idsForKey.Count()
 			ids = append(ids, idsForKey)
 		}
@@ -88,11 +88,11 @@ func (index *index) selectForOther(condition where.Condition) (count int, ids []
 	return
 }
 
-func (index *index) Storage() indexes.Storage {
-	return index.storage
+func (idx *index) Storage() indexes.ConcurrentStorage {
+	return idx.storage
 }
 
-func NewIndex(field string, compute indexes.IndexComputer, storage indexes.Storage) indexes.Index {
+func NewIndex(field string, compute indexes.IndexComputer, storage indexes.ConcurrentStorage) indexes.Index {
 	return &index{
 		field:   field,
 		compute: compute,

@@ -54,7 +54,7 @@ func NewInt64HashIndex(getter *record.Int64Getter) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		int64IndexComputation{getter: getter},
-		indexes.WrapToThreadSafeStorage(&int64HashIndexStorage{
+		indexes.CreateConcurrentStorage(&int64HashIndexStorage{
 			byValue: make(map[int64]*storage.IDStorage),
 		}),
 	)
