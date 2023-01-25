@@ -8,14 +8,28 @@ import (
 
 var _ indexes.Index = (*index)(nil)
 
+type HashTable interface {
+	indexes.Storage
+	Keys() []interface{}
+}
+
 type index struct {
 	field   string
+	unique  bool
 	compute indexes.IndexComputer
 	storage indexes.ConcurrentStorage
 }
 
+func (idx *index) hashTable() HashTable {
+	return idx.storage.Unwrap().(HashTable)
+}
+
 func (idx *index) Field() string {
 	return idx.field
+}
+
+func (idx *index) Unique() bool {
+	return idx.unique
 }
 
 func (idx *index) Compute() indexes.IndexComputer {
@@ -72,7 +86,9 @@ func (idx *index) selectForInArray(condition where.Condition) (count int, ids []
 }
 
 func (idx *index) selectForOther(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
-	keys := idx.storage.Keys()
+	idx.storage.RLock()
+	keys := idx.hashTable().Keys()
+	idx.storage.RUnlock()
 	for _, key := range keys {
 		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
 		if nil != errorForValue {
@@ -88,14 +104,15 @@ func (idx *index) selectForOther(condition where.Condition) (count int, ids []st
 	return
 }
 
-func (idx *index) Storage() indexes.ConcurrentStorage {
+func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
-func NewIndex(field string, compute indexes.IndexComputer, storage indexes.ConcurrentStorage) indexes.Index {
+func NewIndex(field string, compute indexes.IndexComputer, hashTable HashTable, unique bool) indexes.Index {
 	return &index{
 		field:   field,
+		unique:  unique,
 		compute: compute,
-		storage: storage,
+		storage: indexes.CreateConcurrentStorage(hashTable, unique),
 	}
 }

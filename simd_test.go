@@ -168,10 +168,10 @@ func (sorting *byOnline) CalcIndex(item record.Record) int64 {
 
 func Test_FetchAllAndTotal(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID))
-	store.AddIndex(hash.NewStringHashIndex(userName))
-	store.AddIndex(hash.NewEnum8HashIndex(userStatus))
-	store.AddIndex(hash.NewBoolHashIndex(userIsOnline))
+	store.AddIndex(hash.NewInt64HashIndex(userID, true))
+	store.AddIndex(hash.NewStringHashIndex(userName, false))
+	store.AddIndex(hash.NewEnum8HashIndex(userStatus, false))
+	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
@@ -577,7 +577,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 
 func Test_Context(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID, true))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
@@ -595,7 +595,7 @@ func Test_Context(t *testing.T) {
 
 func Test_CallbackOnIteration(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID, true))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -634,7 +634,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 
 func Test_InsertAlreadyExisted(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID, true))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -650,8 +650,8 @@ func Test_InsertAlreadyExisted(t *testing.T) {
 
 func Test_Upsert(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID))
-	store.AddIndex(hash.NewEnum8HashIndex(userStatus))
+	store.AddIndex(hash.NewInt64HashIndex(userID, true))
+	store.AddIndex(hash.NewEnum8HashIndex(userStatus, true))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,
@@ -685,7 +685,7 @@ func Test_Upsert(t *testing.T) {
 
 func Test_Delete(t *testing.T) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID))
+	store.AddIndex(hash.NewInt64HashIndex(userID, true))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,

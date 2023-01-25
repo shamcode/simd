@@ -14,13 +14,14 @@ import (
 	"testing"
 )
 
-func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
+func Benchmark_SIMDVsSQLite(b *testing.B) {
 	usersCountForBenchmarking := []int{
 		10,
 		100,
 		1_000,
 		5_000,
 		10_000,
+		50_000,
 	}
 
 	for _, usersCount := range usersCountForBenchmarking {
@@ -45,7 +46,7 @@ func Benchmark_CompareSIMDWithSQLite(b *testing.B) {
 		}
 
 		simd := namespace.CreateNamespace()
-		simd.AddIndex(hash.NewInt64HashIndex(userID))
+		simd.AddIndex(hash.NewInt64HashIndex(userID, true))
 
 		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)")
 		if nil != err {

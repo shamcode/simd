@@ -15,6 +15,7 @@ type ByField interface {
 		indexExists bool,
 		count int,
 		ids []storage.LockableIDStorage,
+		idsUnique bool,
 		err error,
 	)
 }
@@ -31,7 +32,7 @@ func (ibf byField) Insert(item record.Record) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
 			key := idx.Compute().ForRecord(item)
-			idx.Storage().GetOrCreate(key).Add(item.GetID())
+			idx.ConcurrentStorage().GetOrCreate(key).Add(item.GetID())
 		}
 	}
 }
@@ -39,7 +40,7 @@ func (ibf byField) Insert(item record.Record) {
 func (ibf byField) Delete(item record.Record) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
-			records := idx.Storage().Get(idx.Compute().ForRecord(item))
+			records := idx.ConcurrentStorage().Get(idx.Compute().ForRecord(item))
 			if nil != records {
 				records.Delete(item.GetID())
 			}
@@ -63,13 +64,13 @@ func (ibf byField) Update(oldItem, item record.Record) {
 			}
 
 			// Remove old item from index
-			oldRecords := idx.Storage().Get(oldValue)
+			oldRecords := idx.ConcurrentStorage().Get(oldValue)
 			if nil != oldRecords {
 				oldRecords.Delete(item.GetID())
 			}
 
 			// Add new item to index
-			idx.Storage().GetOrCreate(newValue).Add(item.GetID())
+			idx.ConcurrentStorage().GetOrCreate(newValue).Add(item.GetID())
 		}
 	}
 }
@@ -78,6 +79,7 @@ func (ibf byField) SelectForCondition(condition where.Condition) (
 	indexExists bool,
 	count int,
 	ids []storage.LockableIDStorage,
+	idsUnique bool,
 	err error,
 ) {
 	var indexes []Index
@@ -103,10 +105,11 @@ func (ibf byField) SelectForCondition(condition where.Condition) (
 		indexExists = false
 	} else {
 		count, ids, err = indexForApply.Select(condition)
+		idsUnique = indexForApply.Unique()
 	}
 	return
 }
 
-func NewByField() ByField {
+func CreateByField() ByField {
 	return make(byField)
 }

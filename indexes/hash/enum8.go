@@ -26,17 +26,17 @@ func (idx enum8IndexComputation) Check(indexKey interface{}, comparator where.Fi
 	return comparator.(comparators.Enum8FieldComparator).CompareValue(indexKey.(uint8))
 }
 
-var _ indexes.Storage = (*enum8HashIndexStorage)(nil)
+var _ HashTable = (*enum8HashIndexStorage)(nil)
 
 type enum8HashIndexStorage struct {
-	byValue map[uint8]*storage.IDStorage
+	byValue map[uint8]storage.IDStorage
 }
 
-func (idx *enum8HashIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *enum8HashIndexStorage) Get(key interface{}) storage.IDStorage {
 	return idx.byValue[key.(uint8)]
 }
 
-func (idx *enum8HashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *enum8HashIndexStorage) Set(key interface{}, records storage.IDStorage) {
 	idx.byValue[key.(uint8)] = records
 }
 
@@ -50,12 +50,13 @@ func (idx *enum8HashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewEnum8HashIndex(getter *record.Enum8Getter) indexes.Index {
+func NewEnum8HashIndex(getter *record.Enum8Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		enum8IndexComputation{getter: getter},
-		indexes.CreateConcurrentStorage(&enum8HashIndexStorage{
-			byValue: make(map[uint8]*storage.IDStorage),
-		}),
+		&enum8HashIndexStorage{
+			byValue: make(map[uint8]storage.IDStorage),
+		},
+		unique,
 	)
 }

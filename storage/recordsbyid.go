@@ -5,22 +5,12 @@ import (
 	"sync"
 )
 
-type RecordsByID interface {
-	GetIDStorage() LockableIDStorage
-	Get(id int64) record.Record
-	Set(id int64, item record.Record)
-	Delete(id int64)
-	Count() int
-	GetData(stores []LockableIDStorage, totalCount int) []record.Record
-	GetAllData() []record.Record
-}
-
 var _ RecordsByID = (*recordsByID)(nil)
 
 type recordsByID struct {
 	sync.RWMutex
 	data map[int64]record.Record
-	ids  *innerIDStorage
+	ids  MapIDStorage
 }
 
 func (r *recordsByID) GetIDStorage() LockableIDStorage {
@@ -37,14 +27,14 @@ func (r *recordsByID) Get(id int64) record.Record {
 func (r *recordsByID) Set(id int64, item record.Record) {
 	r.Lock()
 	r.data[id] = item
-	r.ids.data[id] = struct{}{}
+	r.ids[id] = struct{}{}
 	r.Unlock()
 }
 
 func (r *recordsByID) Delete(id int64) {
 	r.Lock()
 	delete(r.data, id)
-	delete(r.ids.data, id)
+	delete(r.ids, id)
 	r.Unlock()
 
 }
@@ -55,7 +45,10 @@ func (r *recordsByID) Count() int {
 	return len(r.data)
 }
 
-func (r *recordsByID) GetData(stores []LockableIDStorage, totalCount int) []record.Record {
+func (r *recordsByID) GetData(stores []LockableIDStorage, totalCount int, idsUnique bool) []record.Record {
+	if idsUnique {
+		return r.selectByUniqIDsStore(stores, totalCount)
+	}
 	if 1 == len(stores) {
 		// Optimization for one store case
 		return r.selectByStore(stores[0], totalCount)
@@ -75,19 +68,37 @@ func (r *recordsByID) selectByStore(store LockableIDStorage, totalCount int) []r
 	return items
 }
 
+func (r *recordsByID) selectByUniqIDsStore(stores []LockableIDStorage, totalCount int) []record.Record {
+	items := make([]record.Record, 0, totalCount)
+	r.RLock()
+	for _, store := range stores {
+		items = append(items, r.data[store.(UniqueIDStorage).ID()])
+	}
+	r.RUnlock()
+	return items
+}
+
 func (r *recordsByID) selectUniq(stores []LockableIDStorage, totalCount int) []record.Record {
 	var items []record.Record
 	added := make(map[int64]struct{}, totalCount)
 	r.RLock()
 	for _, store := range stores {
-		store.RLock()
-		for id := range store.ThreadUnsafeData() {
+		if uniqueIDStore, ok := store.(UniqueIDStorage); ok {
+			id := uniqueIDStore.ID()
 			if _, ok := added[id]; !ok {
 				items = append(items, r.data[id])
 				added[id] = struct{}{}
 			}
+		} else {
+			store.RLock()
+			for id := range store.ThreadUnsafeData() {
+				if _, ok := added[id]; !ok {
+					items = append(items, r.data[id])
+					added[id] = struct{}{}
+				}
+			}
+			store.RUnlock()
 		}
-		store.RUnlock()
 	}
 	r.RUnlock()
 	return items
@@ -105,7 +116,7 @@ func (r *recordsByID) GetAllData() []record.Record {
 
 func CreateRecordsByID() RecordsByID {
 	return &recordsByID{
-		ids:  createInnerIDStorage(),
+		ids:  CreateMapIDStorage(),
 		data: make(map[int64]record.Record),
 	}
 }

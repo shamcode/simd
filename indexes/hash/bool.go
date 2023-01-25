@@ -26,17 +26,17 @@ func (idx boolIndexComputation) Check(indexKey interface{}, comparator where.Fie
 	return comparator.(comparators.BoolFieldComparator).CompareValue(indexKey.(bool))
 }
 
-var _ indexes.Storage = (*boolHashIndexStorage)(nil)
+var _ HashTable = (*boolHashIndexStorage)(nil)
 
 type boolHashIndexStorage struct {
-	byValue map[bool]*storage.IDStorage
+	byValue map[bool]storage.IDStorage
 }
 
-func (idx *boolHashIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *boolHashIndexStorage) Get(key interface{}) storage.IDStorage {
 	return idx.byValue[key.(bool)]
 }
 
-func (idx *boolHashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *boolHashIndexStorage) Set(key interface{}, records storage.IDStorage) {
 	idx.byValue[key.(bool)] = records
 }
 
@@ -50,12 +50,13 @@ func (idx *boolHashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewBoolHashIndex(getter *record.BoolGetter) indexes.Index {
+func NewBoolHashIndex(getter *record.BoolGetter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		boolIndexComputation{getter: getter},
-		indexes.CreateConcurrentStorage(&boolHashIndexStorage{
-			byValue: make(map[bool]*storage.IDStorage),
-		}),
+		&boolHashIndexStorage{
+			byValue: make(map[bool]storage.IDStorage),
+		},
+		unique,
 	)
 }

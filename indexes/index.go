@@ -14,22 +14,24 @@ type IndexComputer interface {
 
 type Index interface {
 	Field() string
+	Unique() bool
 	Compute() IndexComputer
 	Weight(condition where.Condition) (canApplyIndex bool, weight IndexWeight)
 	Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error)
-	Storage() ConcurrentStorage
+	ConcurrentStorage() ConcurrentStorage
 }
 
+// Storage is base interface for indexes
 type Storage interface {
-	Get(key interface{}) *storage.IDStorage
-	Set(key interface{}, records *storage.IDStorage)
-	Keys() []interface{}
+	Get(key interface{}) storage.IDStorage
+	Set(key interface{}, records storage.IDStorage)
 }
 
+// ConcurrentStorage wrapped Storage for concurrent safe access
 type ConcurrentStorage interface {
 	RLock()
 	RUnlock()
-	Get(key interface{}) *storage.IDStorage
-	GetOrCreate(key interface{}) *storage.IDStorage
-	Keys() []interface{}
+	Unwrap() Storage
+	Get(key interface{}) storage.IDStorage
+	GetOrCreate(key interface{}) storage.IDStorage
 }

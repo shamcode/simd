@@ -27,6 +27,7 @@ type User struct {
 	ID       int64
 	Name     string
 	Status   StatusEnum
+	Age      int64
 	Score    int
 	IsOnline bool
 }
@@ -47,6 +48,11 @@ var userName = &record.StringGetter{
 var userStatus = &record.Enum8Getter{
 	Field: "status",
 	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
+}
+
+var userAge = &record.Int64Getter{
+	Field: "age",
+	Get:   func(item record.Record) int64 { return item.(*User).Age },
 }
 
 var userIsOnline = &record.BoolGetter{

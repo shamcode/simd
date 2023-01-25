@@ -26,17 +26,17 @@ func (idx int64IndexComputation) Check(indexKey interface{}, comparator where.Fi
 	return comparator.(comparators.Int64FieldComparator).CompareValue(indexKey.(int64))
 }
 
-var _ indexes.Storage = (*int64HashIndexStorage)(nil)
+var _ HashTable = (*int64HashIndexStorage)(nil)
 
 type int64HashIndexStorage struct {
-	byValue map[int64]*storage.IDStorage
+	byValue map[int64]storage.IDStorage
 }
 
-func (idx *int64HashIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *int64HashIndexStorage) Get(key interface{}) storage.IDStorage {
 	return idx.byValue[key.(int64)]
 }
 
-func (idx *int64HashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *int64HashIndexStorage) Set(key interface{}, records storage.IDStorage) {
 	idx.byValue[key.(int64)] = records
 }
 
@@ -50,12 +50,13 @@ func (idx *int64HashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewInt64HashIndex(getter *record.Int64Getter) indexes.Index {
+func NewInt64HashIndex(getter *record.Int64Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		int64IndexComputation{getter: getter},
-		indexes.CreateConcurrentStorage(&int64HashIndexStorage{
-			byValue: make(map[int64]*storage.IDStorage),
-		}),
+		&int64HashIndexStorage{
+			byValue: make(map[int64]storage.IDStorage),
+		},
+		unique,
 	)
 }

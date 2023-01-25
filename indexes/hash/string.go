@@ -29,17 +29,17 @@ func (idx stringIndexComputation) Check(indexKey interface{}, comparator where.F
 	return comparator.(stringComparator).CompareValue(indexKey.(string))
 }
 
-var _ indexes.Storage = (*stringHashIndexStorage)(nil)
+var _ HashTable = (*stringHashIndexStorage)(nil)
 
 type stringHashIndexStorage struct {
-	byValue map[string]*storage.IDStorage
+	byValue map[string]storage.IDStorage
 }
 
-func (idx *stringHashIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *stringHashIndexStorage) Get(key interface{}) storage.IDStorage {
 	return idx.byValue[key.(string)]
 }
 
-func (idx *stringHashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *stringHashIndexStorage) Set(key interface{}, records storage.IDStorage) {
 	idx.byValue[key.(string)] = records
 }
 
@@ -53,12 +53,13 @@ func (idx *stringHashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewStringHashIndex(getter *record.StringGetter) indexes.Index {
+func NewStringHashIndex(getter *record.StringGetter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		stringIndexComputation{getter: getter},
-		indexes.CreateConcurrentStorage(&stringHashIndexStorage{
-			byValue: make(map[string]*storage.IDStorage),
-		}),
+		&stringHashIndexStorage{
+			byValue: make(map[string]storage.IDStorage),
+		},
+		unique,
 	)
 }

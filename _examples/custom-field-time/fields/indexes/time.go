@@ -29,17 +29,17 @@ func (idx timeIndexComputation) Check(indexKey interface{}, comparator where.Fie
 	return comparator.(comparators.TimeFieldComparator).CompareValue(time.Unix(0, indexKey.(int64)))
 }
 
-var _ indexes.Storage = (*timeHashIndexStorage)(nil)
+var _ hash.HashTable = (*timeHashIndexStorage)(nil)
 
 type timeHashIndexStorage struct {
-	byValue map[int64]*storage.IDStorage
+	byValue map[int64]storage.IDStorage
 }
 
-func (idx *timeHashIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *timeHashIndexStorage) Get(key interface{}) storage.IDStorage {
 	return idx.byValue[key.(int64)]
 }
 
-func (idx *timeHashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *timeHashIndexStorage) Set(key interface{}, records storage.IDStorage) {
 	idx.byValue[key.(int64)] = records
 }
 
@@ -51,12 +51,13 @@ func (idx *timeHashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewTimeHashIndex(getter *fields.TimeGetter) indexes.Index {
+func NewTimeHashIndex(getter *fields.TimeGetter, unique bool) indexes.Index {
 	return hash.NewIndex(
 		getter.Field,
 		timeIndexComputation{getter: getter},
-		indexes.CreateConcurrentStorage(&timeHashIndexStorage{
-			byValue: make(map[int64]*storage.IDStorage),
-		}),
+		&timeHashIndexStorage{
+			byValue: make(map[int64]storage.IDStorage),
+		},
+		unique,
 	)
 }

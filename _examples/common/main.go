@@ -48,8 +48,8 @@ func main() {
 		})
 	}
 
-	store.AddIndex(hash.NewInt64HashIndex(id))
-	store.AddIndex(hash.NewStringHashIndex(name))
+	store.AddIndex(hash.NewInt64HashIndex(id, true))
+	store.AddIndex(hash.NewStringHashIndex(name, false))
 
 	for _, user := range []*User{
 		{

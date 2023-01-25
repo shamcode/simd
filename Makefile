@@ -20,7 +20,16 @@ test: example run_test coverage
 bench_query_builder:
 	go test -bench=. -benchmem -benchtime=7s -run=^_ ./query/...
 
-bench_comparing:
-	go test -bench=. -benchmem -benchtime=5s ./benchmarks/...
+bench_comparing_sqlite:
+	go test -bench=Benchmark_SIMDVsSQLite -benchmem -benchtime=5s -run=^_ ./benchmarks/...
 
-make bench: bench_query_builder bench_comparing
+bench_query:
+	go test -bench=Benchmark_Query -benchmem -benchtime=5s -run=^_ ./benchmarks/...
+
+bench_indexes:
+	go test -bench=Benchmark_Indexes -benchmem -benchtime=1s -run=^_ ./benchmarks/...
+
+bench_indexes_btree:
+	go test -bench=Benchmark_BTreeIndexesMaxChildren -benchmem -benchtime=1s -run=^_ ./benchmarks/...
+
+make bench: bench_query_builder bench_query bench_indexes bench_indexes_btree bench_comparing_sqlite

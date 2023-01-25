@@ -95,7 +95,7 @@ func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ([]reco
 			}
 		}
 
-		indexExists, indexSize, ids, err := ns.indexes.SelectForCondition(condition)
+		indexExists, indexSize, ids, idsUnique, err := ns.indexes.SelectForCondition(condition)
 		if nil != err {
 			return nil, err
 		}
@@ -106,26 +106,28 @@ func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ([]reco
 		}
 
 		if lastBracketLevel > condition.BracketLevel {
-			subLevelItems, subLevelSize, hasItems := byLevel.reduce(lastBracketLevel, condition.BracketLevel)
+			subLevelItems, subLevelSize, subLevelIDSUnique, hasItems := byLevel.reduce(lastBracketLevel, condition.BracketLevel)
 			if hasItems {
 				switch op {
 				case union:
 					ids = append(ids, subLevelItems...)
 					indexSize += subLevelSize
+					idsUnique = false
 				case intersection:
 					if subLevelSize < indexSize {
 						ids = subLevelItems
 						indexSize = subLevelSize
+						idsUnique = subLevelIDSUnique
 					}
 				}
 			}
 		}
 
-		byLevel.save(condition.BracketLevel, ids, indexSize, op)
+		byLevel.save(condition.BracketLevel, ids, idsUnique, indexSize, op)
 		lastBracketLevel = condition.BracketLevel
 	}
 
-	items, size, hasItems := byLevel.reduce(lastBracketLevel, 0)
+	items, size, idsUnique, hasItems := byLevel.reduce(lastBracketLevel, 0)
 
 	if !hasItems {
 		ns.logger.Println("index not applied", conditions)
@@ -136,7 +138,7 @@ func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ([]reco
 		ns.logger.Println("index not applied (large select)", conditions)
 		return ns.storage.GetAllData(), nil
 	}
-	return ns.storage.GetData(items, size), nil
+	return ns.storage.GetData(items, size, idsUnique), nil
 }
 
 func (ns *WithIndexes) SetLogger(logger Logger) {
@@ -147,6 +149,6 @@ func CreateNamespace() *WithIndexes {
 	return &WithIndexes{
 		logger:  log.Default(),
 		storage: storage.CreateRecordsByID(),
-		indexes: indexes.NewByField(),
+		indexes: indexes.CreateByField(),
 	}
 }

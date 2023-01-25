@@ -26,17 +26,17 @@ func (idx enum16IndexComputation) Check(indexKey interface{}, comparator where.F
 	return comparator.(comparators.Enum16FieldComparator).CompareValue(indexKey.(uint16))
 }
 
-var _ indexes.Storage = (*enum16HashIndexStorage)(nil)
+var _ HashTable = (*enum16HashIndexStorage)(nil)
 
 type enum16HashIndexStorage struct {
-	byValue map[uint16]*storage.IDStorage
+	byValue map[uint16]storage.IDStorage
 }
 
-func (idx *enum16HashIndexStorage) Get(key interface{}) *storage.IDStorage {
+func (idx *enum16HashIndexStorage) Get(key interface{}) storage.IDStorage {
 	return idx.byValue[key.(uint16)]
 }
 
-func (idx *enum16HashIndexStorage) Set(key interface{}, records *storage.IDStorage) {
+func (idx *enum16HashIndexStorage) Set(key interface{}, records storage.IDStorage) {
 	idx.byValue[key.(uint16)] = records
 }
 
@@ -50,12 +50,13 @@ func (idx *enum16HashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewEnum16HashIndex(getter *record.Enum16Getter) indexes.Index {
+func NewEnum16HashIndex(getter *record.Enum16Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		enum16IndexComputation{getter: getter},
-		indexes.CreateConcurrentStorage(&enum16HashIndexStorage{
-			byValue: make(map[uint16]*storage.IDStorage),
-		}),
+		&enum16HashIndexStorage{
+			byValue: make(map[uint16]storage.IDStorage),
+		},
+		unique,
 	)
 }

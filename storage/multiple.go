@@ -5,42 +5,38 @@ import (
 	"sync/atomic"
 )
 
-type LockableIDStorage interface {
-	RLock()
-	RUnlock()
-	ThreadUnsafeData() map[int64]struct{}
-}
+var _ IDStorage = (*multipleIDStorage)(nil)
 
-type IDStorage struct {
+type multipleIDStorage struct {
 	sync.RWMutex
 	data  map[int64]struct{}
 	count int64
 }
 
-func (r *IDStorage) ThreadUnsafeData() map[int64]struct{} {
+func (r *multipleIDStorage) ThreadUnsafeData() map[int64]struct{} {
 	return r.data
 }
 
-func (r *IDStorage) Count() int {
+func (r *multipleIDStorage) Count() int {
 	return int(atomic.LoadInt64(&r.count))
 }
 
-func (r *IDStorage) Add(id int64) {
+func (r *multipleIDStorage) Add(id int64) {
 	r.Lock()
 	r.data[id] = struct{}{}
 	atomic.StoreInt64(&r.count, int64(len(r.data)))
 	r.Unlock()
 }
 
-func (r *IDStorage) Delete(id int64) {
+func (r *multipleIDStorage) Delete(id int64) {
 	r.Lock()
 	delete(r.data, id)
 	atomic.StoreInt64(&r.count, int64(len(r.data)))
 	r.Unlock()
 }
 
-func NewIDStorage() *IDStorage {
-	return &IDStorage{
+func CreateMultipleIDStorage() IDStorage {
+	return &multipleIDStorage{
 		data: make(map[int64]struct{}),
 	}
 }
