@@ -19,7 +19,7 @@ func concatIDs(ids []storage.LockableIDStorage) []int {
 			result = append(result, int(id))
 		}
 	}
-	sort.Sort(sort.IntSlice(result))
+	sort.Ints(result)
 	return result
 }
 
