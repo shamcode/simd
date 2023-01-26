@@ -15,7 +15,7 @@ func (fc Enum16FieldComparator) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc Enum16FieldComparator) GetField() string {
+func (fc Enum16FieldComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 

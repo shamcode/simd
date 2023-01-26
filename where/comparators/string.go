@@ -17,7 +17,7 @@ func (fc StringFieldComparator) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc StringFieldComparator) GetField() string {
+func (fc StringFieldComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 
@@ -70,7 +70,7 @@ func (fc StringFieldRegexpComparator) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc StringFieldRegexpComparator) GetField() string {
+func (fc StringFieldRegexpComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 

@@ -15,7 +15,7 @@ func (fc Int32FieldComparator) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc Int32FieldComparator) GetField() string {
+func (fc Int32FieldComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 

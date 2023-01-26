@@ -2,6 +2,7 @@ package hash
 
 import (
 	"github.com/shamcode/simd/indexes"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 )
@@ -14,7 +15,7 @@ type HashTable interface {
 }
 
 type index struct {
-	field   string
+	field   record.Field
 	unique  bool
 	compute indexes.IndexComputer
 	storage indexes.ConcurrentStorage
@@ -24,7 +25,7 @@ func (idx *index) hashTable() HashTable {
 	return idx.storage.Unwrap().(HashTable)
 }
 
-func (idx *index) Field() string {
+func (idx *index) Field() record.Field {
 	return idx.field
 }
 
@@ -108,7 +109,7 @@ func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
-func NewIndex(field string, compute indexes.IndexComputer, hashTable HashTable, unique bool) indexes.Index {
+func NewIndex(field record.Field, compute indexes.IndexComputer, hashTable HashTable, unique bool) indexes.Index {
 	return &index{
 		field:   field,
 		unique:  unique,

@@ -35,28 +35,30 @@ type User struct {
 func (u *User) GetID() int64   { return u.ID }
 func (u *User) ComputeFields() {}
 
+var userFields = record.NewFields()
+
 var userID = &record.Int64Getter{
-	Field: "id",
+	Field: userFields.New("id"),
 	Get:   func(item record.Record) int64 { return item.(*User).ID },
 }
 
 var userName = &record.StringGetter{
-	Field: "name",
+	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
 var userStatus = &record.Enum8Getter{
-	Field: "status",
+	Field: userFields.New("status"),
 	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }
 
 var userAge = &record.Int64Getter{
-	Field: "age",
+	Field: userFields.New("age"),
 	Get:   func(item record.Record) int64 { return item.(*User).Age },
 }
 
 var userIsOnline = &record.BoolGetter{
-	Field: "is_online",
+	Field: userFields.New("is_online"),
 	Get:   func(item record.Record) bool { return item.(*User).IsOnline },
 }
 

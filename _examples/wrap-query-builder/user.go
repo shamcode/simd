@@ -1,6 +1,9 @@
 package main
 
-import "github.com/shamcode/simd/record"
+import (
+	"github.com/shamcode/simd/record"
+	"strconv"
+)
 
 type Status uint8
 
@@ -10,6 +13,16 @@ const (
 	StatusActive Status = iota + 1
 	StatusDisabled
 )
+
+func (s Status) String() string {
+	switch s {
+	case StatusActive:
+		return "active"
+	case StatusDisabled:
+		return "disabled"
+	}
+	return strconv.Itoa(int(s))
+}
 
 type User struct {
 	ID     int64
@@ -21,17 +34,19 @@ type User struct {
 func (u *User) GetID() int64   { return u.ID }
 func (u *User) ComputeFields() {}
 
+var userFields = record.NewFields()
+
 var id = &record.Int64Getter{
-	Field: "id",
+	Field: userFields.New("id"),
 	Get:   func(item record.Record) int64 { return item.(*User).ID },
 }
 
 var name = &record.StringGetter{
-	Field: "name",
+	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
 var status = &record.Enum8Getter{
-	Field: "status",
+	Field: userFields.New("status"),
 	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }

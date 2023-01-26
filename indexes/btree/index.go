@@ -2,6 +2,7 @@ package btree
 
 import (
 	"github.com/shamcode/simd/indexes"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
 )
@@ -19,7 +20,7 @@ type BTree interface {
 }
 
 type index struct {
-	field   string
+	field   record.Field
 	unique  bool
 	compute indexes.IndexComputer
 	storage indexes.ConcurrentStorage
@@ -29,7 +30,7 @@ func (idx *index) BTree() BTree {
 	return idx.storage.Unwrap().(BTree)
 }
 
-func (idx *index) Field() string {
+func (idx *index) Field() record.Field {
 	return idx.field
 }
 
@@ -145,7 +146,7 @@ func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
-func NewIndex(field string, compute indexes.IndexComputer, btree BTree, unique bool) indexes.Index {
+func NewIndex(field record.Field, compute indexes.IndexComputer, btree BTree, unique bool) indexes.Index {
 	return &index{
 		field:   field,
 		unique:  unique,

@@ -124,7 +124,7 @@ func (q *debugQueryBuilder) SaveFieldComparatorForDump(cmp where.FieldComparator
 	if q.withNot {
 		w.WriteString("NOT ")
 	}
-	w.WriteString(cmp.GetField())
+	w.WriteString(cmp.GetField().String())
 	switch cmp.GetType() {
 	case where.EQ:
 		w.WriteString(" = ")
@@ -162,7 +162,7 @@ func (q *debugQueryBuilder) SaveFieldComparatorForDump(cmp where.FieldComparator
 	case where.MapHasValue:
 		w.WriteString(" MAP_HAS_VALUE FIELD ")
 		mapCmp := cmp.ValueAt(0).(where.FieldComparator)
-		w.WriteString(mapCmp.GetField())
+		w.WriteString(mapCmp.GetField().String())
 		w.WriteString(fmt.Sprintf(" COMPARE %v", mapCmp))
 	case where.MapHasKey:
 		w.WriteString(" MAP_HAS_KEY ")

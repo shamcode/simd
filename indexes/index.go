@@ -13,7 +13,7 @@ type IndexComputer interface {
 }
 
 type Index interface {
-	Field() string
+	Field() record.Field
 	Unique() bool
 	Compute() IndexComputer
 	Weight(condition where.Condition) (canApplyIndex bool, weight IndexWeight)

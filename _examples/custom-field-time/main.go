@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/shamcode/simd/_examples/custom-field-time/fields"
-	indexesByType "github.com/shamcode/simd/_examples/custom-field-time/fields/indexes"
-	"github.com/shamcode/simd/_examples/custom-field-time/fields/querybuilder"
+	"github.com/shamcode/simd/_examples/custom-field-time/types"
+	indexesByType "github.com/shamcode/simd/_examples/custom-field-time/types/indexes"
+	"github.com/shamcode/simd/_examples/custom-field-time/types/querybuilder"
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/namespace"
@@ -25,8 +25,10 @@ type Item struct {
 func (u *Item) GetID() int64   { return u.ID }
 func (u *Item) ComputeFields() {}
 
-var createdAt = &fields.TimeGetter{
-	Field: "created_at",
+var itemFields = record.NewFields()
+
+var createdAt = &types.TimeGetter{
+	Field: itemFields.New("created_at"),
 	Get: func(item record.Record) time.Time {
 		return item.(*Item).CreateAt
 	},

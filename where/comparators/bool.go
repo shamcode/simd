@@ -15,7 +15,7 @@ func (fc BoolFieldComparator) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc BoolFieldComparator) GetField() string {
+func (fc BoolFieldComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 

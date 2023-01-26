@@ -1,8 +1,8 @@
 package indexes
 
 import (
-	"github.com/shamcode/simd/_examples/custom-field-time/fields"
-	"github.com/shamcode/simd/_examples/custom-field-time/fields/comparators"
+	"github.com/shamcode/simd/_examples/custom-field-time/types"
+	"github.com/shamcode/simd/_examples/custom-field-time/types/comparators"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/record"
@@ -14,7 +14,7 @@ import (
 var _ indexes.IndexComputer = timeIndexComputation{}
 
 type timeIndexComputation struct {
-	getter *fields.TimeGetter
+	getter *types.TimeGetter
 }
 
 func (idx timeIndexComputation) ForRecord(item record.Record) interface{} {
@@ -51,7 +51,7 @@ func (idx *timeHashIndexStorage) Keys() []interface{} {
 	return keys
 }
 
-func NewTimeHashIndex(getter *fields.TimeGetter, unique bool) indexes.Index {
+func NewTimeHashIndex(getter *types.TimeGetter, unique bool) indexes.Index {
 	return hash.NewIndex(
 		getter.Field,
 		timeIndexComputation{getter: getter},

@@ -15,7 +15,7 @@ func (fc MapFieldComparator) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc MapFieldComparator) GetField() string {
+func (fc MapFieldComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 

@@ -72,7 +72,10 @@ func (r *recordsByID) selectByUniqIDsStore(stores []LockableIDStorage, totalCoun
 	items := make([]record.Record, 0, totalCount)
 	r.RLock()
 	for _, store := range stores {
-		items = append(items, r.data[store.(UniqueIDStorage).ID()])
+		id := store.(UniqueIDStorage).ID()
+		if 0 != id {
+			items = append(items, r.data[id])
+		}
 	}
 	r.RUnlock()
 	return items
@@ -85,6 +88,9 @@ func (r *recordsByID) selectUniq(stores []LockableIDStorage, totalCount int) []r
 	for _, store := range stores {
 		if uniqueIDStore, ok := store.(UniqueIDStorage); ok {
 			id := uniqueIDStore.ID()
+			if 0 == id {
+				continue
+			}
 			if _, ok := added[id]; !ok {
 				items = append(items, r.data[id])
 				added[id] = struct{}{}

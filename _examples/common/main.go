@@ -22,13 +22,15 @@ type User struct {
 func (u *User) GetID() int64   { return u.ID }
 func (u *User) ComputeFields() {}
 
+var userFields = record.NewFields()
+
 var id = &record.Int64Getter{
-	Field: "id",
+	Field: userFields.New("id"),
 	Get:   func(item record.Record) int64 { return item.(*User).ID },
 }
 
 var name = &record.StringGetter{
-	Field: "name",
+	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 

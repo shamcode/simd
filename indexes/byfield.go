@@ -22,10 +22,11 @@ type ByField interface {
 
 var _ ByField = byField{}
 
-type byField map[string][]Index
+type byField map[uint8][]Index
 
 func (ibf byField) Add(index Index) {
-	ibf[index.Field()] = append(ibf[index.Field()], index)
+	i := index.Field().Index()
+	ibf[i] = append(ibf[i], index)
 }
 
 func (ibf byField) Insert(item record.Record) {
@@ -83,7 +84,7 @@ func (ibf byField) SelectForCondition(condition where.Condition) (
 	err error,
 ) {
 	var indexes []Index
-	indexes, indexExists = ibf[condition.Cmp.GetField()]
+	indexes, indexExists = ibf[condition.Cmp.GetField().Index()]
 	if !indexExists || 0 == len(indexes) {
 		return
 	}
