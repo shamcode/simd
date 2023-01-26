@@ -14,8 +14,9 @@ type testUser struct {
 func (u testUser) GetID() int64   { return u.id }
 func (u testUser) ComputeFields() {}
 
+var userFields = record.NewFields()
 var userID = &record.Int64Getter{
-	Field: "id",
+	Field: userFields.New("id"),
 	Get:   func(item record.Record) int64 { return item.(*testUser).id },
 }
 

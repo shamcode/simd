@@ -23,22 +23,24 @@ func (u *user) GetID() int64 {
 
 func (u *user) ComputeFields() {}
 
+var userFields = record.NewFields()
+
 var id = &record.Int64Getter{
-	Field: "id",
+	Field: userFields.New("id"),
 	Get: func(item record.Record) int64 {
 		return item.(*user).ID
 	},
 }
 
 var name = &record.StringGetter{
-	Field: "name",
+	Field: userFields.New("name"),
 	Get: func(item record.Record) string {
 		return item.(*user).Name
 	},
 }
 
 var age = &record.IntGetter{
-	Field: "age",
+	Field: userFields.New("age"),
 	Get: func(item record.Record) int {
 		return item.(*user).Age
 	},

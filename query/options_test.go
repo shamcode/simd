@@ -35,8 +35,10 @@ func (u user) GetID() int64   { return int64(u) }
 func (u user) ComputeFields() {}
 
 func Benchmark_OptionsStructAndFunction(b *testing.B) {
+	var userFields = record.NewFields()
+
 	var userID = &record.Int64Getter{
-		Field: "id",
+		Field: userFields.New("id"),
 		Get: func(item record.Record) int64 {
 			return item.(user).GetID()
 		},
