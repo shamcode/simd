@@ -109,7 +109,7 @@ func Benchmark_Concurrent(b *testing.B) {
 						sem <- struct{}{}
 						_, _, err := qe.FetchAllAndTotal(context.Background(), bench.Query)
 						if nil != err {
-							b.Fatal(err)
+							panic(err)
 						}
 						<-sem
 						wg.Done()
