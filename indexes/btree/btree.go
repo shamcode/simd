@@ -276,12 +276,12 @@ const (
 	ascend
 )
 
-func (tree *btree) collect(dir direction, start, stop Key, includeStart bool, hit bool) (int, []storage.LockableIDStorage) {
+func (tree *btree) collect(dir direction, start, stop Key, includeStart bool, hit bool) (int, []storage.IDIterator) {
 	if nil == tree.root {
 		return 0, nil
 	}
 	var count int
-	var ids []storage.LockableIDStorage
+	var ids []storage.IDIterator
 	iter := func(e *entry) {
 		itemCount := e.records.Count()
 		if itemCount > 0 {
@@ -298,19 +298,19 @@ func (tree *btree) collect(dir direction, start, stop Key, includeStart bool, hi
 	return count, ids
 }
 
-func (tree *btree) LessThan(key Key) (int, []storage.LockableIDStorage) {
+func (tree *btree) LessThan(key Key) (int, []storage.IDIterator) {
 	return tree.collect(ascend, nil, key, false, false)
 }
 
-func (tree *btree) LessOrEqual(key Key) (int, []storage.LockableIDStorage) {
+func (tree *btree) LessOrEqual(key Key) (int, []storage.IDIterator) {
 	return tree.collect(descend, key, nil, true, false)
 }
 
-func (tree *btree) GreaterThan(key Key) (int, []storage.LockableIDStorage) {
+func (tree *btree) GreaterThan(key Key) (int, []storage.IDIterator) {
 	return tree.collect(descend, nil, key, false, false)
 }
 
-func (tree *btree) GreaterOrEqual(key Key) (int, []storage.LockableIDStorage) {
+func (tree *btree) GreaterOrEqual(key Key) (int, []storage.IDIterator) {
 	return tree.collect(ascend, key, nil, true, false)
 }
 
@@ -323,7 +323,7 @@ func (tree *btree) All(iter func(key Key, records storage.IDStorage)) {
 	})
 }
 
-func (tree *btree) ForKey(key Key) (int, storage.LockableIDStorage) {
+func (tree *btree) ForKey(key Key) (int, storage.IDIterator) {
 	idStorage := tree.GetForKey(key)
 	if nil == idStorage {
 		return 0, nil

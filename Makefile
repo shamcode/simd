@@ -26,10 +26,16 @@ bench_comparing_sqlite:
 bench_query:
 	go test -bench=Benchmark_Query -benchmem -benchtime=5s -run=^_ ./benchmarks/...
 
+bench_set:
+	go test -bench=. -benchmem -benchtime=3s -run=^_ ./set/...
+
+bench_concurrent:
+	go test -bench=Benchmark_Concurrent -benchmem -benchtime=2000x -run=^_ ./benchmarks/...
+
 bench_indexes:
 	go test -bench=Benchmark_Indexes -benchmem -benchtime=1s -run=^_ ./benchmarks/...
 
 bench_indexes_btree:
 	go test -bench=Benchmark_BTreeIndexesMaxChildren -benchmem -benchtime=1s -run=^_ ./benchmarks/...
 
-make bench: bench_query_builder bench_query bench_indexes bench_indexes_btree bench_comparing_sqlite
+make bench: bench_set bench_query_builder bench_query bench_indexes bench_indexes_btree bench_concurrent bench_comparing_sqlite

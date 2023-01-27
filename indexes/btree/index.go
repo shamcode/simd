@@ -11,11 +11,11 @@ var _ indexes.Index = (*index)(nil)
 
 type BTree interface {
 	indexes.Storage
-	LessThan(key Key) (int, []storage.LockableIDStorage)
-	LessOrEqual(key Key) (int, []storage.LockableIDStorage)
-	GreaterThan(key Key) (int, []storage.LockableIDStorage)
-	GreaterOrEqual(key Key) (int, []storage.LockableIDStorage)
-	ForKey(key Key) (int, storage.LockableIDStorage)
+	LessThan(key Key) (int, []storage.IDIterator)
+	LessOrEqual(key Key) (int, []storage.IDIterator)
+	GreaterThan(key Key) (int, []storage.IDIterator)
+	GreaterOrEqual(key Key) (int, []storage.IDIterator)
+	ForKey(key Key) (int, storage.IDIterator)
 	All(func(key Key, records storage.IDStorage))
 }
 
@@ -63,7 +63,7 @@ func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight 
 	}
 }
 
-func (idx *index) Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+func (idx *index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
 	cmp := condition.Cmp.GetType()
 	if condition.WithNot {
 		switch cmp {
@@ -107,7 +107,7 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.Lo
 			idx.storage.RUnlock()
 			if countForKey > 0 {
 				count = countForKey
-				ids = []storage.LockableIDStorage{idsForKey}
+				ids = []storage.IDIterator{idsForKey}
 			}
 			return
 		case where.InArray:

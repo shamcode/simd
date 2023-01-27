@@ -7,6 +7,7 @@ import (
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
+	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"strconv"
 	"testing"
@@ -62,128 +63,128 @@ func Benchmark_Indexes(b *testing.B) {
 		Name  string
 		Query query.Query
 	}{
-		//{
-		//	Name:  "id = 500",
-		//	Query: query.NewBuilder(query.WhereInt64(userID, where.EQ, 500)).Query(),
-		//},
+		{
+			Name:  "id = 500",
+			Query: query.NewBuilder(query.WhereInt64(userID, where.EQ, 500)).Query(),
+		},
 		{
 			Name:  "id IN (500, 1000, 1500)",
 			Query: query.NewBuilder(query.WhereInt64(userID, where.InArray, 500, 1000, 1500)).Query(),
 		},
-		//{
-		//	Name:  "id <= 1000",
-		//	Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 1000)).Query(),
-		//},
-		//{
-		//	Name:  "id > 1000",
-		//	Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 1000)).Query(),
-		//},
-		//{
-		//	Name:  "id <= 5000",
-		//	Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 5000)).Query(),
-		//},
-		//{
-		//	Name:  "id > 5000",
-		//	Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 5000)).Query(),
-		//},
-		//{
-		//	Name: "id > 2000 and id < 3000",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userID, where.GT, 2000),
-		//		query.WhereInt64(userID, where.LT, 3000),
-		//	).Query(),
-		//},
-		//{
-		//	Name: "id < 2000 or id > 8000",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userID, where.LT, 2000),
-		//		query.Or(),
-		//		query.WhereInt64(userID, where.GT, 8000),
-		//	).Query(),
-		//},
-		//{
-		//	Name: "id < 1000 limit 100 asc",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userID, where.LT, 1000),
-		//		query.Limit(100),
-		//		query.Sort(sort.ByInt64IndexAsc(&byID{})),
-		//	).Query(),
-		//},
-		//{
-		//	Name: "id < 1000 limit 100 desc",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userID, where.LT, 1000),
-		//		query.Limit(100),
-		//		query.Sort(sort.ByInt64IndexDesc(&byID{})),
-		//	).Query(),
-		//},
-		//{
-		//	Name: "id < 1000 limit 100 offset 50 asc",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userID, where.LT, 1000),
-		//		query.Limit(100),
-		//		query.Offset(50),
-		//		query.Sort(sort.ByInt64IndexAsc(&byID{})),
-		//	).Query(),
-		//},
-		//{
-		//	Name: "id < 1000 limit 100 offset 50 desc",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userID, where.LT, 1000),
-		//		query.Limit(100),
-		//		query.Offset(50),
-		//		query.Sort(sort.ByInt64IndexDesc(&byID{})),
-		//	).Query(),
-		//},
-		//{
-		//	Name:  "age < 18",
-		//	Query: query.NewBuilder(query.WhereInt64(userAge, where.LT, 18)).Query(),
-		//},
-		//{
-		//	Name:  "age <= 17",
-		//	Query: query.NewBuilder(query.WhereInt64(userAge, where.LE, 17)).Query(),
-		//},
-		//{
-		//	Name: "age > 18 and age < 45",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userAge, where.GT, 18),
-		//		query.WhereInt64(userAge, where.LT, 45),
-		//	).Query(),
-		//},
-		//{
-		//	Name: "age > 18 and age < 45 and id > 2000",
-		//	Query: query.NewBuilder(
-		//		query.WhereInt64(userAge, where.GT, 18),
-		//		query.WhereInt64(userAge, where.LT, 45),
-		//		query.WhereInt64(userID, where.GT, 2000),
-		//	).Query(),
-		//},
+		{
+			Name:  "id <= 1000",
+			Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 1000)).Query(),
+		},
+		{
+			Name:  "id > 1000",
+			Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 1000)).Query(),
+		},
+		{
+			Name:  "id <= 5000",
+			Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 5000)).Query(),
+		},
+		{
+			Name:  "id > 5000",
+			Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 5000)).Query(),
+		},
+		{
+			Name: "id > 2000 and id < 3000",
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.GT, 2000),
+				query.WhereInt64(userID, where.LT, 3000),
+			).Query(),
+		},
+		{
+			Name: "id < 2000 or id > 8000",
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.LT, 2000),
+				query.Or(),
+				query.WhereInt64(userID, where.GT, 8000),
+			).Query(),
+		},
+		{
+			Name: "id < 1000 limit 100 asc",
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.LT, 1000),
+				query.Limit(100),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
+		},
+		{
+			Name: "id < 1000 limit 100 desc",
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.LT, 1000),
+				query.Limit(100),
+				query.Sort(sort.ByInt64IndexDesc(&byID{})),
+			).Query(),
+		},
+		{
+			Name: "id < 1000 limit 100 offset 50 asc",
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.LT, 1000),
+				query.Limit(100),
+				query.Offset(50),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
+		},
+		{
+			Name: "id < 1000 limit 100 offset 50 desc",
+			Query: query.NewBuilder(
+				query.WhereInt64(userID, where.LT, 1000),
+				query.Limit(100),
+				query.Offset(50),
+				query.Sort(sort.ByInt64IndexDesc(&byID{})),
+			).Query(),
+		},
+		{
+			Name:  "age < 18",
+			Query: query.NewBuilder(query.WhereInt64(userAge, where.LT, 18)).Query(),
+		},
+		{
+			Name:  "age <= 17",
+			Query: query.NewBuilder(query.WhereInt64(userAge, where.LE, 17)).Query(),
+		},
+		{
+			Name: "age > 18 and age < 45",
+			Query: query.NewBuilder(
+				query.WhereInt64(userAge, where.GT, 18),
+				query.WhereInt64(userAge, where.LT, 45),
+			).Query(),
+		},
+		{
+			Name: "age > 18 and age < 45 and id > 2000",
+			Query: query.NewBuilder(
+				query.WhereInt64(userAge, where.GT, 18),
+				query.WhereInt64(userAge, where.LT, 45),
+				query.WhereInt64(userID, where.GT, 2000),
+			).Query(),
+		},
 	}
 
 	executors := []struct {
 		name string
 		qe   executor.QueryExecutor
 	}{
-		//{
-		//	name: "without",
-		//	qe:   executor.CreateQueryExecutor(storeWithoutIndexes),
-		//},
-		//{
-		//	name: "hash",
-		//	qe:   executor.CreateQueryExecutor(storeWithHash),
-		//},
-		//{
-		//	name: "hash unique",
-		//	qe:   executor.CreateQueryExecutor(storeWithHashUnique),
-		//},
+		{
+			name: "without",
+			qe:   executor.CreateQueryExecutor(storeWithoutIndexes),
+		},
+		{
+			name: "hash",
+			qe:   executor.CreateQueryExecutor(storeWithHash),
+		},
+		{
+			name: "hash unique",
+			qe:   executor.CreateQueryExecutor(storeWithHashUnique),
+		},
 		{
 			name: "btree",
 			qe:   executor.CreateQueryExecutor(storeWithBtree),
 		},
-		//{
-		//	name: "btree unique",
-		//	qe:   executor.CreateQueryExecutor(storeWithBtreeUnique),
-		//},
+		{
+			name: "btree unique",
+			qe:   executor.CreateQueryExecutor(storeWithBtreeUnique),
+		},
 	}
 
 	for _, bench := range benchmarks {

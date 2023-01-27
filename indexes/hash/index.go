@@ -49,7 +49,7 @@ func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight 
 	return true, indexes.IndexWeightHigh
 }
 
-func (idx *index) Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+func (idx *index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
 	if !condition.WithNot {
 		switch condition.Cmp.GetType() {
 		case where.EQ:
@@ -63,16 +63,16 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.Lo
 	return idx.selectForOther(condition)
 }
 
-func (idx *index) selectForEqual(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+func (idx *index) selectForEqual(condition where.Condition) (count int, ids []storage.IDIterator) {
 	itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 	if nil != itemsByValue {
 		count = itemsByValue.Count()
-		ids = []storage.LockableIDStorage{itemsByValue}
+		ids = []storage.IDIterator{itemsByValue}
 	}
 	return
 }
 
-func (idx *index) selectForInArray(condition where.Condition) (count int, ids []storage.LockableIDStorage) {
+func (idx *index) selectForInArray(condition where.Condition) (count int, ids []storage.IDIterator) {
 	for i := 0; i < condition.Cmp.ValuesCount(); i++ {
 		itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 		if nil != itemsByValue {
@@ -86,7 +86,7 @@ func (idx *index) selectForInArray(condition where.Condition) (count int, ids []
 	return
 }
 
-func (idx *index) selectForOther(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error) {
+func (idx *index) selectForOther(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
 	idx.storage.RLock()
 	keys := idx.hashTable().Keys()
 	idx.storage.RUnlock()

@@ -13,7 +13,7 @@ type recordsByID struct {
 	ids  MapIDStorage
 }
 
-func (r *recordsByID) GetIDStorage() LockableIDStorage {
+func (r *recordsByID) GetIDStorage() IDIterator {
 	return r.ids
 }
 
@@ -45,7 +45,7 @@ func (r *recordsByID) Count() int {
 	return len(r.data)
 }
 
-func (r *recordsByID) GetData(stores []LockableIDStorage, totalCount int, idsUnique bool) []record.Record {
+func (r *recordsByID) GetData(stores []IDIterator, totalCount int, idsUnique bool) []record.Record {
 	if idsUnique {
 		return r.selectByUniqIDsStore(stores, totalCount)
 	}
@@ -56,19 +56,17 @@ func (r *recordsByID) GetData(stores []LockableIDStorage, totalCount int, idsUni
 	return r.selectUniq(stores, totalCount)
 }
 
-func (r *recordsByID) selectByStore(store LockableIDStorage, totalCount int) []record.Record {
+func (r *recordsByID) selectByStore(store IDIterator, totalCount int) []record.Record {
 	items := make([]record.Record, 0, totalCount)
 	r.RLock()
-	store.RLock()
-	for id := range store.ThreadUnsafeData() {
+	store.Iterate(func(id int64) {
 		items = append(items, r.data[id])
-	}
-	store.RUnlock()
+	})
 	r.RUnlock()
 	return items
 }
 
-func (r *recordsByID) selectByUniqIDsStore(stores []LockableIDStorage, totalCount int) []record.Record {
+func (r *recordsByID) selectByUniqIDsStore(stores []IDIterator, totalCount int) []record.Record {
 	items := make([]record.Record, 0, totalCount)
 	r.RLock()
 	for _, store := range stores {
@@ -81,7 +79,7 @@ func (r *recordsByID) selectByUniqIDsStore(stores []LockableIDStorage, totalCoun
 	return items
 }
 
-func (r *recordsByID) selectUniq(stores []LockableIDStorage, totalCount int) []record.Record {
+func (r *recordsByID) selectUniq(stores []IDIterator, totalCount int) []record.Record {
 	var items []record.Record
 	added := make(map[int64]struct{}, totalCount)
 	r.RLock()
@@ -96,14 +94,15 @@ func (r *recordsByID) selectUniq(stores []LockableIDStorage, totalCount int) []r
 				added[id] = struct{}{}
 			}
 		} else {
-			store.RLock()
-			for id := range store.ThreadUnsafeData() {
+			store.Iterate(func(id int64) {
+				if 0 == id {
+					return
+				}
 				if _, ok := added[id]; !ok {
 					items = append(items, r.data[id])
 					added[id] = struct{}{}
 				}
-			}
-			store.RUnlock()
+			})
 		}
 	}
 	r.RUnlock()

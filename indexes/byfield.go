@@ -14,7 +14,7 @@ type ByField interface {
 	SelectForCondition(condition where.Condition) (
 		indexExists bool,
 		count int,
-		ids []storage.LockableIDStorage,
+		ids []storage.IDIterator,
 		idsUnique bool,
 		err error,
 	)
@@ -79,7 +79,7 @@ func (ibf byField) Update(oldItem, item record.Record) {
 func (ibf byField) SelectForCondition(condition where.Condition) (
 	indexExists bool,
 	count int,
-	ids []storage.LockableIDStorage,
+	ids []storage.IDIterator,
 	idsUnique bool,
 	err error,
 ) {

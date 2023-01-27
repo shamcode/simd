@@ -17,7 +17,7 @@ type Index interface {
 	Unique() bool
 	Compute() IndexComputer
 	Weight(condition where.Condition) (canApplyIndex bool, weight IndexWeight)
-	Select(condition where.Condition) (count int, ids []storage.LockableIDStorage, err error)
+	Select(condition where.Condition) (count int, ids []storage.IDIterator, err error)
 	ConcurrentStorage() ConcurrentStorage
 }
 

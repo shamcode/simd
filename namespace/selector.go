@@ -10,7 +10,7 @@ const (
 )
 
 type result struct {
-	items               []storage.LockableIDStorage
+	items               []storage.IDIterator
 	idsUnique           bool
 	size                int
 	operation           selectorOperation
@@ -19,7 +19,7 @@ type result struct {
 
 type resultByBracketLevel map[int]*result
 
-func (byLevel resultByBracketLevel) save(level int, items []storage.LockableIDStorage, idsUnique bool, size int, op selectorOperation) {
+func (byLevel resultByBracketLevel) save(level int, items []storage.IDIterator, idsUnique bool, size int, op selectorOperation) {
 	res, exist := byLevel[level]
 	if !exist {
 		byLevel[level] = &result{
@@ -45,8 +45,8 @@ func (byLevel resultByBracketLevel) save(level int, items []storage.LockableIDSt
 	}
 }
 
-func (byLevel resultByBracketLevel) reduce(fromLevel int, toLevel int) ([]storage.LockableIDStorage, int, bool, bool) {
-	var items []storage.LockableIDStorage
+func (byLevel resultByBracketLevel) reduce(fromLevel int, toLevel int) ([]storage.IDIterator, int, bool, bool) {
+	var items []storage.IDIterator
 	var size int
 	var item *result
 	var idsUnique bool

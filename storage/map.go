@@ -1,12 +1,14 @@
 package storage
 
-var _ LockableIDStorage = (*MapIDStorage)(nil)
+var _ IDIterator = (*MapIDStorage)(nil)
 
 type MapIDStorage map[int64]struct{}
 
-func (s MapIDStorage) RLock()                               {}
-func (s MapIDStorage) RUnlock()                             {}
-func (s MapIDStorage) ThreadUnsafeData() map[int64]struct{} { return s }
+func (s MapIDStorage) Iterate(f func(id int64)) {
+	for id := range s {
+		f(id)
+	}
+}
 
 func CreateMapIDStorage() MapIDStorage {
 	return make(map[int64]struct{})

@@ -12,12 +12,12 @@ type Int int
 
 func (i Int) Less(than Key) bool { return i < than.(Int) }
 
-func concatIDs(ids []storage.LockableIDStorage) []int {
+func concatIDs(ids []storage.IDIterator) []int {
 	var result []int
 	for _, idsStorage := range ids {
-		for id := range idsStorage.ThreadUnsafeData() {
+		idsStorage.Iterate(func(id int64) {
 			result = append(result, int(id))
-		}
+		})
 	}
 	sort.Ints(result)
 	return result

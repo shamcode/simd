@@ -32,7 +32,7 @@ func (idx *concurrentStorage) GetOrCreate(key interface{}) storage.IDStorage {
 		if idx.uniq {
 			idStorage = storage.CreateUniqueIDStorage()
 		} else {
-			idStorage = storage.CreateMultipleIDStorage()
+			idStorage = storage.CreateSetIDStorage()
 		}
 		idx.original.Set(key, idStorage)
 	}

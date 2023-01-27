@@ -8,14 +8,8 @@ type uniqID int64
 
 func (u *uniqID) RLock()   {}
 func (u *uniqID) RUnlock() {}
-func (u *uniqID) ThreadUnsafeData() map[int64]struct{} {
-	id := atomic.LoadInt64((*int64)(u))
-	if 0 == id {
-		return nil
-	}
-	return map[int64]struct{}{
-		id: {},
-	}
+func (u *uniqID) Iterate(f func(id int64)) {
+	f(atomic.LoadInt64((*int64)(u)))
 }
 
 func (u *uniqID) Count() int {
