@@ -10,9 +10,11 @@ import (
 	"strings"
 )
 
+type FieldComparatorDumper func(w *strings.Builder, cmp where.FieldComparator)
+
 type QueryBuilderWithDumper interface {
 	query.Builder
-	SaveFieldComparatorForDump(cmp where.FieldComparator)
+	SetFieldComparatorDumper(FieldComparatorDumper)
 	Dump() string
 }
 
@@ -26,10 +28,15 @@ const (
 var _ QueryBuilderWithDumper = (*debugQueryBuilder)(nil)
 
 type debugQueryBuilder struct {
-	chunks    map[uint8]*strings.Builder
-	requireOp bool
-	withNot   bool
-	isOr      bool
+	chunks                map[uint8]*strings.Builder
+	requireOp             bool
+	withNot               bool
+	isOr                  bool
+	fieldComparatorDumper *FieldComparatorDumper
+}
+
+func (q *debugQueryBuilder) SetFieldComparatorDumper(dumper FieldComparatorDumper) {
+	q.fieldComparatorDumper = &dumper
 }
 
 func (q *debugQueryBuilder) Limit(limitItems int) {
@@ -70,9 +77,10 @@ func (q *debugQueryBuilder) CloseBracket() {
 	q.requireOp = true
 }
 func (q *debugQueryBuilder) AddWhere(cmp where.FieldComparator) {
-	q.SaveFieldComparatorForDump(cmp)
+	q.saveFieldComparatorForDump(cmp)
 	q.withNot = false
 	q.isOr = false
+	q.requireOp = true
 }
 
 func (q *debugQueryBuilder) Sort(sortBy sort.By) {
@@ -110,7 +118,7 @@ func (q *debugQueryBuilder) Query() query.Query {
 	return nil
 }
 
-func (q *debugQueryBuilder) SaveFieldComparatorForDump(cmp where.FieldComparator) {
+func (q *debugQueryBuilder) saveFieldComparatorForDump(cmp where.FieldComparator) {
 	w := q.chunks[chunkWhere]
 	if q.requireOp {
 		if q.isOr {
@@ -118,8 +126,6 @@ func (q *debugQueryBuilder) SaveFieldComparatorForDump(cmp where.FieldComparator
 		} else {
 			w.WriteString(" AND ")
 		}
-	} else {
-		q.requireOp = true
 	}
 	if q.withNot {
 		w.WriteString("NOT ")
@@ -167,9 +173,20 @@ func (q *debugQueryBuilder) SaveFieldComparatorForDump(cmp where.FieldComparator
 	case where.MapHasKey:
 		w.WriteString(" MAP_HAS_KEY ")
 		w.WriteString(fmt.Sprintf("\"%v\"", cmp.ValueAt(0)))
+	default:
+		if nil == q.fieldComparatorDumper {
+			w.WriteString(fmt.Sprintf(" (ComparatorType(%d) ", cmp.GetType()))
+			for i := 0; i < cmp.ValuesCount(); i++ {
+				if 0 != i {
+					w.WriteString(" ")
+				}
+				w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(i)))
+			}
+			w.WriteString(")")
+		} else {
+			(*q.fieldComparatorDumper)(w, cmp)
+		}
 	}
-	q.withNot = false
-	q.isOr = false
 }
 
 func (q *debugQueryBuilder) Dump() string {

@@ -95,3 +95,15 @@ func WrapCreateQueryBuilder(constructor QueryBuilderConstructor) QueryBuilderCon
 		)
 	}
 }
+
+func WrapCreateQueryBuilderWithDumper(constructor QueryBuilderConstructor, dumper FieldComparatorDumper) QueryBuilderConstructor {
+	return func(options ...query.BuilderOption) query.Builder {
+		debug := CreateDebugQueryBuilder()
+		debug.SetFieldComparatorDumper(dumper) // setup dumper before apply options
+		debug.Append(options...)
+		return &combineBuilder{
+			debug: debug,
+			base:  constructor(options...),
+		}
+	}
+}

@@ -2,12 +2,14 @@ package debug
 
 import (
 	"context"
+	"fmt"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
+	"strings"
 	"testing"
 )
 
@@ -100,9 +102,10 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 	newBuilder := WrapCreateQueryBuilder(query.NewBuilder)
 
 	tests := []struct {
-		name     string
-		query    query.Query
-		expected string
+		name                 string
+		query                query.Query
+		expected             string
+		expectedErrorMessage string
 	}{
 		{
 			name:     "order by id asc",
@@ -342,6 +345,17 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 			).Query(),
 			expected: "SELECT *, COUNT(*) WHERE id > 1 ORDER BY &debug.byID{} ASC OFFSET 1 LIMIT 2",
 		},
+		{
+			name: "unknown comparator",
+			query: newBuilder(
+				query.WhereInt64(id, where.ComparatorType(100), 1, 2),
+				query.Limit(2),
+				query.Offset(1),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
+			expected:             "SELECT *, COUNT(*) WHERE id (ComparatorType(100) 1 2) ORDER BY &debug.byID{} ASC OFFSET 1 LIMIT 2",
+			expectedErrorMessage: "execute query: not implemented ComparatorType: 100, field = id",
+		},
 	}
 
 	qe := executor.CreateQueryExecutor(ns)
@@ -356,7 +370,74 @@ func TestQueryExecutorWithDebug(t *testing.T) {
 				asserts.Equals(t, test.expected, q, "query")
 			}).FetchAll(ctx, test.query)
 
-			asserts.Success(t, err)
+			var errMsg string
+			if nil != err {
+				errMsg = err.Error()
+			}
+			asserts.Equals(t, test.expectedErrorMessage, errMsg, "error")
+		})
+	}
+}
+
+func TestFieldComparatorDumper(t *testing.T) {
+	ns := &storage{
+		data: make(map[int64]record.Record),
+	}
+	ns.insert(&user{ID: 1, Name: "first", Age: 18})
+	ns.insert(&user{ID: 2, Name: "second", Age: 19})
+	ns.insert(&user{ID: 3, Name: "third", Age: 20})
+	ns.insert(&user{ID: 4, Name: "fourth", Age: 21})
+	ns.insert(&user{ID: 5, Name: "fifth", Age: 22})
+
+	InRange := where.ComparatorType(20)
+
+	newBuilder := WrapCreateQueryBuilderWithDumper(query.NewBuilder, func(w *strings.Builder, cmp where.FieldComparator) {
+		if InRange == cmp.GetType() {
+			w.WriteString(" IN RANGE (")
+			w.WriteString(fmt.Sprintf("%v; ", cmp.ValueAt(0)))
+			w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(1)))
+			w.WriteString(")")
+		}
+	})
+
+	tests := []struct {
+		name                 string
+		query                query.Query
+		expected             string
+		expectedErrorMessage string
+	}{
+		{
+			name: "IN RANGE",
+			query: newBuilder(
+				query.WhereInt64(id, InRange, 3, 10),
+				query.Not(),
+				query.WhereInt(age, where.LE, 21),
+				query.Limit(2),
+				query.Offset(1),
+				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			).Query(),
+			expected:             "SELECT *, COUNT(*) WHERE id IN RANGE (3; 10) AND NOT age <= 21 ORDER BY &debug.byID{} ASC OFFSET 1 LIMIT 2",
+			expectedErrorMessage: "execute query: not implemented ComparatorType: 20, field = id",
+		},
+	}
+
+	qe := executor.CreateQueryExecutor(ns)
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			_, err := WrapQueryExecutor(qe, func(q string) {
+				asserts.Equals(t, test.expected, q, "query")
+			}).FetchAll(ctx, test.query)
+
+			var errMsg string
+			if nil != err {
+				errMsg = err.Error()
+			}
+			asserts.Equals(t, test.expectedErrorMessage, errMsg, "error")
 		})
 	}
 }
