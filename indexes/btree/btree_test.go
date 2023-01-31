@@ -3,14 +3,11 @@ package btree
 import (
 	"fmt"
 	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/simd/indexes/compute"
 	"github.com/shamcode/simd/storage"
 	"sort"
 	"testing"
 )
-
-type Int int
-
-func (i Int) Less(than Key) bool { return i < than.(Int) }
 
 func concatIDs(ids []storage.IDIterator) []int {
 	var result []int
@@ -29,18 +26,18 @@ func TestBTree(t *testing.T) {
 	for i := 1; i <= n; i++ {
 		idStorage := storage.CreateUniqueIDStorage()
 		idStorage.Add(int64(i))
-		tree.Set(Int(i), idStorage)
+		tree.Set(compute.IntKey(i), idStorage)
 	}
 
 	t.Run("GetForKey", func(t *testing.T) {
 		for i := 1; i <= n; i++ {
-			asserts.Equals(t, 1, tree.Get(Int(i)).Count(), "check count")
+			asserts.Equals(t, 1, tree.Get(compute.IntKey(i)).Count(), "check count")
 		}
 	})
 
 	t.Run("LessThan", func(t *testing.T) {
 		testCases := []struct {
-			key           Int
+			key           compute.IntKey
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -61,7 +58,7 @@ func TestBTree(t *testing.T) {
 
 	t.Run("LessOrEqual", func(t *testing.T) {
 		testCases := []struct {
-			key           Int
+			key           compute.IntKey
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -82,7 +79,7 @@ func TestBTree(t *testing.T) {
 
 	t.Run("GreaterThan", func(t *testing.T) {
 		testCases := []struct {
-			key           Int
+			key           compute.IntKey
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -103,7 +100,7 @@ func TestBTree(t *testing.T) {
 
 	t.Run("GreaterOrEqual", func(t *testing.T) {
 		testCases := []struct {
-			key           Int
+			key           compute.IntKey
 			expectedCount int
 			expectedIDS   []int
 		}{

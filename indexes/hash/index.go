@@ -7,12 +7,12 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-var _ indexes.Index = (*index)(nil)
-
-type HashTable interface {
+type Storage interface {
 	indexes.Storage
-	Keys() []interface{}
+	Keys() []indexes.Key
 }
+
+var _ indexes.Index = (*index)(nil)
 
 type index struct {
 	field   record.Field
@@ -21,8 +21,8 @@ type index struct {
 	storage indexes.ConcurrentStorage
 }
 
-func (idx *index) hashTable() HashTable {
-	return idx.storage.Unwrap().(HashTable)
+func (idx *index) hashTable() Storage {
+	return idx.storage.Unwrap().(Storage)
 }
 
 func (idx *index) Field() record.Field {
@@ -109,7 +109,7 @@ func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
-func NewIndex(field record.Field, compute indexes.IndexComputer, hashTable HashTable, unique bool) indexes.Index {
+func NewIndex(field record.Field, compute indexes.IndexComputer, hashTable Storage, unique bool) indexes.Index {
 	return &index{
 		field:   field,
 		unique:  unique,

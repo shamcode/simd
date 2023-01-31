@@ -6,10 +6,14 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
+type Key interface {
+	Less(than Key) bool
+}
+
 type IndexComputer interface {
-	ForRecord(item record.Record) interface{}
-	ForValue(value interface{}) interface{}
-	Check(indexKey interface{}, comparator where.FieldComparator) (bool, error)
+	ForRecord(item record.Record) Key
+	ForValue(value interface{}) Key
+	Check(indexKey Key, comparator where.FieldComparator) (bool, error)
 }
 
 type Index interface {
@@ -23,8 +27,8 @@ type Index interface {
 
 // Storage is base interface for indexes
 type Storage interface {
-	Get(key interface{}) storage.IDStorage
-	Set(key interface{}, records storage.IDStorage)
+	Get(key Key) storage.IDStorage
+	Set(key Key, records storage.IDStorage)
 }
 
 // ConcurrentStorage wrapped Storage for concurrent safe access
@@ -32,6 +36,6 @@ type ConcurrentStorage interface {
 	RLock()
 	RUnlock()
 	Unwrap() Storage
-	Get(key interface{}) storage.IDStorage
-	GetOrCreate(key interface{}) storage.IDStorage
+	Get(key Key) storage.IDStorage
+	GetOrCreate(key Key) storage.IDStorage
 }

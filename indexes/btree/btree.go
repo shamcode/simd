@@ -1,6 +1,7 @@
 package btree
 
 import (
+	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/storage"
 )
 
@@ -8,12 +9,8 @@ import (
 // https://github.com/emirpasic/gods/tree/master/trees/btree
 // https://github.com/google/btree/blob/master/btree.go
 
-type Key interface {
-	Less(than Key) bool
-}
-
 type entry struct {
-	key     Key
+	key     indexes.Key
 	records storage.IDStorage
 }
 
@@ -23,7 +20,7 @@ type node struct {
 	children []*node
 }
 
-func (node *node) search(key Key) (index int, found bool) {
+func (node *node) search(key indexes.Key) (index int, found bool) {
 	low, high := 0, len(node.entries)-1
 	var mid int
 	for low <= high {
@@ -40,7 +37,7 @@ func (node *node) search(key Key) (index int, found bool) {
 	return low, false
 }
 
-func (node *node) iterateAscend(start, stop Key, includeStart bool, hit bool, iter func(e *entry)) (bool, bool) {
+func (node *node) iterateAscend(start, stop indexes.Key, includeStart bool, hit bool, iter func(e *entry)) (bool, bool) {
 	var ok bool
 	var index int
 	if nil != start {
@@ -70,7 +67,7 @@ func (node *node) iterateAscend(start, stop Key, includeStart bool, hit bool, it
 	return hit, true
 }
 
-func (node *node) iterateDescend(start, stop Key, includeStart bool, hit bool, iter func(e *entry)) (bool, bool) {
+func (node *node) iterateDescend(start, stop indexes.Key, includeStart bool, hit bool, iter func(e *entry)) (bool, bool) {
 	var ok, found bool
 	var index int
 	if start != nil {
@@ -106,38 +103,23 @@ func (node *node) iterateDescend(start, stop Key, includeStart bool, hit bool, i
 	return hit, true
 }
 
-var _ BTree = (*btree)(nil)
+var _ Storage = (*btree)(nil)
 
 type btree struct {
 	root        *node
 	maxChildren int
 }
 
-func (tree *btree) Get(indexKey interface{}) storage.IDStorage {
-	key, ok := indexKey.(Key)
-	if !ok {
-		return nil
-	}
-	return tree.GetForKey(key)
-}
-
-func (tree *btree) GetForKey(key Key) storage.IDStorage {
-	node, index, found := tree.searchRecursively(tree.root, key)
+func (tree *btree) Get(indexKey indexes.Key) storage.IDStorage {
+	node, index, found := tree.searchRecursively(tree.root, indexKey)
 	if found {
 		return node.entries[index].records
 	}
 	return nil
 }
 
-func (tree *btree) Set(indexKey interface{}, records storage.IDStorage) {
-	key, ok := indexKey.(Key)
-	if ok {
-		tree.SetForKey(key, records)
-	}
-}
-
-func (tree *btree) SetForKey(key Key, records storage.IDStorage) {
-	e := &entry{key: key, records: records}
+func (tree *btree) Set(indexKey indexes.Key, records storage.IDStorage) {
+	e := &entry{key: indexKey, records: records}
 	if tree.root == nil {
 		tree.root = &node{
 			entries:  []*entry{e},
@@ -160,7 +142,7 @@ func (tree *btree) maxEntries() int {
 	return tree.maxChildren - 1
 }
 
-func (tree *btree) searchRecursively(startNode *node, key Key) (node *node, index int, found bool) {
+func (tree *btree) searchRecursively(startNode *node, key indexes.Key) (node *node, index int, found bool) {
 	if nil == tree.root {
 		return nil, -1, false
 	}
@@ -276,7 +258,7 @@ const (
 	ascend
 )
 
-func (tree *btree) collect(dir direction, start, stop Key, includeStart bool, hit bool) (int, []storage.IDIterator) {
+func (tree *btree) collect(dir direction, start, stop indexes.Key, includeStart bool, hit bool) (int, []storage.IDIterator) {
 	if nil == tree.root {
 		return 0, nil
 	}
@@ -298,23 +280,23 @@ func (tree *btree) collect(dir direction, start, stop Key, includeStart bool, hi
 	return count, ids
 }
 
-func (tree *btree) LessThan(key Key) (int, []storage.IDIterator) {
+func (tree *btree) LessThan(key indexes.Key) (int, []storage.IDIterator) {
 	return tree.collect(ascend, nil, key, false, false)
 }
 
-func (tree *btree) LessOrEqual(key Key) (int, []storage.IDIterator) {
+func (tree *btree) LessOrEqual(key indexes.Key) (int, []storage.IDIterator) {
 	return tree.collect(descend, key, nil, true, false)
 }
 
-func (tree *btree) GreaterThan(key Key) (int, []storage.IDIterator) {
+func (tree *btree) GreaterThan(key indexes.Key) (int, []storage.IDIterator) {
 	return tree.collect(descend, nil, key, false, false)
 }
 
-func (tree *btree) GreaterOrEqual(key Key) (int, []storage.IDIterator) {
+func (tree *btree) GreaterOrEqual(key indexes.Key) (int, []storage.IDIterator) {
 	return tree.collect(ascend, key, nil, true, false)
 }
 
-func (tree *btree) All(iter func(key Key, records storage.IDStorage)) {
+func (tree *btree) All(iter func(key indexes.Key, records storage.IDStorage)) {
 	if nil == tree.root {
 		return
 	}
@@ -323,8 +305,8 @@ func (tree *btree) All(iter func(key Key, records storage.IDStorage)) {
 	})
 }
 
-func (tree *btree) ForKey(key Key) (int, storage.IDIterator) {
-	idStorage := tree.GetForKey(key)
+func (tree *btree) ForKey(key indexes.Key) (int, storage.IDIterator) {
+	idStorage := tree.Get(key)
 	if nil == idStorage {
 		return 0, nil
 	}
@@ -337,7 +319,7 @@ func setParent(nodes []*node, parent *node) {
 	}
 }
 
-func NewTree(maxChildren int, uniq bool) BTree {
+func NewTree(maxChildren int, uniq bool) Storage {
 	return &btree{
 		maxChildren: maxChildren,
 	}

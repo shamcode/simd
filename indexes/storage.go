@@ -13,13 +13,13 @@ type concurrentStorage struct {
 	uniq     bool
 }
 
-func (idx *concurrentStorage) Get(key interface{}) storage.IDStorage {
+func (idx *concurrentStorage) Get(key Key) storage.IDStorage {
 	idx.RLock()
 	defer idx.RUnlock()
 	return idx.original.Get(key)
 }
 
-func (idx *concurrentStorage) GetOrCreate(key interface{}) storage.IDStorage {
+func (idx *concurrentStorage) GetOrCreate(key Key) storage.IDStorage {
 	idx.RLock()
 	idStorage := idx.original.Get(key)
 	idx.RUnlock()

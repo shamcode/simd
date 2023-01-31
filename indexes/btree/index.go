@@ -9,14 +9,14 @@ import (
 
 var _ indexes.Index = (*index)(nil)
 
-type BTree interface {
+type Storage interface {
 	indexes.Storage
-	LessThan(key Key) (int, []storage.IDIterator)
-	LessOrEqual(key Key) (int, []storage.IDIterator)
-	GreaterThan(key Key) (int, []storage.IDIterator)
-	GreaterOrEqual(key Key) (int, []storage.IDIterator)
-	ForKey(key Key) (int, storage.IDIterator)
-	All(func(key Key, records storage.IDStorage))
+	LessThan(key indexes.Key) (int, []storage.IDIterator)
+	LessOrEqual(key indexes.Key) (int, []storage.IDIterator)
+	GreaterThan(key indexes.Key) (int, []storage.IDIterator)
+	GreaterOrEqual(key indexes.Key) (int, []storage.IDIterator)
+	ForKey(key indexes.Key) (int, storage.IDIterator)
+	All(func(key indexes.Key, records storage.IDStorage))
 }
 
 type index struct {
@@ -26,8 +26,8 @@ type index struct {
 	storage indexes.ConcurrentStorage
 }
 
-func (idx *index) BTree() BTree {
-	return idx.storage.Unwrap().(BTree)
+func (idx *index) btree() Storage {
+	return idx.storage.Unwrap().(Storage)
 }
 
 func (idx *index) Field() record.Field {
@@ -80,22 +80,22 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.ID
 	switch cmp {
 	case where.LT:
 		idx.storage.RLock()
-		count, ids = idx.BTree().LessThan(idx.compute.ForValue(condition.Cmp.ValueAt(0)).(Key))
+		count, ids = idx.btree().LessThan(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
 		return
 	case where.LE:
 		idx.storage.RLock()
-		count, ids = idx.BTree().LessOrEqual(idx.compute.ForValue(condition.Cmp.ValueAt(0)).(Key))
+		count, ids = idx.btree().LessOrEqual(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
 		return
 	case where.GT:
 		idx.storage.RLock()
-		count, ids = idx.BTree().GreaterThan(idx.compute.ForValue(condition.Cmp.ValueAt(0)).(Key))
+		count, ids = idx.btree().GreaterThan(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
 		return
 	case where.GE:
 		idx.storage.RLock()
-		count, ids = idx.BTree().GreaterOrEqual(idx.compute.ForValue(condition.Cmp.ValueAt(0)).(Key))
+		count, ids = idx.btree().GreaterOrEqual(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
 		return
 	}
@@ -103,7 +103,7 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.ID
 		switch cmp {
 		case where.EQ:
 			idx.storage.RLock()
-			countForKey, idsForKey := idx.BTree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(0)).(Key))
+			countForKey, idsForKey := idx.btree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 			idx.storage.RUnlock()
 			if countForKey > 0 {
 				count = countForKey
@@ -113,7 +113,7 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.ID
 		case where.InArray:
 			idx.storage.RLock()
 			for i := 0; i < condition.Cmp.ValuesCount(); i++ {
-				countForValue, idsForValue := idx.BTree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(i)).(Key))
+				countForValue, idsForValue := idx.btree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 				if countForValue > 0 {
 					count += countForValue
 					ids = append(ids, idsForValue)
@@ -124,7 +124,7 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.ID
 		}
 	}
 	idx.storage.RLock()
-	idx.BTree().All(func(key Key, records storage.IDStorage) {
+	idx.btree().All(func(key indexes.Key, records storage.IDStorage) {
 		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
 		if nil != errorForValue {
 			err = errorForValue
@@ -146,7 +146,7 @@ func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
-func NewIndex(field record.Field, compute indexes.IndexComputer, btree BTree, unique bool) indexes.Index {
+func NewIndex(field record.Field, compute indexes.IndexComputer, btree Storage, unique bool) indexes.Index {
 	return &index{
 		field:   field,
 		unique:  unique,

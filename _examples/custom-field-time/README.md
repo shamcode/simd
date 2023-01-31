@@ -1,7 +1,7 @@
 Example of adding a new type Time `time.Time`. 
 
 ```
-./fields/
+./types/
 ├── comparators
 │   └── time.go     -- Comparator for make query by field with type time.Time
 ├── getter.go       -- Getter for a time.Time type

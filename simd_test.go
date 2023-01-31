@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/executor"
+	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
@@ -174,6 +175,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 	store.AddIndex(hash.NewStringHashIndex(userName, false))
 	store.AddIndex(hash.NewEnum8HashIndex(userStatus, false))
 	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
+	store.AddIndex(btree.NewIntBTreeIndex(userScore, 16, false))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Name:   "First",
