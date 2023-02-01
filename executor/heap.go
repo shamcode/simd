@@ -15,11 +15,9 @@ func (h *binaryHeap) less(i, j int) int8 {
 	a := h.records[i]
 	b := h.records[j]
 	for _, by := range h.sorting {
-		if by.Equal(a, b) {
-			continue
-		} else if by.Less(a, b) {
+		if by.Less(a, b) {
 			return -1
-		} else {
+		} else if by.Less(b, a) {
 			return 1
 		}
 	}

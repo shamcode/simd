@@ -12,10 +12,6 @@ type byString struct {
 	asc    bool
 }
 
-func (bs *byString) Equal(a, b record.Record) bool {
-	return bs.getter.Get(a) == bs.getter.Get(b)
-}
-
 func (bs *byString) Less(a, b record.Record) bool {
 	if bs.asc {
 		return bs.getter.Get(a) < bs.getter.Get(b)

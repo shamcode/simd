@@ -17,10 +17,6 @@ type byInt64Index struct {
 	asc bool
 }
 
-func (bi *byInt64Index) Equal(a, b record.Record) bool {
-	return bi.CalcIndex(a) == bi.CalcIndex(b)
-}
-
 func (bi *byInt64Index) Less(a, b record.Record) bool {
 	if bi.asc {
 		return bi.CalcIndex(a) < bi.CalcIndex(b)
