@@ -57,10 +57,12 @@ func (r *recordsByID) GetData(stores []IDIterator, totalCount int, idsUnique boo
 }
 
 func (r *recordsByID) selectByStore(store IDIterator, totalCount int) []record.Record {
-	items := make([]record.Record, 0, totalCount)
+	items := make([]record.Record, totalCount)
+	var i int
 	r.RLock()
 	store.Iterate(func(id int64) {
-		items = append(items, r.data[id])
+		items[i] = r.data[id]
+		i++
 	})
 	r.RUnlock()
 	return items
@@ -111,9 +113,11 @@ func (r *recordsByID) selectUniq(stores []IDIterator, totalCount int) []record.R
 
 func (r *recordsByID) GetAllData() []record.Record {
 	r.RLock()
-	items := make([]record.Record, 0, len(r.data))
+	items := make([]record.Record, len(r.data))
+	var i int
 	for _, item := range r.data {
-		items = append(items, item)
+		items[i] = item
+		i++
 	}
 	r.RUnlock()
 	return items
