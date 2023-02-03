@@ -10,13 +10,6 @@ import (
 	"testing"
 )
 
-type user struct {
-	id int64
-}
-
-func (u *user) GetID() int64   { return u.id }
-func (u *user) ComputeFields() {}
-
 type _int64 []int64
 
 func (s _int64) Len() int           { return len(s) }
