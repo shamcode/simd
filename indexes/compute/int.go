@@ -14,7 +14,7 @@ func (i IntKey) Less(than indexes.Key) bool { return i < than.(IntKey) }
 var _ indexes.IndexComputer = intIndexComputation{}
 
 type intIndexComputation struct {
-	getter *record.IntGetter
+	getter record.IntGetter
 }
 
 func (idx intIndexComputation) ForRecord(item record.Record) indexes.Key {
@@ -29,6 +29,6 @@ func (idx intIndexComputation) Check(indexKey indexes.Key, comparator where.Fiel
 	return comparator.(comparators.IntFieldComparator).CompareValue(int(indexKey.(IntKey)))
 }
 
-func CreateIntIndexComputation(getter *record.IntGetter) indexes.IndexComputer {
+func CreateIntIndexComputation(getter record.IntGetter) indexes.IndexComputer {
 	return intIndexComputation{getter: getter}
 }

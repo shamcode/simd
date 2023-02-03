@@ -49,7 +49,7 @@ func (q *combineBuilder) AddWhere(cmp where.FieldComparator) {
 	q.base.AddWhere(cmp)
 }
 
-func (q *combineBuilder) Sort(sortBy sort.By) {
+func (q *combineBuilder) Sort(sortBy sort.ByWithOrder) {
 	q.debug.Sort(sortBy)
 	q.base.Sort(sortBy)
 }

@@ -24,12 +24,7 @@ func (u *User) ComputeFields() {}
 
 var userFields = record.NewFields()
 
-var id = &record.Int64Getter{
-	Field: userFields.New("id"),
-	Get:   func(item record.Record) int64 { return item.(*User).ID },
-}
-
-var name = &record.StringGetter{
+var name = record.StringGetter{
 	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
@@ -50,7 +45,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(hash.NewInt64HashIndex(id, true))
+	store.AddIndex(hash.NewInt64HashIndex(record.ID, true))
 	store.AddIndex(hash.NewStringHashIndex(name, false))
 
 	for _, user := range []*User{
@@ -74,8 +69,8 @@ func main() {
 	}
 
 	q := queryBuilder(
-		query.WhereInt64(id, where.GT, 1),
-		query.Sort(sort.ByStringAsc(name)),
+		query.WhereInt64(record.ID, where.GT, 1),
+		query.Sort(sort.Asc(name)),
 	).Query()
 
 	ctx := context.Background()

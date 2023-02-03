@@ -25,6 +25,6 @@ func (fc *FieldsConstructor) New(name string) Field {
 }
 
 func NewFields() *FieldsConstructor {
-	var fc = FieldsConstructor(0)
+	var fc = FieldsConstructor(1) // starts with 1, because 0 reserved for ID field
 	return &fc
 }

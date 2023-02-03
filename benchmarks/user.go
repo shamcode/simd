@@ -37,31 +37,22 @@ func (u *User) ComputeFields() {}
 
 var userFields = record.NewFields()
 
-var userID = &record.Int64Getter{
-	Field: userFields.New("id"),
-	Get:   func(item record.Record) int64 { return item.(*User).ID },
-}
-
-var userName = &record.StringGetter{
+var userName = record.StringGetter{
 	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
-var userStatus = &record.Enum8Getter{
+var userStatus = record.Enum8Getter{
 	Field: userFields.New("status"),
 	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }
 
-var userAge = &record.Int64Getter{
+var userAge = record.Int64Getter{
 	Field: userFields.New("age"),
 	Get:   func(item record.Record) int64 { return item.(*User).Age },
 }
 
-var userIsOnline = &record.BoolGetter{
+var userIsOnline = record.BoolGetter{
 	Field: userFields.New("is_online"),
 	Get:   func(item record.Record) bool { return item.(*User).IsOnline },
 }
-
-type byID struct{}
-
-func (sorting *byID) CalcIndex(item record.Record) int64 { return item.(*User).ID }

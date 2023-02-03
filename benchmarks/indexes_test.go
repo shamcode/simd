@@ -7,6 +7,7 @@ import (
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"strconv"
@@ -22,19 +23,19 @@ func Benchmark_Indexes(b *testing.B) {
 	storeWithoutIndexes.SetLogger(discardLogger{})
 
 	storeWithHash := namespace.CreateNamespace()
-	storeWithHash.AddIndex(hash.NewInt64HashIndex(userID, false))
+	storeWithHash.AddIndex(hash.NewInt64HashIndex(record.ID, false))
 	storeWithHash.AddIndex(hash.NewInt64HashIndex(userAge, false))
 
 	storeWithHashUnique := namespace.CreateNamespace()
-	storeWithHashUnique.AddIndex(hash.NewInt64HashIndex(userID, true))
+	storeWithHashUnique.AddIndex(hash.NewInt64HashIndex(record.ID, true))
 	storeWithHashUnique.AddIndex(hash.NewInt64HashIndex(userAge, false))
 
 	storeWithBtree := namespace.CreateNamespace()
-	storeWithBtree.AddIndex(btree.NewInt64BTreeIndex(userID, 64, false))
+	storeWithBtree.AddIndex(btree.NewInt64BTreeIndex(record.ID, 64, false))
 	storeWithBtree.AddIndex(btree.NewInt64BTreeIndex(userAge, 8, false))
 
 	storeWithBtreeUnique := namespace.CreateNamespace()
-	storeWithBtreeUnique.AddIndex(btree.NewInt64BTreeIndex(userID, 64, true))
+	storeWithBtreeUnique.AddIndex(btree.NewInt64BTreeIndex(record.ID, 64, true))
 	storeWithBtreeUnique.AddIndex(btree.NewInt64BTreeIndex(userAge, 8, false))
 
 	for i := 1; i < 10_000; i++ {
@@ -65,75 +66,75 @@ func Benchmark_Indexes(b *testing.B) {
 	}{
 		{
 			Name:  "id = 500",
-			Query: query.NewBuilder(query.WhereInt64(userID, where.EQ, 500)).Query(),
+			Query: query.NewBuilder(query.WhereInt64(record.ID, where.EQ, 500)).Query(),
 		},
 		{
 			Name:  "id IN (500, 1000, 1500)",
-			Query: query.NewBuilder(query.WhereInt64(userID, where.InArray, 500, 1000, 1500)).Query(),
+			Query: query.NewBuilder(query.WhereInt64(record.ID, where.InArray, 500, 1000, 1500)).Query(),
 		},
 		{
 			Name:  "id <= 1000",
-			Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 1000)).Query(),
+			Query: query.NewBuilder(query.WhereInt64(record.ID, where.LE, 1000)).Query(),
 		},
 		{
 			Name:  "id > 1000",
-			Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 1000)).Query(),
+			Query: query.NewBuilder(query.WhereInt64(record.ID, where.GT, 1000)).Query(),
 		},
 		{
 			Name:  "id <= 5000",
-			Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 5000)).Query(),
+			Query: query.NewBuilder(query.WhereInt64(record.ID, where.LE, 5000)).Query(),
 		},
 		{
 			Name:  "id > 5000",
-			Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 5000)).Query(),
+			Query: query.NewBuilder(query.WhereInt64(record.ID, where.GT, 5000)).Query(),
 		},
 		{
 			Name: "id > 2000 and id < 3000",
 			Query: query.NewBuilder(
-				query.WhereInt64(userID, where.GT, 2000),
-				query.WhereInt64(userID, where.LT, 3000),
+				query.WhereInt64(record.ID, where.GT, 2000),
+				query.WhereInt64(record.ID, where.LT, 3000),
 			).Query(),
 		},
 		{
 			Name: "id < 2000 or id > 8000",
 			Query: query.NewBuilder(
-				query.WhereInt64(userID, where.LT, 2000),
+				query.WhereInt64(record.ID, where.LT, 2000),
 				query.Or(),
-				query.WhereInt64(userID, where.GT, 8000),
+				query.WhereInt64(record.ID, where.GT, 8000),
 			).Query(),
 		},
 		{
 			Name: "id < 1000 limit 100 asc",
 			Query: query.NewBuilder(
-				query.WhereInt64(userID, where.LT, 1000),
+				query.WhereInt64(record.ID, where.LT, 1000),
 				query.Limit(100),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 		},
 		{
 			Name: "id < 1000 limit 100 desc",
 			Query: query.NewBuilder(
-				query.WhereInt64(userID, where.LT, 1000),
+				query.WhereInt64(record.ID, where.LT, 1000),
 				query.Limit(100),
-				query.Sort(sort.ByInt64IndexDesc(&byID{})),
+				query.Sort(sort.Desc(record.ID)),
 			).Query(),
 		},
 		{
 			Name: "id < 1000 limit 100 offset 50 asc",
 			Query: query.NewBuilder(
-				query.WhereInt64(userID, where.LT, 1000),
+				query.WhereInt64(record.ID, where.LT, 1000),
 				query.Limit(100),
 				query.Offset(50),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 		},
 		{
 			Name: "id < 1000 limit 100 offset 50 desc",
 			Query: query.NewBuilder(
-				query.WhereInt64(userID, where.LT, 1000),
+				query.WhereInt64(record.ID, where.LT, 1000),
 				query.Limit(100),
 				query.Offset(50),
-				query.Sort(sort.ByInt64IndexDesc(&byID{})),
+				query.Sort(sort.Desc(record.ID)),
 			).Query(),
 		},
 		{
@@ -156,7 +157,7 @@ func Benchmark_Indexes(b *testing.B) {
 			Query: query.NewBuilder(
 				query.WhereInt64(userAge, where.GT, 18),
 				query.WhereInt64(userAge, where.LT, 45),
-				query.WhereInt64(userID, where.GT, 2000),
+				query.WhereInt64(record.ID, where.GT, 2000),
 			).Query(),
 		},
 	}

@@ -7,7 +7,7 @@ import (
 
 type BoolFieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.BoolGetter
+	Getter record.BoolGetter
 	Value  []bool
 }
 

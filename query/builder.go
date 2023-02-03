@@ -15,7 +15,7 @@ type Builder interface {
 	OpenBracket()
 	CloseBracket()
 	AddWhere(cmp where.FieldComparator)
-	Sort(by sort.By)
+	Sort(by sort.ByWithOrder)
 
 	// OnIteration registers a callback to be called for each record before sorting and applying offset/limits
 	// but after applying WHERE conditions
@@ -45,7 +45,7 @@ type queryBuilder struct {
 	conditionSet bool
 	bracketLevel int
 	where        where.Conditions
-	sortBy       []sort.By
+	sortBy       []sort.ByWithOrder
 	onIteration  *func(item record.Record)
 	error        *multierror.Error // TODO: wait go1.20 https://go-review.googlesource.com/c/go/+/432898/11/src/errors/join.go
 }
@@ -86,7 +86,7 @@ func (qb *queryBuilder) CloseBracket() {
 	qb.conditionSet = true
 }
 
-func (qb *queryBuilder) Sort(sortBy sort.By) {
+func (qb *queryBuilder) Sort(sortBy sort.ByWithOrder) {
 	qb.sortBy = append(qb.sortBy, sortBy)
 }
 
@@ -121,7 +121,7 @@ func (qb *queryBuilder) MakeCopy() Builder {
 		isOr:         qb.isOr,
 		bracketLevel: qb.bracketLevel,
 		where:        make(where.Conditions, len(qb.where)),
-		sortBy:       make([]sort.By, len(qb.sortBy)),
+		sortBy:       make([]sort.ByWithOrder, len(qb.sortBy)),
 		onIteration:  qb.onIteration,
 	}
 	copy(cpy.where, qb.where)

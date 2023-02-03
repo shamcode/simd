@@ -14,7 +14,7 @@ func (i BoolKey) Less(than indexes.Key) bool { return !bool(i) && bool(than.(Boo
 var _ indexes.IndexComputer = boolIndexComputation{}
 
 type boolIndexComputation struct {
-	getter *record.BoolGetter
+	getter record.BoolGetter
 }
 
 func (idx boolIndexComputation) ForRecord(item record.Record) indexes.Key {
@@ -29,6 +29,6 @@ func (idx boolIndexComputation) Check(indexKey indexes.Key, comparator where.Fie
 	return comparator.(comparators.BoolFieldComparator).CompareValue(bool(indexKey.(BoolKey)))
 }
 
-func CreateBoolIndexComputation(getter *record.BoolGetter) indexes.IndexComputer {
+func CreateBoolIndexComputation(getter record.BoolGetter) indexes.IndexComputer {
 	return boolIndexComputation{getter: getter}
 }

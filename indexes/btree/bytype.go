@@ -6,7 +6,7 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-func NewEnum8BTreeIndex(getter *record.Enum8Getter, maxChildren int, uniq bool) indexes.Index {
+func NewEnum8BTreeIndex(getter record.Enum8Getter, maxChildren int, uniq bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateEnum8IndexComputation(getter),
@@ -15,7 +15,7 @@ func NewEnum8BTreeIndex(getter *record.Enum8Getter, maxChildren int, uniq bool) 
 	)
 }
 
-func NewEnum16BTreeIndex(getter *record.Enum16Getter, maxChildren int, uniq bool) indexes.Index {
+func NewEnum16BTreeIndex(getter record.Enum16Getter, maxChildren int, uniq bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateEnum16IndexComputation(getter),
@@ -24,7 +24,7 @@ func NewEnum16BTreeIndex(getter *record.Enum16Getter, maxChildren int, uniq bool
 	)
 }
 
-func NewIntBTreeIndex(getter *record.IntGetter, maxChildren int, uniq bool) indexes.Index {
+func NewIntBTreeIndex(getter record.IntGetter, maxChildren int, uniq bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateIntIndexComputation(getter),
@@ -33,7 +33,7 @@ func NewIntBTreeIndex(getter *record.IntGetter, maxChildren int, uniq bool) inde
 	)
 }
 
-func NewInt32BTreeIndex(getter *record.Int32Getter, maxChildren int, uniq bool) indexes.Index {
+func NewInt32BTreeIndex(getter record.Int32Getter, maxChildren int, uniq bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateInt32IndexComputation(getter),
@@ -42,7 +42,7 @@ func NewInt32BTreeIndex(getter *record.Int32Getter, maxChildren int, uniq bool) 
 	)
 }
 
-func NewInt64BTreeIndex(getter *record.Int64Getter, maxChildren int, uniq bool) indexes.Index {
+func NewInt64BTreeIndex(getter record.Int64Getter, maxChildren int, uniq bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateInt64IndexComputation(getter),
@@ -51,7 +51,7 @@ func NewInt64BTreeIndex(getter *record.Int64Getter, maxChildren int, uniq bool) 
 	)
 }
 
-func NewStringBTreeIndex(getter *record.StringGetter, maxChildren int, uniq bool) indexes.Index {
+func NewStringBTreeIndex(getter record.StringGetter, maxChildren int, uniq bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateStringIndexComputation(getter),

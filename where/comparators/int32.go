@@ -7,7 +7,7 @@ import (
 
 type Int32FieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.Int32Getter
+	Getter record.Int32Getter
 	Value  []int32
 }
 

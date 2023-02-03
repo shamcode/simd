@@ -8,7 +8,7 @@ import (
 // binaryHeap is a interface{} free "container/heap" with small optimization (https://en.wikipedia.org/wiki/Binary_heap)
 type binaryHeap struct {
 	records []record.Record
-	sorting []sort.By
+	sorting []sort.ByWithOrder
 }
 
 func (h *binaryHeap) less(i, j int) int8 {
@@ -77,7 +77,7 @@ func (h *binaryHeap) down(i0, n int) bool {
 	return i > i0
 }
 
-func newHeap(sorting []sort.By) *binaryHeap {
+func newHeap(sorting []sort.ByWithOrder) *binaryHeap {
 	return &binaryHeap{
 		sorting: sorting,
 	}

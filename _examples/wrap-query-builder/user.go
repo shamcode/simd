@@ -36,17 +36,12 @@ func (u *User) ComputeFields() {}
 
 var userFields = record.NewFields()
 
-var id = &record.Int64Getter{
-	Field: userFields.New("id"),
-	Get:   func(item record.Record) int64 { return item.(*User).ID },
-}
-
-var name = &record.StringGetter{
+var name = record.StringGetter{
 	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
-var status = &record.Enum8Getter{
+var status = record.Enum8Getter{
 	Field: userFields.New("status"),
 	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }

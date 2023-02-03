@@ -119,50 +119,43 @@ func (u *User) ComputeFields() {}
 
 var userFields = record.NewFields()
 
-var userID = &record.Int64Getter{
-	Field: userFields.New("id"),
-	Get:   func(item record.Record) int64 { return item.(*User).ID },
-}
+var userID = record.ID
 
-var userName = &record.StringGetter{
+var userName = record.StringGetter{
 	Field: userFields.New("name"),
 	Get:   func(item record.Record) string { return item.(*User).Name },
 }
 
-var userStatus = &record.Enum8Getter{
+var userStatus = record.Enum8Getter{
 	Field: userFields.New("status"),
 	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
 }
 
-var userScore = &record.IntGetter{
+var userScore = record.IntGetter{
 	Field: userFields.New("score"),
 	Get:   func(item record.Record) int { return item.(*User).Score },
 }
 
-var userIsOnline = &record.BoolGetter{
+var userIsOnline = record.BoolGetter{
 	Field: userFields.New("is_online"),
 	Get:   func(item record.Record) bool { return item.(*User).IsOnline },
 }
 
-var userTags = &record.SetGetter{
+var userTags = record.SetGetter{
 	Field: userFields.New("tags"),
 	Get:   func(item record.Record) record.Set { return item.(*User).Tags },
 }
 
-var userCounters = &record.MapGetter{
+var userCounters = record.MapGetter{
 	Field: userFields.New("counters"),
 	Get:   func(item record.Record) record.Map { return item.(*User).Counters },
 }
-
-type byID struct{}
-
-func (sorting *byID) CalcIndex(item record.Record) int64 { return item.(*User).ID }
 
 type byOnline struct {
 	onlineToUp bool
 }
 
-func (sorting *byOnline) CalcIndex(item record.Record) int64 {
+func (sorting byOnline) Calc(item record.Record) int64 {
 	if sorting.onlineToUp == item.(*User).IsOnline {
 		return 0
 	}
@@ -233,7 +226,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereEnum8(userStatus, where.EQ, StatusActive),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
@@ -242,7 +235,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id DESC",
 			Query: query.NewBuilder(
 				query.WhereEnum8(userStatus, where.EQ, StatusActive),
-				query.Sort(sort.ByInt64IndexDesc(&byID{})),
+				query.Sort(sort.Desc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{4, 1},
@@ -252,7 +245,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Query: query.NewBuilder(
 				query.Not(),
 				query.WhereEnum8(userStatus, where.EQ, StatusDisabled),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
@@ -262,7 +255,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Query: query.NewBuilder(
 				query.WhereInt(userScore, where.GE, 10),
 				query.WhereInt(userScore, where.LT, 20),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 2},
@@ -272,7 +265,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Query: query.NewBuilder(
 				query.WhereInt(userScore, where.GE, 10),
 				query.WhereInt(userScore, where.LT, 20),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 				query.Limit(1),
 			).Query(),
 			ExpectedCount: 2,
@@ -283,7 +276,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Query: query.NewBuilder(
 				query.WhereInt(userScore, where.GE, 10),
 				query.WhereInt(userScore, where.LT, 20),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 				query.Offset(1),
 				query.Limit(3),
 			).Query(),
@@ -295,7 +288,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Query: query.NewBuilder(
 				query.WhereInt(userScore, where.GE, 10),
 				query.WhereInt(userScore, where.LT, 20),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 				query.Offset(2),
 				query.Limit(3),
 			).Query(),
@@ -324,7 +317,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE name LIKE 'th' ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereString(userName, where.Like, "t"),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
@@ -335,7 +328,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.WhereInt64(userID, where.EQ, 1),
 				query.Or(),
 				query.WhereEnum8(userStatus, where.EQ, StatusDisabled),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
@@ -349,7 +342,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.Not(),
 				query.WhereEnum8(userStatus, where.EQ, StatusDisabled),
 				query.CloseBracket(),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
@@ -366,7 +359,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.Not(),
 				query.WhereBool(userIsOnline, where.EQ, true),
 				query.CloseBracket(),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
@@ -381,7 +374,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, false),
 				query.CloseBracket(),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
@@ -396,7 +389,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.CloseBracket(),
 				query.Or(),
 				query.WhereInt64(userID, where.EQ, 1),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
@@ -411,7 +404,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, false),
 				query.CloseBracket(),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{1, 2, 3, 4},
@@ -425,7 +418,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, true),
 				query.CloseBracket(),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
@@ -434,7 +427,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE is_online = true ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereBool(userIsOnline, where.EQ, true),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
@@ -443,7 +436,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE id IN (4, 2) ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereInt64(userID, where.InArray, 4, 2),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{2, 4},
@@ -452,7 +445,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE name REGEXP [tT]) ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereStringRegexp(userName, regexp.MustCompile("[tT]")),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 3, 4},
@@ -461,7 +454,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE name IN (Second, Third) ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereString(userName, where.InArray, "Second", "Third"),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{2, 3},
@@ -473,7 +466,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 				query.WhereInt64(userID, where.EQ, 1),
 				query.CloseBracket(),
 				query.WhereInt64(userID, where.InArray, 1, 2, 3),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{1},
@@ -481,7 +474,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY id ASC",
 			Query: query.NewBuilder(
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{1, 2, 3, 4},
@@ -490,7 +483,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE tags HAS confirmed ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereSet(userTags, where.SetHas, TagConfirmed),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 3,
 			ExpectedIDs:   []int64{1, 2, 3},
@@ -499,7 +492,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE tags HAS free ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereSet(userTags, where.SetHas, TagFree),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{3},
@@ -508,7 +501,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_KEY UnreadMessages ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereMap(userCounters, where.MapHasKey, CounterKeyUnreadMessages),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 2},
@@ -517,7 +510,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_VALUE HasCounterValueEqual(2) ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereMap(userCounters, where.MapHasValue, HasCounterValueEqual(2)),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{2},
@@ -526,7 +519,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_VALUE HasCounterValue(1) ORDER BY id ASC",
 			Query: query.NewBuilder(
 				query.WhereMap(userCounters, where.MapHasValue, HasCounterValueEqual(1)),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 2,
 			ExpectedIDs:   []int64{1, 4},
@@ -534,8 +527,8 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY byOnline ASC id ASC",
 			Query: query.NewBuilder(
-				query.Sort(sort.ByInt64IndexAsc(&byOnline{onlineToUp: true})),
-				query.Sort(sort.ByInt64IndexAsc(&byID{})),
+				query.Sort(sort.Asc(sort.ByScalar(byOnline{onlineToUp: true}))),
+				query.Sort(sort.Asc(record.ID)),
 			).Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{4, 1, 2, 3},
@@ -543,7 +536,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY name ASC",
 			Query: query.NewBuilder(
-				query.Sort(sort.ByStringAsc(userName)),
+				query.Sort(sort.Asc(userName)),
 			).Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{1, 4, 2, 3},
@@ -551,7 +544,7 @@ func Test_FetchAllAndTotal(t *testing.T) {
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY name DESC",
 			Query: query.NewBuilder(
-				query.Sort(sort.ByStringDesc(userName)),
+				query.Sort(sort.Desc(userName)),
 			).Query(),
 			ExpectedCount: 4,
 			ExpectedIDs:   []int64{3, 2, 4, 1},
@@ -620,7 +613,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 		query.NewBuilder(
 			query.WhereEnum8(userStatus, where.EQ, StatusActive),
 			query.Limit(1),
-			query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			query.Sort(sort.Asc(record.ID)),
 			query.OnIteration(func(item record.Record) {
 				idsFromCallback = append(idsFromCallback, int(item.GetID()))
 			}),
@@ -710,7 +703,7 @@ func Test_Delete(t *testing.T) {
 	cur, err := executor.CreateQueryExecutor(store).FetchAll(
 		context.Background(),
 		query.NewBuilder(
-			query.Sort(sort.ByInt64IndexAsc(&byID{})),
+			query.Sort(sort.Asc(record.ID)),
 		).Query(),
 	)
 	asserts.Success(t, err)

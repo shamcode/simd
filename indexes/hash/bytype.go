@@ -6,7 +6,7 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-func NewBoolHashIndex(getter *record.BoolGetter, unique bool) indexes.Index {
+func NewBoolHashIndex(getter record.BoolGetter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateBoolIndexComputation(getter),
@@ -15,7 +15,7 @@ func NewBoolHashIndex(getter *record.BoolGetter, unique bool) indexes.Index {
 	)
 }
 
-func NewEnum8HashIndex(getter *record.Enum8Getter, unique bool) indexes.Index {
+func NewEnum8HashIndex(getter record.Enum8Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateEnum8IndexComputation(getter),
@@ -24,7 +24,7 @@ func NewEnum8HashIndex(getter *record.Enum8Getter, unique bool) indexes.Index {
 	)
 }
 
-func NewEnum16HashIndex(getter *record.Enum16Getter, unique bool) indexes.Index {
+func NewEnum16HashIndex(getter record.Enum16Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateEnum16IndexComputation(getter),
@@ -33,7 +33,7 @@ func NewEnum16HashIndex(getter *record.Enum16Getter, unique bool) indexes.Index 
 	)
 }
 
-func NewInt32HashIndex(getter *record.Int32Getter, unique bool) indexes.Index {
+func NewInt32HashIndex(getter record.Int32Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateInt32IndexComputation(getter),
@@ -42,7 +42,7 @@ func NewInt32HashIndex(getter *record.Int32Getter, unique bool) indexes.Index {
 	)
 }
 
-func NewInt64HashIndex(getter *record.Int64Getter, unique bool) indexes.Index {
+func NewInt64HashIndex(getter record.Int64Getter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateInt64IndexComputation(getter),
@@ -51,7 +51,7 @@ func NewInt64HashIndex(getter *record.Int64Getter, unique bool) indexes.Index {
 	)
 }
 
-func NewStringHashIndex(getter *record.StringGetter, unique bool) indexes.Index {
+func NewStringHashIndex(getter record.StringGetter, unique bool) indexes.Index {
 	return NewIndex(
 		getter.Field,
 		compute.CreateStringIndexComputation(getter),

@@ -14,7 +14,7 @@ func (i Int64Key) Less(than indexes.Key) bool { return i < than.(Int64Key) }
 var _ indexes.IndexComputer = int64IndexComputation{}
 
 type int64IndexComputation struct {
-	getter *record.Int64Getter
+	getter record.Int64Getter
 }
 
 func (idx int64IndexComputation) ForRecord(item record.Record) indexes.Key {
@@ -29,6 +29,6 @@ func (idx int64IndexComputation) Check(indexKey indexes.Key, comparator where.Fi
 	return comparator.(comparators.Int64FieldComparator).CompareValue(int64(indexKey.(Int64Key)))
 }
 
-func CreateInt64IndexComputation(getter *record.Int64Getter) indexes.IndexComputer {
+func CreateInt64IndexComputation(getter record.Int64Getter) indexes.IndexComputer {
 	return int64IndexComputation{getter: getter}
 }

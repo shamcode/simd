@@ -7,19 +7,6 @@ import (
 	"testing"
 )
 
-type testUser struct {
-	id int64
-}
-
-func (u testUser) GetID() int64   { return u.id }
-func (u testUser) ComputeFields() {}
-
-var userFields = record.NewFields()
-var userID = &record.Int64Getter{
-	Field: userFields.New("id"),
-	Get:   func(item record.Record) int64 { return item.(*testUser).id },
-}
-
 func TestBuilderErrors(t *testing.T) {
 	testCases := []struct {
 		builderOptions []BuilderOption
@@ -28,8 +15,8 @@ func TestBuilderErrors(t *testing.T) {
 		{
 			builderOptions: []BuilderOption{
 				Or(),
-				WhereInt64(userID, where.EQ, 1),
-				WhereInt64(userID, where.EQ, 2),
+				WhereInt64(record.ID, where.EQ, 1),
+				WhereInt64(record.ID, where.EQ, 2),
 			},
 			expectedError: "1 error occurred:\n\t* .Or() before any condition not supported, add any condition before .Or()\n\n",
 		},
@@ -37,8 +24,8 @@ func TestBuilderErrors(t *testing.T) {
 			builderOptions: []BuilderOption{
 				Not(),
 				OpenBracket(),
-				WhereInt64(userID, where.EQ, 1),
-				WhereInt64(userID, where.EQ, 2),
+				WhereInt64(record.ID, where.EQ, 1),
+				WhereInt64(record.ID, where.EQ, 2),
 				CloseBracket(),
 			},
 			expectedError: "1 error occurred:\n\t* .Not().OpenBracket() not supported\n\n",
@@ -46,8 +33,8 @@ func TestBuilderErrors(t *testing.T) {
 		{
 			builderOptions: []BuilderOption{
 				OpenBracket(),
-				WhereInt64(userID, where.EQ, 1),
-				WhereInt64(userID, where.EQ, 2),
+				WhereInt64(record.ID, where.EQ, 1),
+				WhereInt64(record.ID, where.EQ, 2),
 				CloseBracket(),
 				CloseBracket(),
 			},
@@ -56,8 +43,8 @@ func TestBuilderErrors(t *testing.T) {
 		{
 			builderOptions: []BuilderOption{
 				OpenBracket(),
-				WhereInt64(userID, where.EQ, 1),
-				WhereInt64(userID, where.EQ, 2),
+				WhereInt64(record.ID, where.EQ, 1),
+				WhereInt64(record.ID, where.EQ, 2),
 				CloseBracket(),
 				OpenBracket(),
 			},
@@ -68,8 +55,8 @@ func TestBuilderErrors(t *testing.T) {
 				Not(),
 				Or(),
 				OpenBracket(),
-				WhereInt64(userID, where.EQ, 1),
-				WhereInt64(userID, where.EQ, 2),
+				WhereInt64(record.ID, where.EQ, 1),
+				WhereInt64(record.ID, where.EQ, 2),
 				CloseBracket(),
 				OpenBracket(),
 			},

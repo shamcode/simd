@@ -21,23 +21,23 @@ type index struct {
 	storage indexes.ConcurrentStorage
 }
 
-func (idx *index) hashTable() Storage {
+func (idx index) hashTable() Storage {
 	return idx.storage.Unwrap().(Storage)
 }
 
-func (idx *index) Field() record.Field {
+func (idx index) Field() record.Field {
 	return idx.field
 }
 
-func (idx *index) Unique() bool {
+func (idx index) Unique() bool {
 	return idx.unique
 }
 
-func (idx *index) Compute() indexes.IndexComputer {
+func (idx index) Compute() indexes.IndexComputer {
 	return idx.compute
 }
 
-func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
+func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
 	cmp := condition.Cmp.GetType()
 	if !condition.WithNot && (where.EQ == cmp || where.InArray == cmp) {
 
@@ -49,7 +49,7 @@ func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight 
 	return true, indexes.IndexWeightHigh
 }
 
-func (idx *index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
+func (idx index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
 	if !condition.WithNot {
 		switch condition.Cmp.GetType() {
 		case where.EQ:
@@ -63,7 +63,7 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.ID
 	return idx.selectForOther(condition)
 }
 
-func (idx *index) selectForEqual(condition where.Condition) (count int, ids []storage.IDIterator) {
+func (idx index) selectForEqual(condition where.Condition) (count int, ids []storage.IDIterator) {
 	itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 	if nil != itemsByValue {
 		count = itemsByValue.Count()
@@ -72,7 +72,7 @@ func (idx *index) selectForEqual(condition where.Condition) (count int, ids []st
 	return
 }
 
-func (idx *index) selectForInArray(condition where.Condition) (count int, ids []storage.IDIterator) {
+func (idx index) selectForInArray(condition where.Condition) (count int, ids []storage.IDIterator) {
 	for i := 0; i < condition.Cmp.ValuesCount(); i++ {
 		itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 		if nil != itemsByValue {
@@ -86,7 +86,7 @@ func (idx *index) selectForInArray(condition where.Condition) (count int, ids []
 	return
 }
 
-func (idx *index) selectForOther(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
+func (idx index) selectForOther(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
 	idx.storage.RLock()
 	keys := idx.hashTable().Keys()
 	idx.storage.RUnlock()
@@ -105,12 +105,12 @@ func (idx *index) selectForOther(condition where.Condition) (count int, ids []st
 	return
 }
 
-func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
+func (idx index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
 func NewIndex(field record.Field, compute indexes.IndexComputer, hashTable Storage, unique bool) indexes.Index {
-	return &index{
+	return index{
 		field:   field,
 		unique:  unique,
 		compute: compute,

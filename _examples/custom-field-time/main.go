@@ -34,10 +34,6 @@ var createdAt = &types.TimeGetter{
 	},
 }
 
-type byID struct{}
-
-func (sorting *byID) CalcIndex(item record.Record) int64 { return item.(*Item).ID }
-
 func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 	flag.Parse()
@@ -54,7 +50,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(indexesByType.NewTimeHashIndex(createdAt, false))
+	store.AddIndex(indexesByType.NewTimeBTreeIndex(createdAt, 8, false))
 
 	for _, user := range []*Item{
 		{
@@ -78,7 +74,7 @@ func main() {
 
 	q := queryBuilder(
 		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local)),
-		query.Sort(sort.ByInt64IndexAsc(&byID{})),
+		query.Sort(sort.Asc(record.ID)),
 	).Query()
 
 	ctx := context.Background()

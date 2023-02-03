@@ -14,7 +14,7 @@ func (i Enum16Key) Less(than indexes.Key) bool { return i < than.(Enum16Key) }
 var _ indexes.IndexComputer = enum16IndexComputation{}
 
 type enum16IndexComputation struct {
-	getter *record.Enum16Getter
+	getter record.Enum16Getter
 }
 
 func (idx enum16IndexComputation) ForRecord(item record.Record) indexes.Key {
@@ -29,6 +29,6 @@ func (idx enum16IndexComputation) Check(indexKey indexes.Key, comparator where.F
 	return comparator.(comparators.Enum16FieldComparator).CompareValue(uint16(indexKey.(Enum16Key)))
 }
 
-func CreateEnum16IndexComputation(getter *record.Enum16Getter) indexes.IndexComputer {
+func CreateEnum16IndexComputation(getter record.Enum16Getter) indexes.IndexComputer {
 	return enum16IndexComputation{getter: getter}
 }

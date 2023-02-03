@@ -83,7 +83,7 @@ func (q *debugQueryBuilder) AddWhere(cmp where.FieldComparator) {
 	q.requireOp = true
 }
 
-func (q *debugQueryBuilder) Sort(sortBy sort.By) {
+func (q *debugQueryBuilder) Sort(sortBy sort.ByWithOrder) {
 	w := q.chunks[chunkSort]
 	if w.Len() > 0 {
 		w.WriteString(", ")

@@ -14,7 +14,7 @@ func (i Enum8Key) Less(than indexes.Key) bool { return i < than.(Enum8Key) }
 var _ indexes.IndexComputer = enum8IndexComputation{}
 
 type enum8IndexComputation struct {
-	getter *record.Enum8Getter
+	getter record.Enum8Getter
 }
 
 func (idx enum8IndexComputation) ForRecord(item record.Record) indexes.Key {
@@ -29,6 +29,6 @@ func (idx enum8IndexComputation) Check(indexKey indexes.Key, comparator where.Fi
 	return comparator.(comparators.Enum8FieldComparator).CompareValue(uint8(indexKey.(Enum8Key)))
 }
 
-func CreateEnum8IndexComputation(getter *record.Enum8Getter) indexes.IndexComputer {
+func CreateEnum8IndexComputation(getter record.Enum8Getter) indexes.IndexComputer {
 	return enum8IndexComputation{getter: getter}
 }

@@ -17,7 +17,7 @@ type stringComparator interface {
 var _ indexes.IndexComputer = stringIndexComputation{}
 
 type stringIndexComputation struct {
-	getter *record.StringGetter
+	getter record.StringGetter
 }
 
 func (idx stringIndexComputation) ForRecord(item record.Record) indexes.Key {
@@ -32,6 +32,6 @@ func (idx stringIndexComputation) Check(indexKey indexes.Key, comparator where.F
 	return comparator.(stringComparator).CompareValue(string(indexKey.(StringKey)))
 }
 
-func CreateStringIndexComputation(getter *record.StringGetter) indexes.IndexComputer {
+func CreateStringIndexComputation(getter record.StringGetter) indexes.IndexComputer {
 	return stringIndexComputation{getter: getter}
 }

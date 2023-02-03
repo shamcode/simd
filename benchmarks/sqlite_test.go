@@ -8,6 +8,7 @@ import (
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"log"
 	"strconv"
@@ -46,7 +47,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) {
 		}
 
 		simd := namespace.CreateNamespace()
-		simd.AddIndex(hash.NewInt64HashIndex(userID, true))
+		simd.AddIndex(hash.NewInt64HashIndex(record.ID, true))
 
 		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)")
 		if nil != err {
@@ -80,7 +81,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) {
 					cur, err := qe.FetchAll(
 						context.Background(),
 						query.NewBuilder(
-							query.WhereInt64(userID, where.EQ, int64(i)),
+							query.WhereInt64(record.ID, where.EQ, int64(i)),
 						).Query(),
 					)
 					if nil != err {

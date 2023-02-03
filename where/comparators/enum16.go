@@ -7,7 +7,7 @@ import (
 
 type Enum16FieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.Enum16Getter
+	Getter record.Enum16Getter
 	Value  []record.Enum16
 }
 

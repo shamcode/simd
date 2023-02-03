@@ -9,7 +9,7 @@ import (
 
 type StringFieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.StringGetter
+	Getter record.StringGetter
 	Value  []string
 }
 
@@ -62,7 +62,7 @@ func (fc StringFieldComparator) ValueAt(index int) interface{} {
 // StringFieldRegexpComparator is a special comparator for handling Regexp
 type StringFieldRegexpComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.StringGetter
+	Getter record.StringGetter
 	Value  *regexp.Regexp
 }
 

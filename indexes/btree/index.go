@@ -26,23 +26,23 @@ type index struct {
 	storage indexes.ConcurrentStorage
 }
 
-func (idx *index) btree() Storage {
+func (idx index) btree() Storage {
 	return idx.storage.Unwrap().(Storage)
 }
 
-func (idx *index) Field() record.Field {
+func (idx index) Field() record.Field {
 	return idx.field
 }
 
-func (idx *index) Unique() bool {
+func (idx index) Unique() bool {
 	return idx.unique
 }
 
-func (idx *index) Compute() indexes.IndexComputer {
+func (idx index) Compute() indexes.IndexComputer {
 	return idx.compute
 }
 
-func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
+func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
 	switch condition.Cmp.GetType() {
 	case where.LT, where.LE, where.GT, where.GE:
 
@@ -63,7 +63,7 @@ func (idx *index) Weight(condition where.Condition) (canApplyIndex bool, weight 
 	}
 }
 
-func (idx *index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
+func (idx index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
 	cmp := condition.Cmp.GetType()
 	if condition.WithNot {
 		switch cmp {
@@ -142,12 +142,12 @@ func (idx *index) Select(condition where.Condition) (count int, ids []storage.ID
 	return
 }
 
-func (idx *index) ConcurrentStorage() indexes.ConcurrentStorage {
+func (idx index) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
 func NewIndex(field record.Field, compute indexes.IndexComputer, btree Storage, unique bool) indexes.Index {
-	return &index{
+	return index{
 		field:   field,
 		unique:  unique,
 		compute: compute,

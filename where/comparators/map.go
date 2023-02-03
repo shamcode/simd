@@ -7,7 +7,7 @@ import (
 
 type MapFieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.MapGetter
+	Getter record.MapGetter
 	Value  []interface{}
 }
 

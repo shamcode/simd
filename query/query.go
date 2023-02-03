@@ -8,7 +8,7 @@ import (
 
 type Query interface {
 	Conditions() where.Conditions
-	Sorting() []sort.By
+	Sorting() []sort.ByWithOrder
 	Limit() (count int, set bool)
 	Offset() int
 	OnIterationCallback() *func(item record.Record)
@@ -22,7 +22,7 @@ type query struct {
 	limit               int
 	withLimit           bool
 	conditions          where.Conditions
-	sorting             []sort.By
+	sorting             []sort.ByWithOrder
 	onIterationCallback *func(item record.Record)
 	error               error
 }
@@ -31,7 +31,7 @@ func (q query) Conditions() where.Conditions {
 	return q.conditions
 }
 
-func (q query) Sorting() []sort.By {
+func (q query) Sorting() []sort.ByWithOrder {
 	return q.sorting
 }
 

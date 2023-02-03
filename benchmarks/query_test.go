@@ -7,6 +7,7 @@ import (
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
+	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"strconv"
@@ -15,8 +16,8 @@ import (
 
 func Benchmark_Query(b *testing.B) {
 	store := namespace.CreateNamespace()
-	store.AddIndex(hash.NewInt64HashIndex(userID, true))
-	store.AddIndex(btree.NewInt64BTreeIndex(userID, 8, true))
+	store.AddIndex(hash.NewInt64HashIndex(record.ID, true))
+	store.AddIndex(btree.NewInt64BTreeIndex(record.ID, 8, true))
 	store.AddIndex(hash.NewStringHashIndex(userName, false))
 	store.AddIndex(hash.NewEnum8HashIndex(userStatus, false))
 	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
@@ -53,32 +54,32 @@ func Benchmark_Query(b *testing.B) {
 			},
 			{
 				Name:  "id <= 5000",
-				Query: query.NewBuilder(query.WhereInt64(userID, where.LE, 5000)).Query(),
+				Query: query.NewBuilder(query.WhereInt64(record.ID, where.LE, 5000)).Query(),
 			},
 			{
 				Name:  "id > 1000",
-				Query: query.NewBuilder(query.WhereInt64(userID, where.GT, 1000)).Query(),
+				Query: query.NewBuilder(query.WhereInt64(record.ID, where.GT, 1000)).Query(),
 			},
 			{
 				Name: "id > 1000 limit 100 asc",
 				Query: query.NewBuilder(
-					query.WhereInt64(userID, where.GT, 1000),
+					query.WhereInt64(record.ID, where.GT, 1000),
 					query.Limit(100),
-					query.Sort(sort.ByInt64IndexAsc(&byID{})),
+					query.Sort(sort.Asc(record.ID)),
 				).Query(),
 			},
 			{
 				Name: "id > 1000 limit 100 desc",
 				Query: query.NewBuilder(
-					query.WhereInt64(userID, where.GT, 1000),
+					query.WhereInt64(record.ID, where.GT, 1000),
 					query.Limit(100),
-					query.Sort(sort.ByInt64IndexDesc(&byID{})),
+					query.Sort(sort.Desc(record.ID)),
 				).Query(),
 			},
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE",
 				Query: query.NewBuilder(
-					query.WhereInt64(userID, where.GT, 1000),
+					query.WhereInt64(record.ID, where.GT, 1000),
 					query.WhereBool(userIsOnline, where.EQ, true),
 					query.WhereEnum8(userStatus, where.EQ, StatusActive),
 				).Query(),
@@ -86,10 +87,10 @@ func Benchmark_Query(b *testing.B) {
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE limit 100 desc",
 				Query: query.NewBuilder(
-					query.WhereInt64(userID, where.GT, 1000),
+					query.WhereInt64(record.ID, where.GT, 1000),
 					query.WhereBool(userIsOnline, where.EQ, true),
 					query.WhereEnum8(userStatus, where.EQ, StatusActive),
-					query.Sort(sort.ByInt64IndexAsc(&byID{})),
+					query.Sort(sort.Asc(record.ID)),
 					query.Limit(100),
 				).Query(),
 			},

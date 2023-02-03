@@ -61,6 +61,9 @@ func (r *recordsByID) selectByStore(store IDIterator, totalCount int) []record.R
 	var i int
 	r.RLock()
 	store.Iterate(func(id int64) {
+		if 0 == id {
+			return
+		}
 		items[i] = r.data[id]
 		i++
 	})

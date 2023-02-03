@@ -4,8 +4,8 @@ import (
 	"github.com/shamcode/simd/_examples/custom-field-time/types"
 	"github.com/shamcode/simd/_examples/custom-field-time/types/comparators"
 	"github.com/shamcode/simd/indexes"
+	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/compute"
-	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"time"
@@ -28,11 +28,11 @@ func (idx timeIndexComputation) ForValue(item interface{}) indexes.Key {
 func (idx timeIndexComputation) Check(indexKey indexes.Key, comparator where.FieldComparator) (bool, error) {
 	return comparator.(comparators.TimeFieldComparator).CompareValue(time.Unix(0, int64(indexKey.(compute.Int64Key))))
 }
-func NewTimeHashIndex(getter *types.TimeGetter, unique bool) indexes.Index {
-	return hash.NewIndex(
+func NewTimeBTreeIndex(getter *types.TimeGetter, maxChildren int, unique bool) indexes.Index {
+	return btree.NewIndex(
 		getter.Field,
 		timeIndexComputation{getter: getter},
-		hash.CreateHashTable(),
+		btree.NewTree(maxChildren, unique),
 		unique,
 	)
 }

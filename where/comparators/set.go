@@ -7,7 +7,7 @@ import (
 
 type SetFieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *record.SetGetter
+	Getter record.SetGetter
 	Value  []interface{}
 }
 

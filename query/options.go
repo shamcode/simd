@@ -52,11 +52,11 @@ func CloseBracket() BuilderOption {
 }
 
 type SortOption struct {
-	by sort.By
+	by sort.ByWithOrder
 }
 
 func (o SortOption) Apply(b Builder) { b.Sort(o.by) }
-func Sort(by sort.By) BuilderOption {
+func Sort(by sort.ByWithOrder) BuilderOption {
 	return SortOption{by: by}
 }
 
@@ -66,7 +66,7 @@ type AddWhereOption struct {
 
 func (o AddWhereOption) Apply(b Builder) { b.AddWhere(o.Cmp) }
 
-func Where(getter *record.InterfaceGetter, condition where.ComparatorType, values ...interface{}) BuilderOption {
+func Where(getter record.InterfaceGetter, condition where.ComparatorType, values ...interface{}) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.InterfaceFieldComparator{
 			Cmp:    condition,
@@ -76,7 +76,7 @@ func Where(getter *record.InterfaceGetter, condition where.ComparatorType, value
 	}
 }
 
-func WhereInt(getter *record.IntGetter, condition where.ComparatorType, value ...int) BuilderOption {
+func WhereInt(getter record.IntGetter, condition where.ComparatorType, value ...int) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.IntFieldComparator{
 			Cmp:    condition,
@@ -86,7 +86,7 @@ func WhereInt(getter *record.IntGetter, condition where.ComparatorType, value ..
 	}
 }
 
-func WhereInt32(getter *record.Int32Getter, condition where.ComparatorType, value ...int32) BuilderOption {
+func WhereInt32(getter record.Int32Getter, condition where.ComparatorType, value ...int32) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.Int32FieldComparator{
 			Cmp:    condition,
@@ -96,7 +96,7 @@ func WhereInt32(getter *record.Int32Getter, condition where.ComparatorType, valu
 	}
 }
 
-func WhereInt64(getter *record.Int64Getter, condition where.ComparatorType, value ...int64) BuilderOption {
+func WhereInt64(getter record.Int64Getter, condition where.ComparatorType, value ...int64) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.Int64FieldComparator{
 			Cmp:    condition,
@@ -106,7 +106,7 @@ func WhereInt64(getter *record.Int64Getter, condition where.ComparatorType, valu
 	}
 }
 
-func WhereString(getter *record.StringGetter, condition where.ComparatorType, value ...string) BuilderOption {
+func WhereString(getter record.StringGetter, condition where.ComparatorType, value ...string) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.StringFieldComparator{
 			Cmp:    condition,
@@ -116,7 +116,7 @@ func WhereString(getter *record.StringGetter, condition where.ComparatorType, va
 	}
 }
 
-func WhereStringRegexp(getter *record.StringGetter, value *regexp.Regexp) BuilderOption {
+func WhereStringRegexp(getter record.StringGetter, value *regexp.Regexp) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.StringFieldRegexpComparator{
 			Cmp:    where.Regexp,
@@ -126,7 +126,7 @@ func WhereStringRegexp(getter *record.StringGetter, value *regexp.Regexp) Builde
 	}
 }
 
-func WhereBool(getter *record.BoolGetter, condition where.ComparatorType, value ...bool) BuilderOption {
+func WhereBool(getter record.BoolGetter, condition where.ComparatorType, value ...bool) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.BoolFieldComparator{
 			Cmp:    condition,
@@ -136,7 +136,7 @@ func WhereBool(getter *record.BoolGetter, condition where.ComparatorType, value 
 	}
 }
 
-func WhereEnum8(getter *record.Enum8Getter, condition where.ComparatorType, value ...record.Enum8) BuilderOption {
+func WhereEnum8(getter record.Enum8Getter, condition where.ComparatorType, value ...record.Enum8) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.Enum8FieldComparator{
 			Cmp:    condition,
@@ -146,7 +146,7 @@ func WhereEnum8(getter *record.Enum8Getter, condition where.ComparatorType, valu
 	}
 }
 
-func WhereEnum16(getter *record.Enum16Getter, condition where.ComparatorType, value ...record.Enum16) BuilderOption {
+func WhereEnum16(getter record.Enum16Getter, condition where.ComparatorType, value ...record.Enum16) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.Enum16FieldComparator{
 			Cmp:    condition,
@@ -156,7 +156,7 @@ func WhereEnum16(getter *record.Enum16Getter, condition where.ComparatorType, va
 	}
 }
 
-func WhereMap(getter *record.MapGetter, condition where.ComparatorType, value ...interface{}) BuilderOption {
+func WhereMap(getter record.MapGetter, condition where.ComparatorType, value ...interface{}) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.MapFieldComparator{
 			Cmp:    condition,
@@ -166,7 +166,7 @@ func WhereMap(getter *record.MapGetter, condition where.ComparatorType, value ..
 	}
 }
 
-func WhereSet(getter *record.SetGetter, condition where.ComparatorType, value ...interface{}) BuilderOption {
+func WhereSet(getter record.SetGetter, condition where.ComparatorType, value ...interface{}) BuilderOption {
 	return AddWhereOption{
 		Cmp: comparators.SetFieldComparator{
 			Cmp:    condition,
