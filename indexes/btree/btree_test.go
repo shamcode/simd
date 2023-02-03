@@ -52,7 +52,7 @@ func TestBTree(t *testing.T) {
 		for _, testCase := range testCases {
 			count, ids := tree.LessThan(testCase.key)
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
-			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check ids for %d", testCase.key))
+			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
 	})
 
@@ -73,7 +73,7 @@ func TestBTree(t *testing.T) {
 		for _, testCase := range testCases {
 			count, ids := tree.LessOrEqual(testCase.key)
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
-			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check ids for %d", testCase.key))
+			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
 	})
 
@@ -94,7 +94,7 @@ func TestBTree(t *testing.T) {
 		for _, testCase := range testCases {
 			count, ids := tree.GreaterThan(testCase.key)
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
-			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check ids for %d", testCase.key))
+			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
 	})
 
@@ -115,7 +115,7 @@ func TestBTree(t *testing.T) {
 		for _, testCase := range testCases {
 			count, ids := tree.GreaterOrEqual(testCase.key)
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
-			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check ids for %d", testCase.key))
+			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
 	})
 }
