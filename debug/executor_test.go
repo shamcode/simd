@@ -23,8 +23,6 @@ func (u *user) GetID() int64 {
 	return u.ID
 }
 
-func (u *user) ComputeFields() {}
-
 var userFields = record.NewFields()
 
 var id = record.ID

@@ -32,7 +32,6 @@ type User struct {
 }
 
 func (u *User) GetID() int64   { return u.ID }
-func (u *User) ComputeFields() {}
 
 var userFields = record.NewFields()
 

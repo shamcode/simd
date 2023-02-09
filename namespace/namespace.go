@@ -17,6 +17,12 @@ type Namespace interface {
 	executor.Selector
 }
 
+type fieldsComputer interface {
+	// ComputeFields is a special hook for optimize slow computing fields.
+	// ComputeFields call on insert or update record.
+	ComputeFields()
+}
+
 var _ Namespace = (*WithIndexes)(nil)
 
 type WithIndexes struct {
@@ -38,7 +44,9 @@ func (ns *WithIndexes) Insert(item record.Record) error {
 }
 
 func (ns *WithIndexes) insert(item record.Record) {
-	item.ComputeFields()
+	if item, ok := item.(fieldsComputer); ok {
+		item.ComputeFields()
+	}
 	ns.indexes.Insert(item)
 	ns.storage.Set(item.GetID(), item)
 }
@@ -65,7 +73,9 @@ func (ns *WithIndexes) Upsert(item record.Record) error {
 	}
 
 	// It's update
-	item.ComputeFields()
+	if item, ok := item.(fieldsComputer); ok {
+		item.ComputeFields()
+	}
 	ns.indexes.Update(oldItem, item)
 	ns.storage.Set(id, item)
 	return nil

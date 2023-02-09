@@ -23,7 +23,6 @@ type Item struct {
 }
 
 func (u *Item) GetID() int64   { return u.ID }
-func (u *Item) ComputeFields() {}
 
 var itemFields = record.NewFields()
 

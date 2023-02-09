@@ -16,8 +16,7 @@ type user struct {
 	string string
 }
 
-func (u user) GetID() int64   { return u.id }
-func (u user) ComputeFields() {}
+func (u user) GetID() int64 { return u.id }
 
 type enum8 uint8
 

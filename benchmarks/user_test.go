@@ -32,8 +32,7 @@ type User struct {
 	IsOnline bool
 }
 
-func (u *User) GetID() int64   { return u.ID }
-func (u *User) ComputeFields() {}
+func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 

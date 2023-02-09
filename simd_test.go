@@ -114,8 +114,7 @@ type User struct {
 	Counters Counters
 }
 
-func (u *User) GetID() int64   { return u.ID }
-func (u *User) ComputeFields() {}
+func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 
