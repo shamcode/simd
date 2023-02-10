@@ -24,7 +24,7 @@ func (fc BoolFieldComparator) CompareValue(value bool) (bool, error) {
 	case where.EQ:
 		return value == fc.Value[0], nil
 	default:
-		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 

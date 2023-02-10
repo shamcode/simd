@@ -31,7 +31,7 @@ func (fc InterfaceFieldComparator) CompareValue(value interface{}) (bool, error)
 		}
 		return false, nil
 	default:
-		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 

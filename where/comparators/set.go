@@ -24,7 +24,7 @@ func (fc SetFieldComparator) CompareValue(value record.Set) (bool, error) {
 	case where.SetHas:
 		return value.Has(fc.Value[0]), nil
 	default:
-		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 

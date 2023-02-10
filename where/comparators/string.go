@@ -43,7 +43,7 @@ func (fc StringFieldComparator) CompareValue(value string) (bool, error) {
 		}
 		return false, nil
 	default:
-		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 
@@ -79,7 +79,7 @@ func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
 	case where.Regexp:
 		return fc.Value.MatchString(value), nil
 	default:
-		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 

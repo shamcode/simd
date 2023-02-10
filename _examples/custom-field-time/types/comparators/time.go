@@ -35,7 +35,7 @@ func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
 	case where.LE:
 		return value.Equal(fc.Value[0]) || value.Before(fc.Value[0]), nil
 	default:
-		return false, comparators.NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, comparators.NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 

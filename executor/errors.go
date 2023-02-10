@@ -1,44 +1,44 @@
 package executor
 
 type (
-	ErrValidateQuery struct {
+	ValidateQueryError struct {
 		err error
 	}
-	ErrExecuteQuery struct {
+	ExecuteQueryError struct {
 		err error
 	}
 )
 
-func (e ErrValidateQuery) Error() string {
+func (e ValidateQueryError) Error() string {
 	return "validate query: " + e.err.Error()
 }
 
-func (e ErrValidateQuery) Unwrap() error {
+func (e ValidateQueryError) Unwrap() error {
 	return e.err
 }
 
-func (e ErrValidateQuery) Is(err error) bool {
-	_, ok := err.(ErrValidateQuery)
+func (e ValidateQueryError) Is(err error) bool {
+	_, ok := err.(ValidateQueryError)
 	return ok
 }
 
-func (e ErrExecuteQuery) Error() string {
+func (e ExecuteQueryError) Error() string {
 	return "execute query: " + e.err.Error()
 }
 
-func (e ErrExecuteQuery) Unwrap() error {
+func (e ExecuteQueryError) Unwrap() error {
 	return e.err
 }
 
-func (e ErrExecuteQuery) Is(err error) bool {
-	_, ok := err.(ErrExecuteQuery)
+func (e ExecuteQueryError) Is(err error) bool {
+	_, ok := err.(ExecuteQueryError)
 	return ok
 }
 
-func NewErrValidateQuery(err error) error {
-	return ErrValidateQuery{err: err}
+func NewValidateQueryError(err error) error {
+	return ValidateQueryError{err: err}
 }
 
-func NewErrExecuteQuery(err error) error {
-	return ErrExecuteQuery{err: err}
+func NewExecuteQueryError(err error) error {
+	return ExecuteQueryError{err: err}
 }

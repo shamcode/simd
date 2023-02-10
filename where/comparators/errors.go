@@ -7,11 +7,11 @@ import (
 )
 
 type (
-	ErrNotImplementComparator struct {
+	NotImplementComparatorError struct {
 		Field record.Field
 		Cmp   where.ComparatorType
 	}
-	ErrFailCastType struct {
+	FailCastTypeError struct {
 		Field        record.Field
 		Cmp          where.ComparatorType
 		ExpectedType string
@@ -19,23 +19,23 @@ type (
 	}
 )
 
-func (e ErrNotImplementComparator) Error() string {
+func (e NotImplementComparatorError) Error() string {
 	return fmt.Sprintf("not implemented ComparatorType: %d, field = %s", e.Cmp, e.Field.String())
 }
 
-func (e ErrNotImplementComparator) Is(err error) bool {
-	_, ok := err.(ErrNotImplementComparator)
+func (e NotImplementComparatorError) Is(err error) bool {
+	_, ok := err.(NotImplementComparatorError)
 	return ok
 }
 
-func NewErrNotImplementComparator(field record.Field, cmp where.ComparatorType) error {
-	return ErrNotImplementComparator{
+func NewNotImplementComparatorError(field record.Field, cmp where.ComparatorType) error {
+	return NotImplementComparatorError{
 		Field: field,
 		Cmp:   cmp,
 	}
 }
 
-func (e ErrFailCastType) Error() string {
+func (e FailCastTypeError) Error() string {
 	return fmt.Sprintf(
 		"can't cast type: field = %s, ComparatorType = %d, value type = %T, expected type = %s",
 		e.Field.String(),
@@ -45,13 +45,13 @@ func (e ErrFailCastType) Error() string {
 	)
 }
 
-func (e ErrFailCastType) Is(err error) bool {
-	_, ok := err.(ErrFailCastType)
+func (e FailCastTypeError) Is(err error) bool {
+	_, ok := err.(FailCastTypeError)
 	return ok
 }
 
-func NewErrFailCastType(field record.Field, cmp where.ComparatorType, receivedType interface{}, expectedType string) error {
-	return ErrFailCastType{
+func NewFailCastTypeError(field record.Field, cmp where.ComparatorType, receivedType interface{}, expectedType string) error {
+	return FailCastTypeError{
 		Field:        field,
 		Cmp:          cmp,
 		ExpectedType: expectedType,

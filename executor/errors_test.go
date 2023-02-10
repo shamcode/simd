@@ -14,13 +14,13 @@ func TestErrors(t *testing.T) {
 		ExpectedString string
 	}{
 		{
-			Error:          NewErrValidateQuery(fs.ErrPermission),
-			IsError:        ErrValidateQuery{},
+			Error:          NewValidateQueryError(fs.ErrPermission),
+			IsError:        ValidateQueryError{},
 			ExpectedString: "validate query: permission denied",
 		},
 		{
-			Error:          NewErrExecuteQuery(fs.ErrPermission),
-			IsError:        ErrExecuteQuery{},
+			Error:          NewExecuteQueryError(fs.ErrPermission),
+			IsError:        ExecuteQueryError{},
 			ExpectedString: "execute query: permission denied",
 		},
 	}

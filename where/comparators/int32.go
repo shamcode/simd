@@ -39,7 +39,7 @@ func (fc Int32FieldComparator) CompareValue(value int32) (bool, error) {
 		}
 		return false, nil
 	default:
-		return false, NewErrNotImplementComparator(fc.GetField(), fc.Cmp)
+		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}
 }
 

@@ -13,8 +13,8 @@ func TestErrors(t *testing.T) {
 		ExpectedString string
 	}{
 		{
-			Error:          NewErrRecordExists(10),
-			IsError:        ErrRecordExists{},
+			Error:          NewRecordAlreadyExists(10),
+			IsError:        RecordAlreadyExistsError{},
 			ExpectedString: "simd: record with passed id already exists: ID == 10",
 		},
 	}

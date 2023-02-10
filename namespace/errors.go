@@ -4,19 +4,19 @@ import (
 	"fmt"
 )
 
-type ErrRecordExists struct {
+type RecordAlreadyExistsError struct {
 	ID int64
 }
 
-func (e ErrRecordExists) Error() string {
+func (e RecordAlreadyExistsError) Error() string {
 	return fmt.Sprintf("simd: record with passed id already exists: ID == %d", e.ID)
 }
 
-func (e ErrRecordExists) Is(err error) bool {
-	_, ok := err.(ErrRecordExists)
+func (e RecordAlreadyExistsError) Is(err error) bool {
+	_, ok := err.(RecordAlreadyExistsError)
 	return ok
 }
 
-func NewErrRecordExists(id int64) error {
-	return ErrRecordExists{ID: id}
+func NewRecordAlreadyExists(id int64) error {
+	return RecordAlreadyExistsError{ID: id}
 }

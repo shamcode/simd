@@ -37,7 +37,7 @@ func (ns *WithIndexes) Get(id int64) record.Record {
 
 func (ns *WithIndexes) Insert(item record.Record) error {
 	if nil != ns.Get(item.GetID()) {
-		return NewErrRecordExists(item.GetID())
+		return NewRecordAlreadyExists(item.GetID())
 	}
 	ns.insert(item)
 	return nil
