@@ -1,9 +1,11 @@
 package comparators
 
 import (
+	"errors"
 	"github.com/shamcode/simd/asserts"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
+	"regexp"
 	"testing"
 )
 
@@ -100,6 +102,26 @@ var int32Getter = record.Int32Getter{
 var int64Getter = record.Int64Getter{
 	Field: fields.New("int64"),
 	Get:   func(item record.Record) int64 { return item.(*user).int64 },
+}
+
+var ifaceGetter = record.InterfaceGetter{
+	Field: fields.New("iface"),
+	Get:   func(item record.Record) interface{} { return item.(*user).iface },
+}
+
+var mapGetter = record.MapGetter{
+	Field: fields.New("map"),
+	Get:   func(item record.Record) record.Map { return item.(*user).mp },
+}
+
+var setGetter = record.SetGetter{
+	Field: fields.New("set"),
+	Get:   func(item record.Record) record.Set { return item.(*user).set },
+}
+
+var stringGetter = record.StringGetter{
+	Field: fields.New("string"),
+	Get:   func(item record.Record) string { return item.(*user).string },
 }
 
 func TestComparators(t *testing.T) {
@@ -878,6 +900,512 @@ func TestComparators(t *testing.T) {
 				expectedCmp:    0,
 				expectedField:  "int64",
 				expectedValues: []interface{}{int64(10)},
+			},
+		})
+	})
+
+	t.Run("interface{}", func(t *testing.T) {
+		checkTestCases(t, []testCase{
+			{
+				name: "42 = 42",
+				comparator: InterfaceFieldComparator{
+					Cmp:    where.EQ,
+					Getter: ifaceGetter,
+					Value:  []interface{}{42},
+				},
+				expectedResult: true,
+				expectedCmp:    where.EQ,
+				expectedField:  "iface",
+				expectedValues: []interface{}{42},
+			},
+			{
+				name: "42 = 10",
+				comparator: InterfaceFieldComparator{
+					Cmp:    where.EQ,
+					Getter: ifaceGetter,
+					Value:  []interface{}{10},
+				},
+				expectedResult: false,
+				expectedCmp:    where.EQ,
+				expectedField:  "iface",
+				expectedValues: []interface{}{10},
+			},
+			{
+				name: "42 IN (10, 42)",
+				comparator: InterfaceFieldComparator{
+					Cmp:    where.InArray,
+					Getter: ifaceGetter,
+					Value:  []interface{}{10, 42},
+				},
+				expectedResult: true,
+				expectedCmp:    where.InArray,
+				expectedField:  "iface",
+				expectedValues: []interface{}{10, 42},
+			},
+			{
+				name: "42 IN (10, 4)",
+				comparator: InterfaceFieldComparator{
+					Cmp:    where.InArray,
+					Getter: ifaceGetter,
+					Value:  []interface{}{10, 4},
+				},
+				expectedResult: false,
+				expectedCmp:    where.InArray,
+				expectedField:  "iface",
+				expectedValues: []interface{}{10, 4},
+			},
+			{
+				name: "42 ? 2",
+				comparator: InterfaceFieldComparator{
+					Cmp:    0,
+					Getter: ifaceGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: false,
+				expectedError:  NewNotImplementComparatorError(ifaceGetter.Field, 0),
+				expectedCmp:    0,
+				expectedField:  "iface",
+				expectedValues: []interface{}{2},
+			},
+		})
+	})
+
+	t.Run("map", func(t *testing.T) {
+		checkTestCases(t, []testCase{
+			{
+				name: "MapHasKey 2",
+				comparator: MapFieldComparator{
+					Cmp:    where.MapHasKey,
+					Getter: mapGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: true,
+				expectedCmp:    where.MapHasKey,
+				expectedField:  "map",
+				expectedValues: []interface{}{2},
+			},
+			{
+				name: "MapHasKey 4",
+				comparator: MapFieldComparator{
+					Cmp:    where.MapHasKey,
+					Getter: mapGetter,
+					Value:  []interface{}{4},
+				},
+				expectedResult: false,
+				expectedCmp:    where.MapHasKey,
+				expectedField:  "map",
+				expectedValues: []interface{}{4},
+			},
+			{
+				name: "MapHasValue 8",
+				comparator: MapFieldComparator{
+					Cmp:    where.MapHasValue,
+					Getter: mapGetter,
+					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+						return 8 == item.(int), nil
+					})},
+				},
+				expectedResult: true,
+				expectedCmp:    where.MapHasValue,
+				expectedField:  "map",
+				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+					return 8 == item.(int), nil
+				})},
+			},
+			{
+				name: "MapHasValue 10",
+				comparator: MapFieldComparator{
+					Cmp:    where.MapHasValue,
+					Getter: mapGetter,
+					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+						return 10 == item.(int), nil
+					})},
+				},
+				expectedResult: false,
+				expectedCmp:    where.MapHasValue,
+				expectedField:  "map",
+				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+					return 10 == item.(int), nil
+				})},
+			},
+			{
+				name: "MapHasValue cast error",
+				comparator: MapFieldComparator{
+					Cmp:    where.MapHasValue,
+					Getter: mapGetter,
+					Value:  []interface{}{42},
+				},
+				expectedResult: false,
+				expectedError:  NewFailCastTypeError(mapGetter.Field, where.MapHasValue, 42, "record.MapValueComparator"),
+				expectedCmp:    where.MapHasValue,
+				expectedField:  "map",
+				expectedValues: []interface{}{42},
+			},
+			{
+				name: "MapHasValue error",
+				comparator: MapFieldComparator{
+					Cmp:    where.MapHasValue,
+					Getter: mapGetter,
+					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+						return false, errors.New("comparator error")
+					})},
+				},
+				expectedResult: false,
+				expectedError:  errors.New("comparator error"),
+				expectedCmp:    where.MapHasValue,
+				expectedField:  "map",
+				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+					return false, errors.New("comparator error")
+				})},
+			},
+			{
+				name: "? 2",
+				comparator: MapFieldComparator{
+					Cmp:    0,
+					Getter: mapGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: false,
+				expectedError:  NewNotImplementComparatorError(mapGetter.Field, 0),
+				expectedCmp:    0,
+				expectedField:  "map",
+				expectedValues: []interface{}{2},
+			},
+		})
+	})
+
+	t.Run("set", func(t *testing.T) {
+		checkTestCases(t, []testCase{
+			{
+				name: "SetHas 2",
+				comparator: SetFieldComparator{
+					Cmp:    where.SetHas,
+					Getter: setGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: true,
+				expectedCmp:    where.SetHas,
+				expectedField:  "set",
+				expectedValues: []interface{}{2},
+			},
+			{
+				name: "SetHas 3",
+				comparator: SetFieldComparator{
+					Cmp:    where.SetHas,
+					Getter: setGetter,
+					Value:  []interface{}{3},
+				},
+				expectedResult: false,
+				expectedCmp:    where.SetHas,
+				expectedField:  "set",
+				expectedValues: []interface{}{3},
+			},
+			{
+				name: "? 2",
+				comparator: SetFieldComparator{
+					Cmp:    0,
+					Getter: setGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: false,
+				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
+				expectedCmp:    0,
+				expectedField:  "set",
+				expectedValues: []interface{}{2},
+			},
+		})
+	})
+
+	t.Run("set", func(t *testing.T) {
+		checkTestCases(t, []testCase{
+			{
+				name: "SetHas 2",
+				comparator: SetFieldComparator{
+					Cmp:    where.SetHas,
+					Getter: setGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: true,
+				expectedCmp:    where.SetHas,
+				expectedField:  "set",
+				expectedValues: []interface{}{2},
+			},
+			{
+				name: "SetHas 3",
+				comparator: SetFieldComparator{
+					Cmp:    where.SetHas,
+					Getter: setGetter,
+					Value:  []interface{}{3},
+				},
+				expectedResult: false,
+				expectedCmp:    where.SetHas,
+				expectedField:  "set",
+				expectedValues: []interface{}{3},
+			},
+			{
+				name: "? 2",
+				comparator: SetFieldComparator{
+					Cmp:    0,
+					Getter: setGetter,
+					Value:  []interface{}{2},
+				},
+				expectedResult: false,
+				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
+				expectedCmp:    0,
+				expectedField:  "set",
+				expectedValues: []interface{}{2},
+			},
+		})
+	})
+
+	t.Run("string", func(t *testing.T) {
+		checkTestCases(t, []testCase{
+			{
+				name: "foo = foo",
+				comparator: StringFieldComparator{
+					Cmp:    where.EQ,
+					Getter: stringGetter,
+					Value:  []string{"foo"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.EQ,
+				expectedField:  "string",
+				expectedValues: []interface{}{"foo"},
+			},
+			{
+				name: "foo = bar",
+				comparator: StringFieldComparator{
+					Cmp:    where.EQ,
+					Getter: stringGetter,
+					Value:  []string{"bar"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.EQ,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar"},
+			},
+			{
+				name: "foo > bar",
+				comparator: StringFieldComparator{
+					Cmp:    where.GT,
+					Getter: stringGetter,
+					Value:  []string{"bar"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.GT,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar"},
+			},
+			{
+				name: "foo > zzz",
+				comparator: StringFieldComparator{
+					Cmp:    where.GT,
+					Getter: stringGetter,
+					Value:  []string{"zzz"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.GT,
+				expectedField:  "string",
+				expectedValues: []interface{}{"zzz"},
+			},
+			{
+				name: "foo >= bar",
+				comparator: StringFieldComparator{
+					Cmp:    where.GE,
+					Getter: stringGetter,
+					Value:  []string{"bar"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.GE,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar"},
+			},
+			{
+				name: "foo >= zzz",
+				comparator: StringFieldComparator{
+					Cmp:    where.GE,
+					Getter: stringGetter,
+					Value:  []string{"zzz"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.GE,
+				expectedField:  "string",
+				expectedValues: []interface{}{"zzz"},
+			},
+			{
+				name: "foo >= foo",
+				comparator: StringFieldComparator{
+					Cmp:    where.GE,
+					Getter: stringGetter,
+					Value:  []string{"foo"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.GE,
+				expectedField:  "string",
+				expectedValues: []interface{}{"foo"},
+			},
+			{
+				name: "foo < bar",
+				comparator: StringFieldComparator{
+					Cmp:    where.LT,
+					Getter: stringGetter,
+					Value:  []string{"bar"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.LT,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar"},
+			},
+			{
+				name: "foo < zzz",
+				comparator: StringFieldComparator{
+					Cmp:    where.LT,
+					Getter: stringGetter,
+					Value:  []string{"zzz"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.LT,
+				expectedField:  "string",
+				expectedValues: []interface{}{"zzz"},
+			},
+			{
+				name: "foo <= bar",
+				comparator: StringFieldComparator{
+					Cmp:    where.LE,
+					Getter: stringGetter,
+					Value:  []string{"bar"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.LE,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar"},
+			},
+			{
+				name: "foo <= zzz",
+				comparator: StringFieldComparator{
+					Cmp:    where.LE,
+					Getter: stringGetter,
+					Value:  []string{"zzz"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.LE,
+				expectedField:  "string",
+				expectedValues: []interface{}{"zzz"},
+			},
+			{
+				name: "foo <= foo",
+				comparator: StringFieldComparator{
+					Cmp:    where.LE,
+					Getter: stringGetter,
+					Value:  []string{"foo"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.LE,
+				expectedField:  "string",
+				expectedValues: []interface{}{"foo"},
+			},
+			{
+				name: "foo IN (bar, foo)",
+				comparator: StringFieldComparator{
+					Cmp:    where.InArray,
+					Getter: stringGetter,
+					Value:  []string{"bar", "foo"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.InArray,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar", "foo"},
+			},
+			{
+				name: "foo IN (bar, zzz)",
+				comparator: StringFieldComparator{
+					Cmp:    where.InArray,
+					Getter: stringGetter,
+					Value:  []string{"bar", "zzz"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.InArray,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar", "zzz"},
+			},
+			{
+				name: "foo LIKE oo",
+				comparator: StringFieldComparator{
+					Cmp:    where.Like,
+					Getter: stringGetter,
+					Value:  []string{"oo"},
+				},
+				expectedResult: true,
+				expectedCmp:    where.Like,
+				expectedField:  "string",
+				expectedValues: []interface{}{"oo"},
+			},
+			{
+				name: "foo LIKE ff",
+				comparator: StringFieldComparator{
+					Cmp:    where.Like,
+					Getter: stringGetter,
+					Value:  []string{"ff"},
+				},
+				expectedResult: false,
+				expectedCmp:    where.Like,
+				expectedField:  "string",
+				expectedValues: []interface{}{"ff"},
+			},
+			{
+				name: "foo ? bar",
+				comparator: StringFieldComparator{
+					Cmp:    0,
+					Getter: stringGetter,
+					Value:  []string{"bar"},
+				},
+				expectedResult: false,
+				expectedError:  NewNotImplementComparatorError(stringGetter.Field, 0),
+				expectedCmp:    0,
+				expectedField:  "string",
+				expectedValues: []interface{}{"bar"},
+			},
+		})
+	})
+
+	t.Run("string regexp", func(t *testing.T) {
+		checkTestCases(t, []testCase{
+			{
+				name: "foo Regexp /fo+/",
+				comparator: StringFieldRegexpComparator{
+					Cmp:    where.Regexp,
+					Getter: stringGetter,
+					Value:  regexp.MustCompile(`fo+`),
+				},
+				expectedResult: true,
+				expectedCmp:    where.Regexp,
+				expectedField:  "string",
+				expectedValues: []interface{}{regexp.MustCompile(`fo+`)},
+			},
+			{
+				name: "foo Regexp /\\d+/",
+				comparator: StringFieldRegexpComparator{
+					Cmp:    where.Regexp,
+					Getter: stringGetter,
+					Value:  regexp.MustCompile(`\d+`),
+				},
+				expectedResult: false,
+				expectedCmp:    where.Regexp,
+				expectedField:  "string",
+				expectedValues: []interface{}{regexp.MustCompile(`\d+`)},
+			},
+			{
+				name: "foo ? fo+",
+				comparator: StringFieldRegexpComparator{
+					Cmp:    0,
+					Getter: stringGetter,
+					Value:  regexp.MustCompile("fo+"),
+				},
+				expectedResult: false,
+				expectedError:  NewNotImplementComparatorError(stringGetter.Field, 0),
+				expectedCmp:    0,
+				expectedField:  "string",
+				expectedValues: []interface{}{regexp.MustCompile("fo+")},
 			},
 		})
 	})
