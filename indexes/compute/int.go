@@ -4,12 +4,15 @@ import (
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
-	"github.com/shamcode/simd/where/comparators"
 )
 
 type IntKey int
 
 func (i IntKey) Less(than indexes.Key) bool { return i < than.(IntKey) }
+
+type intComparator interface {
+	CompareValue(value int) (bool, error)
+}
 
 var _ indexes.IndexComputer = intIndexComputation{}
 
@@ -26,7 +29,7 @@ func (idx intIndexComputation) ForValue(value interface{}) indexes.Key {
 }
 
 func (idx intIndexComputation) Check(indexKey indexes.Key, comparator where.FieldComparator) (bool, error) {
-	return comparator.(comparators.IntFieldComparator).CompareValue(int(indexKey.(IntKey)))
+	return comparator.(intComparator).CompareValue(int(indexKey.(IntKey)))
 }
 
 func CreateIntIndexComputation(getter record.IntGetter) indexes.IndexComputer {

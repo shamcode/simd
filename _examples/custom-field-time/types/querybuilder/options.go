@@ -9,7 +9,7 @@ import (
 )
 
 // WhereTime add condition for check field with time.Time type
-func WhereTime(getter *types.TimeGetter, condition where.ComparatorType, value ...time.Time) query.BuilderOption {
+func WhereTime(getter types.TimeGetter, condition where.ComparatorType, value ...time.Time) query.BuilderOption {
 	return query.AddWhereOption{
 		Cmp: comparators.TimeFieldComparator{
 			Cmp:    condition,

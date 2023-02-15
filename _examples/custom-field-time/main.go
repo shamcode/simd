@@ -26,7 +26,7 @@ func (u *Item) GetID() int64   { return u.ID }
 
 var itemFields = record.NewFields()
 
-var createdAt = &types.TimeGetter{
+var createdAt = types.TimeGetter{
 	Field: itemFields.New("created_at"),
 	Get: func(item record.Record) time.Time {
 		return item.(*Item).CreateAt

@@ -10,7 +10,7 @@ import (
 
 type TimeFieldComparator struct {
 	Cmp    where.ComparatorType
-	Getter *types.TimeGetter
+	Getter types.TimeGetter
 	Value  []time.Time
 }
 
