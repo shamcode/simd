@@ -3,7 +3,7 @@ package simd
 import (
 	"context"
 	"errors"
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/hash"

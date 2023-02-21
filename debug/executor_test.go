@@ -3,7 +3,7 @@ package debug
 import (
 	"context"
 	"fmt"
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"

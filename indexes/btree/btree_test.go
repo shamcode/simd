@@ -2,7 +2,7 @@ package btree
 
 import (
 	"fmt"
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"github.com/shamcode/simd/indexes/compute"
 	"github.com/shamcode/simd/storage"
 	"sort"

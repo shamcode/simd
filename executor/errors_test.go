@@ -2,7 +2,7 @@ package executor
 
 import (
 	"errors"
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"io/fs"
 	"testing"
 )

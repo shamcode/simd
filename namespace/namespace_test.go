@@ -1,7 +1,7 @@
 package namespace
 
 import (
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"testing"
 )
 

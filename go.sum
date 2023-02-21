@@ -6,3 +6,5 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/mattn/go-sqlite3 v1.14.16 h1:yOQRA0RpS5PFz/oikGwBEqvAWhWg5ufRz4ETLjwpU1Y=
 github.com/mattn/go-sqlite3 v1.14.16/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
+github.com/shamcode/assert v0.0.1 h1:tFmtfntUJ3CEuIuNmNpMdrs6LYwXBzl+h3q0ZjdMs7M=
+github.com/shamcode/assert v0.0.1/go.mod h1:50Kg3ejh5SmoK1+tJIRtbhjSlcxnD/lclJj1/TalWd4=

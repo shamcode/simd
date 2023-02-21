@@ -1,7 +1,7 @@
 package query
 
 import (
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"testing"

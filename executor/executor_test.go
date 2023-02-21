@@ -2,7 +2,7 @@ package executor
 
 import (
 	"context"
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"

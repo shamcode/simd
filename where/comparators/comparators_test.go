@@ -2,7 +2,7 @@ package comparators
 
 import (
 	"errors"
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"regexp"

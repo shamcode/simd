@@ -1,7 +1,7 @@
 package record
 
 import (
-	"github.com/shamcode/simd/asserts"
+	"github.com/shamcode/assert"
 	"sort"
 	"testing"
 )
