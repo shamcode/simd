@@ -4,7 +4,7 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-// By is base interface for sorting
+// By is base interface for sorting.
 type By interface {
 	Less(a, b record.Record) bool
 
@@ -13,7 +13,7 @@ type By interface {
 }
 
 // ByWithOrder wrapper for By interface with order (ASC/DESC)
-// ByWithOrder can't be implemented in user level, use Asc() and Desc() for wrap By implementation
+// ByWithOrder can't be implemented in user level, use Asc() and Desc() for wrap By implementation.
 type ByWithOrder interface {
 	By
 	order()
@@ -27,7 +27,7 @@ func (a asc) String() string {
 	return a.By.String() + " ASC"
 }
 
-// Asc wrap by for sorting in ASC (Ascending) direction
+// Asc wrap by for sorting in ASC (Ascending) direction.
 func Asc(by By) ByWithOrder {
 	return asc{by}
 }
@@ -44,7 +44,7 @@ func (d desc) String() string {
 	return d.By.String() + " DESC"
 }
 
-// Desc wrap by for sorting in DESC (Descending) direction
+// Desc wrap by for sorting in DESC (Descending) direction.
 func Desc(by By) ByWithOrder {
 	return desc{by}
 }

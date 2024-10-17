@@ -1,9 +1,10 @@
 package record
 
 import (
-	"github.com/shamcode/assert"
 	"sort"
 	"testing"
+
+	asserts "github.com/shamcode/assert"
 )
 
 type user struct {

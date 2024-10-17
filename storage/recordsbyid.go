@@ -1,8 +1,9 @@
 package storage
 
 import (
-	"github.com/shamcode/simd/record"
 	"sync"
+
+	"github.com/shamcode/simd/record"
 )
 
 var _ RecordsByID = (*recordsByID)(nil)
@@ -21,7 +22,6 @@ func (r *recordsByID) Get(id int64) record.Record {
 	r.RLock()
 	defer r.RUnlock()
 	return r.data[id]
-
 }
 
 func (r *recordsByID) Set(id int64, item record.Record) {
@@ -36,7 +36,6 @@ func (r *recordsByID) Delete(id int64) {
 	delete(r.data, id)
 	delete(r.ids, id)
 	r.Unlock()
-
 }
 
 func (r *recordsByID) Count() int {

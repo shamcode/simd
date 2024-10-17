@@ -2,9 +2,10 @@ package debug
 
 import (
 	"context"
+	"strings"
+
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
-	"strings"
 )
 
 type QueryExecutorWithDump interface {

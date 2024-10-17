@@ -2,9 +2,10 @@ package executor
 
 import (
 	"errors"
-	"github.com/shamcode/assert"
 	"io/fs"
 	"testing"
+
+	asserts "github.com/shamcode/assert"
 )
 
 func TestErrors(t *testing.T) {

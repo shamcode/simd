@@ -1,13 +1,14 @@
 package hash
 
 import (
-	"github.com/shamcode/assert"
+	"sort"
+	"testing"
+
+	asserts "github.com/shamcode/assert"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
-	"sort"
-	"testing"
 )
 
 type _int64 []int64

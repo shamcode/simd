@@ -2,6 +2,10 @@ package benchmarks
 
 import (
 	"context"
+	"strconv"
+	"sync"
+	"testing"
+
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/hash"
@@ -10,9 +14,6 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"strconv"
-	"sync"
-	"testing"
 )
 
 func Benchmark_Concurrent(b *testing.B) {
@@ -26,12 +27,12 @@ func Benchmark_Concurrent(b *testing.B) {
 	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
 
 	for i := 1; i < 10_000; i++ {
-		err := store.Upsert(&User{
+		err := store.Upsert(&User{ //nolint:exhaustruct
 			ID:       int64(i),
 			Name:     "user_" + strconv.Itoa(i),
 			Status:   StatusEnum(1 + i%2),
 			Score:    i % 150,
-			IsOnline: 0 == i%2,
+			IsOnline: i%2 == 0,
 		})
 		if nil != err {
 			b.Fatal(err)

@@ -1,8 +1,9 @@
 package indexes
 
 import (
-	"github.com/shamcode/simd/storage"
 	"sync"
+
+	"github.com/shamcode/simd/storage"
 )
 
 var _ ConcurrentStorage = (*concurrentStorage)(nil)

@@ -3,6 +3,10 @@ package benchmarks
 import (
 	"context"
 	"database/sql"
+	"log"
+	"strconv"
+	"testing"
+
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/hash"
@@ -10,12 +14,9 @@ import (
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
-	"log"
-	"strconv"
-	"testing"
 )
 
-func Benchmark_SIMDVsSQLite(b *testing.B) {
+func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 	usersCountForBenchmarking := []int{
 		10,
 		100,
@@ -55,12 +56,12 @@ func Benchmark_SIMDVsSQLite(b *testing.B) {
 		}
 
 		for i := 1; i < usersCount; i++ {
-			user := &User{
+			user := &User{ //nolint:exhaustruct
 				ID:       int64(i),
 				Name:     "user_" + strconv.Itoa(i),
 				Status:   StatusEnum(1 + i%2),
 				Score:    i % 150,
-				IsOnline: 0 == i%2,
+				IsOnline: i%2 == 0,
 			}
 			err := simd.Upsert(user)
 			if nil != err {
@@ -88,7 +89,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) {
 						b.Fatalf("query: %s", err)
 					}
 					u := cur.Item().(*User)
-					if u.IsOnline != (0 == i%2) {
+					if u.IsOnline != (i%2 == 0) {
 						b.Fatalf("wrong is_online: %d", i)
 					}
 				}
@@ -102,7 +103,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) {
 		b.Run(strconv.Itoa(usersCount)+"_sqlite", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount/4; i++ {
-					rows, err := stmt.QueryContext(context.Background(), i)
+					rows, err := stmt.QueryContext(context.Background(), i) //nolint:execinquery
 					if nil != err {
 						b.Fatal(err)
 					}
@@ -115,7 +116,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) {
 					if nil != err {
 						b.Fatal(err)
 					}
-					if isOnline != (0 == i%2) {
+					if isOnline != (i%2 == 0) {
 						b.Fatalf("wrong is_online: %d", i)
 					}
 					rows.Close()

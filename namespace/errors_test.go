@@ -2,8 +2,9 @@ package namespace
 
 import (
 	"errors"
-	"github.com/shamcode/assert"
 	"testing"
+
+	asserts "github.com/shamcode/assert"
 )
 
 func TestErrors(t *testing.T) {

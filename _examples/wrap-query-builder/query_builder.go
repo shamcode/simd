@@ -8,7 +8,7 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-type UserQueryBuilder interface {
+type UserQueryBuilder interface { //nolint:interfacebloat
 	Limit(limitItems int) UserQueryBuilder
 	Offset(startOffset int) UserQueryBuilder
 	Not() UserQueryBuilder
@@ -24,8 +24,6 @@ type UserQueryBuilder interface {
 	MakeCopy() UserQueryBuilder
 	Query() query.Query
 }
-
-var _ UserQueryBuilder = userQueryBuilder{}
 
 type userQueryBuilder struct {
 	builder query.Builder

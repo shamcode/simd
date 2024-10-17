@@ -3,14 +3,15 @@ package debug
 import (
 	"context"
 	"fmt"
-	"github.com/shamcode/assert"
+	"strings"
+	"testing"
+
+	asserts "github.com/shamcode/assert"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"strings"
-	"testing"
 )
 
 type user struct {
@@ -76,7 +77,7 @@ func (s *storage) PreselectForExecutor(_ where.Conditions) ([]record.Record, err
 	return items, nil
 }
 
-func TestQueryExecutorWithDebug(t *testing.T) {
+func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 	ns := &storage{
 		data: make(map[int64]record.Record),
 	}

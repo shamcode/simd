@@ -1,8 +1,9 @@
 package record
 
 import (
-	"github.com/shamcode/assert"
 	"testing"
+
+	asserts "github.com/shamcode/assert"
 )
 
 func TestField(t *testing.T) {

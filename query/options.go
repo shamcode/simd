@@ -1,11 +1,12 @@
 package query
 
 import (
+	"regexp"
+
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
-	"regexp"
 )
 
 type LimitOption int

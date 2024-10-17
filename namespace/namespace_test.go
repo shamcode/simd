@@ -1,8 +1,9 @@
 package namespace
 
 import (
-	"github.com/shamcode/assert"
 	"testing"
+
+	asserts "github.com/shamcode/assert"
 )
 
 type user struct {

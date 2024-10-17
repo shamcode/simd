@@ -25,13 +25,13 @@ type Index interface {
 	ConcurrentStorage() ConcurrentStorage
 }
 
-// Storage is base interface for indexes
+// Storage is base interface for indexes.
 type Storage interface {
 	Get(key Key) storage.IDStorage
 	Set(key Key, records storage.IDStorage)
 }
 
-// ConcurrentStorage wrapped Storage for concurrent safe access
+// ConcurrentStorage wrapped Storage for concurrent safe access.
 type ConcurrentStorage interface {
 	RLock()
 	RUnlock()

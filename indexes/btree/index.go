@@ -52,7 +52,6 @@ func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight i
 		if condition.WithNot {
 			return true, indexes.IndexWeightHigh
 		} else {
-
 			// Hash index more optimal for A == 1 and A in (1, 2, 3)
 			return true, indexes.IndexWeightMedium
 		}

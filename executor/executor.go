@@ -2,6 +2,7 @@ package executor
 
 import (
 	"context"
+
 	"github.com/shamcode/simd/query"
 )
 

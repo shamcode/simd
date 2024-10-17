@@ -2,6 +2,7 @@ package comparators
 
 import (
 	"fmt"
+
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )

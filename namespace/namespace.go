@@ -1,12 +1,13 @@
 package namespace
 
 import (
+	"log"
+
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/storage"
 	"github.com/shamcode/simd/where"
-	"log"
 )
 
 type Namespace interface {
@@ -66,7 +67,6 @@ func (ns *WithIndexes) Upsert(item record.Record) error {
 	oldItem := ns.Get(id)
 
 	if nil == oldItem {
-
 		// It's insert
 		ns.insert(item)
 		return nil

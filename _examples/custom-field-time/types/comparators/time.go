@@ -1,11 +1,12 @@
 package comparators
 
 import (
+	"time"
+
 	"github.com/shamcode/simd/_examples/custom-field-time/types"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
-	"time"
 )
 
 type TimeFieldComparator struct {
@@ -23,7 +24,7 @@ func (fc TimeFieldComparator) GetField() record.Field {
 }
 
 func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value.Equal(fc.Value[0]), nil
 	case where.GT:

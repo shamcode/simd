@@ -1,10 +1,11 @@
 package query
 
 import (
-	"github.com/shamcode/assert"
+	"testing"
+
+	asserts "github.com/shamcode/assert"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
-	"testing"
 )
 
 func TestBuilderErrors(t *testing.T) {

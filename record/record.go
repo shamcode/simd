@@ -4,7 +4,7 @@ type Record interface {
 	GetID() int64
 }
 
-// ID is a common getter for all types Records
+// ID is a common getter for all types Records.
 var ID = Int64Getter{
 	Field: field{
 		index: 0,

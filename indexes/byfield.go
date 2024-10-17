@@ -47,19 +47,16 @@ func (ibf byField) Delete(item record.Record) {
 			}
 		}
 	}
-
 }
 
 func (ibf byField) Update(oldItem, item record.Record) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
-
 			oldValue := idx.Compute().ForRecord(oldItem)
 			newValue := idx.Compute().ForRecord(item)
 
 			// TODO: if key is pointer, then compare invalid. Need add check for optional interface{ Equal(key interface{}} bool }
 			if newValue == oldValue {
-
 				// Field index not changed, ignore
 				continue
 			}

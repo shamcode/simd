@@ -2,12 +2,13 @@ package sort
 
 import (
 	"fmt"
+
 	"github.com/shamcode/simd/record"
 )
 
 var _ By = byScalar{}
 
-// Scalar is a special case for sorting by comparing int64 values
+// Scalar is a special case for sorting by comparing int64 values.
 type Scalar interface {
 	Calc(item record.Record) int64
 }
@@ -24,7 +25,7 @@ func (bi byScalar) String() string {
 	return fmt.Sprintf("%#v", bi.Scalar)
 }
 
-// ByScalar create sorting by int64 values
+// ByScalar create sorting by int64 values.
 func ByScalar(s Scalar) By {
 	return byScalar{s}
 }

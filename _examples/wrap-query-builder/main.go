@@ -3,13 +3,14 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
+
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/where"
-	"log"
 )
 
 func main() {
@@ -55,14 +56,14 @@ func main() {
 		}
 	}
 
-	q := NewUserQueryBuilder(queryBuilder()).
+	query := NewUserQueryBuilder(queryBuilder()).
 		WhereStatus(where.EQ, StatusActive).
 		Not().
 		WhereName(where.EQ, "Foo").
 		Query()
 
 	ctx := context.Background()
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
 	if nil != err {
 		log.Fatal(err)
 	}

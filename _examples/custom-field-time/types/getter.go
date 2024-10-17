@@ -1,8 +1,9 @@
 package types
 
 import (
-	"github.com/shamcode/simd/record"
 	"time"
+
+	"github.com/shamcode/simd/record"
 )
 
 type TimeGetter struct {
@@ -10,7 +11,7 @@ type TimeGetter struct {
 	Get func(item record.Record) time.Time
 }
 
-// Implement sort.By interface for sorting by fields
+// Implement sort.By interface for sorting by fields.
 func (getter TimeGetter) Less(a, b record.Record) bool {
 	return getter.Get(a).Before(getter.Get(b))
 }

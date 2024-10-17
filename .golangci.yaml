@@ -1,0 +1,93 @@
+run:
+  timeout: 15m
+
+linters-settings:
+  dupl:
+    threshold: 100
+  wrapcheck:
+    ignoreSigs:
+      - (context.Context).Err()
+      - fmt.Errorf(
+    ignoreSigRegexps:
+      - \.New.*Error\(
+    ignorePackageGlobs:
+      - encoding/*
+      - time
+      - io/fs
+  revive:
+    rules:
+      - name: unexported-return
+        disabled: true
+  varnamelen:
+    ignore-names:
+      - err
+      - id
+      - t
+    ignore-decls:
+      - r *http.Request
+      - rw http.ResponseWriter
+  exhaustruct:
+    exclude:
+      - http.Cookie
+      - http.Server
+      - '.+Error$'
+      - http.Client
+      - cors.Cors
+      - cors.Options
+      - go2node.NodeMessage
+  stylecheck:
+    checks: ["*", "-ST1003"]
+  ireturn:
+    allow:
+      - anon
+      - error
+      - empty
+      - stdlib
+      - trace
+      - logr
+
+linters:
+  enable-all: true
+  disable:
+    - paralleltest
+    - tagliatelle
+    - golint
+    - nosnakecase
+    - varcheck
+    - maligned
+    - scopelint
+    - exhaustivestruct
+    - structcheck
+    - ifshort
+    - deadcode
+    - interfacer
+    - testpackage
+    - rowserrcheck
+    - sqlclosecheck
+    - wastedassign
+    - dupl
+    - wsl
+    - nlreturn
+    - gci
+    - gofumpt
+    - gomnd
+    - wrapcheck
+    - tparallel
+    # Temporary disable
+    - forcetypeassert
+    - gochecknoglobals
+    - ireturn
+
+issues:
+  exclude-rules:
+    - path: _test.go
+      linters:
+        - funlen
+        - wrapcheck
+        - nosnakecase
+        - goerr113
+        - forcetypeassert
+        - lll
+        - varnamelen
+        - gochecknoglobals
+        - typecheck

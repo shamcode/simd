@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/shamcode/simd/record"
 	"strconv"
+
+	"github.com/shamcode/simd/record"
 )
 
 type Status uint8
@@ -31,7 +32,7 @@ type User struct {
 	Score  int64
 }
 
-func (u *User) GetID() int64   { return u.ID }
+func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 

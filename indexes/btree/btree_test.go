@@ -2,11 +2,12 @@ package btree
 
 import (
 	"fmt"
-	"github.com/shamcode/assert"
-	"github.com/shamcode/simd/indexes/compute"
-	"github.com/shamcode/simd/storage"
 	"sort"
 	"testing"
+
+	asserts "github.com/shamcode/assert"
+	"github.com/shamcode/simd/indexes/compute"
+	"github.com/shamcode/simd/storage"
 )
 
 func concatIDs(ids []storage.IDIterator) []int {

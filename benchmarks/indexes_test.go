@@ -2,6 +2,9 @@ package benchmarks
 
 import (
 	"context"
+	"strconv"
+	"testing"
+
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/hash"
@@ -10,13 +13,11 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"strconv"
-	"testing"
 )
 
 type discardLogger struct{}
 
-func (_ discardLogger) Println(...interface{}) {}
+func (discardLogger) Println(...interface{}) {}
 
 func Benchmark_Indexes(b *testing.B) {
 	storeWithoutIndexes := namespace.CreateNamespace()
@@ -52,7 +53,7 @@ func Benchmark_Indexes(b *testing.B) {
 				Status:   StatusEnum(1 + i%2),
 				Age:      int64(1 + i%100),
 				Score:    i % 150,
-				IsOnline: 0 == i%2,
+				IsOnline: i%2 == 0,
 			})
 			if nil != err {
 				b.Fatal(err)
@@ -221,7 +222,7 @@ func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 				Status:   StatusEnum(1 + i%2),
 				Age:      int64(i%100 + 1),
 				Score:    i % 150,
-				IsOnline: 0 == i%2,
+				IsOnline: i%2 == 0,
 			})
 			if nil != err {
 				b.Fatal(err)

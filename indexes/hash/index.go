@@ -40,7 +40,6 @@ func (idx index) Compute() indexes.IndexComputer {
 func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
 	cmp := condition.Cmp.GetType()
 	if !condition.WithNot && (where.EQ == cmp || where.InArray == cmp) {
-
 		// Hash index optimal for A == 1 and A in (1, 2, 3)
 		return true, indexes.IndexWeightLow
 	}

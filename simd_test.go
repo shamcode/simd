@@ -3,7 +3,11 @@ package simd
 import (
 	"context"
 	"errors"
-	"github.com/shamcode/assert"
+	"regexp"
+	_sort "sort"
+	"testing"
+
+	asserts "github.com/shamcode/assert"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/hash"
@@ -12,9 +16,6 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"regexp"
-	_sort "sort"
-	"testing"
 )
 
 type StatusEnum uint8

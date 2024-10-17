@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
+	"time"
+
 	"github.com/shamcode/simd/_examples/custom-field-time/types"
 	indexesByType "github.com/shamcode/simd/_examples/custom-field-time/types/indexes"
 	"github.com/shamcode/simd/_examples/custom-field-time/types/querybuilder"
@@ -13,8 +16,6 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"log"
-	"time"
 )
 
 type Item struct {
@@ -22,7 +23,7 @@ type Item struct {
 	CreateAt time.Time
 }
 
-func (u *Item) GetID() int64   { return u.ID }
+func (u *Item) GetID() int64 { return u.ID }
 
 var itemFields = record.NewFields()
 
@@ -71,13 +72,13 @@ func main() {
 		}
 	}
 
-	q := queryBuilder(
+	query := queryBuilder(
 		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local)),
 		query.Sort(sort.Asc(record.ID)),
 	).Query()
 
 	ctx := context.Background()
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
 	if nil != err {
 		log.Fatal(err)
 	}

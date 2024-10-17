@@ -39,3 +39,9 @@ bench_indexes_btree:
 	go test -bench=Benchmark_BTreeIndexesMaxChildren -benchmem -benchtime=1s -run=^_ ./benchmarks/...
 
 make bench: bench_set bench_query_builder bench_query bench_indexes bench_indexes_btree bench_concurrent bench_comparing_sqlite
+
+lint:
+	golangci-lint run ./...
+
+lint_fix:
+	golangci-lint run --fix ./...

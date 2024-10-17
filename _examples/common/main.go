@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"flag"
+	"log"
+
 	"github.com/shamcode/simd/debug"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes/hash"
@@ -11,7 +13,6 @@ import (
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"log"
 )
 
 type User struct {
@@ -19,7 +20,7 @@ type User struct {
 	Name string
 }
 
-func (u *User) GetID() int64   { return u.ID }
+func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 
@@ -67,13 +68,13 @@ func main() {
 		}
 	}
 
-	q := queryBuilder(
+	query := queryBuilder(
 		query.WhereInt64(record.ID, where.GT, 1),
 		query.Sort(sort.Asc(name)),
 	).Query()
 
 	ctx := context.Background()
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
 	if nil != err {
 		log.Fatal(err)
 	}

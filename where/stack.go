@@ -2,7 +2,7 @@ package where
 
 import "sync"
 
-// resultsByBracketLevel usage for merge results by condition's brackets level
+// resultsByBracketLevel usage for merge results by condition's brackets level.
 type resultsByBracketLevel map[int]*result
 
 type result struct {

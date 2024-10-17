@@ -1,10 +1,11 @@
 package comparators
 
 import (
-	"github.com/shamcode/simd/record"
-	"github.com/shamcode/simd/where"
 	"regexp"
 	"strings"
+
+	"github.com/shamcode/simd/record"
+	"github.com/shamcode/simd/where"
 )
 
 type StringFieldComparator struct {
@@ -59,7 +60,7 @@ func (fc StringFieldComparator) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }
 
-// StringFieldRegexpComparator is a special comparator for handling Regexp
+// StringFieldRegexpComparator is a special comparator for handling Regexp.
 type StringFieldRegexpComparator struct {
 	Cmp    where.ComparatorType
 	Getter record.StringGetter

@@ -2,12 +2,13 @@ package executor
 
 import (
 	"context"
-	"github.com/shamcode/assert"
+	"testing"
+
+	asserts "github.com/shamcode/assert"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
-	"testing"
 )
 
 type user struct {

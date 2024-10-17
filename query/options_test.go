@@ -1,10 +1,11 @@
 package query
 
 import (
+	"testing"
+
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
-	"testing"
 )
 
 type builderOptionFunction func(b Builder)

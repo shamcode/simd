@@ -2,6 +2,7 @@ package where
 
 import (
 	"fmt"
+
 	"github.com/shamcode/simd/record"
 )
 
@@ -18,7 +19,7 @@ func (c Condition) String() string {
 
 type Conditions []Condition
 
-// Check checks that the record satisfies all the conditions
+// Check checks that the record satisfies all the conditions.
 func (w Conditions) Check(item record.Record) (bool, error) {
 	stack := make(resultsByBracketLevel)
 	lastBracketLevel := 0
