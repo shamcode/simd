@@ -14,8 +14,6 @@ type stringComparator interface {
 	CompareValue(value string) (bool, error)
 }
 
-var _ indexes.IndexComputer = stringIndexComputation{}
-
 type stringIndexComputation struct {
 	getter record.StringGetter
 }

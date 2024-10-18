@@ -14,8 +14,6 @@ type enum16Comparator interface {
 	CompareValue(value uint16) (bool, error)
 }
 
-var _ indexes.IndexComputer = enum16IndexComputation{}
-
 type enum16IndexComputation struct {
 	getter record.Enum16Getter
 }

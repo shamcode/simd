@@ -14,8 +14,6 @@ type int32Comparator interface {
 	CompareValue(value int32) (bool, error)
 }
 
-var _ indexes.IndexComputer = int32IndexComputation{}
-
 type int32IndexComputation struct {
 	getter record.Int32Getter
 }

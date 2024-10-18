@@ -14,8 +14,6 @@ type enum8Comparator interface {
 	CompareValue(value uint8) (bool, error)
 }
 
-var _ indexes.IndexComputer = enum8IndexComputation{}
-
 type enum8IndexComputation struct {
 	getter record.Enum8Getter
 }

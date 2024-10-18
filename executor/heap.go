@@ -1,3 +1,4 @@
+//nolint:varnamelen
 package executor
 
 import (
@@ -78,7 +79,7 @@ func (h *binaryHeap) down(i0, n int) bool {
 }
 
 func newHeap(sorting []sort.ByWithOrder) *binaryHeap {
-	return &binaryHeap{
+	return &binaryHeap{ //nolint:exhaustruct
 		sorting: sorting,
 	}
 }

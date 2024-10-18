@@ -1,3 +1,4 @@
+//nolint:varnamelen,nonamedreturns,cyclop
 package btree
 
 import (
@@ -20,24 +21,30 @@ type node struct {
 	children []*node
 }
 
-func (node *node) search(key indexes.Key) (index int, found bool) {
+func (node *node) search(key indexes.Key) (index int, found bool) { //nolint:nonamedreturns
 	low, high := 0, len(node.entries)-1
 	var mid int
 	for low <= high {
 		mid = int(uint(high+low) >> 1)
 		itemKey := node.entries[mid].key
-		if key.Less(itemKey) {
+		switch {
+		case key.Less(itemKey):
 			high = mid - 1
-		} else if itemKey.Less(key) {
+		case itemKey.Less(key):
 			low = mid + 1
-		} else {
+		default:
 			return mid, true
 		}
 	}
 	return low, false
 }
 
-func (node *node) iterateAscend(start, stop indexes.Key, includeStart bool, hit bool, iter func(e *entry)) (bool, bool) {
+func (node *node) iterateAscend(
+	start, stop indexes.Key,
+	includeStart bool,
+	hit bool,
+	iter func(e *entry),
+) (bool, bool) {
 	var ok bool
 	var index int
 	if nil != start {
@@ -67,13 +74,18 @@ func (node *node) iterateAscend(start, stop indexes.Key, includeStart bool, hit 
 	return hit, true
 }
 
-func (node *node) iterateDescend(start, stop indexes.Key, includeStart bool, hit bool, iter func(e *entry)) (bool, bool) {
+func (node *node) iterateDescend(
+	start, stop indexes.Key,
+	includeStart bool,
+	hit bool,
+	iter func(e *entry),
+) (bool, bool) {
 	var ok, found bool
 	var index int
 	if start != nil {
 		index, found = node.search(start)
 		if !found {
-			index = index - 1
+			index--
 		}
 	} else {
 		index = len(node.entries) - 1
@@ -121,7 +133,7 @@ func (tree *btree) Get(indexKey indexes.Key) storage.IDStorage {
 func (tree *btree) Set(indexKey indexes.Key, records storage.IDStorage) {
 	e := &entry{key: indexKey, records: records}
 	if tree.root == nil {
-		tree.root = &node{
+		tree.root = &node{ //nolint:exhaustruct
 			entries:  []*entry{e},
 			children: []*node{},
 		}
@@ -142,7 +154,10 @@ func (tree *btree) maxEntries() int {
 	return tree.maxChildren - 1
 }
 
-func (tree *btree) searchRecursively(startNode *node, key indexes.Key) (node *node, index int, found bool) {
+func (tree *btree) searchRecursively(
+	startNode *node,
+	key indexes.Key,
+) (node *node, index int, found bool) {
 	if nil == tree.root {
 		return nil, -1, false
 	}
@@ -200,8 +215,14 @@ func (tree *btree) splitNonRoot(n *node) {
 	middle := tree.middle()
 	parent := n.parent
 
-	left := &node{entries: append([]*entry(nil), n.entries[:middle]...), parent: parent}
-	right := &node{entries: append([]*entry(nil), n.entries[middle+1:]...), parent: parent}
+	left := &node{ //nolint:exhaustruct
+		entries: append([]*entry(nil), n.entries[:middle]...),
+		parent:  parent,
+	}
+	right := &node{ //nolint:exhaustruct
+		entries: append([]*entry(nil), n.entries[middle+1:]...),
+		parent:  parent,
+	}
 
 	// Move children from the node to be split into left and right nodes
 	if !tree.isLeaf(n) {
@@ -232,8 +253,8 @@ func (tree *btree) splitNonRoot(n *node) {
 func (tree *btree) splitRoot() {
 	middle := tree.middle()
 
-	left := &node{entries: append([]*entry(nil), tree.root.entries[:middle]...)}
-	right := &node{entries: append([]*entry(nil), tree.root.entries[middle+1:]...)}
+	left := &node{entries: append([]*entry(nil), tree.root.entries[:middle]...)}    //nolint:exhaustruct
+	right := &node{entries: append([]*entry(nil), tree.root.entries[middle+1:]...)} //nolint:exhaustruct
 
 	if !tree.isLeaf(tree.root) {
 		left.children = append([]*node(nil), tree.root.children[:middle+1]...)
@@ -241,7 +262,7 @@ func (tree *btree) splitRoot() {
 		setParent(left.children, left)
 		setParent(right.children, right)
 	}
-	newRoot := &node{
+	newRoot := &node{ //nolint:exhaustruct
 		entries:  []*entry{tree.root.entries[middle]},
 		children: []*node{left, right},
 	}
@@ -258,7 +279,11 @@ const (
 	ascend
 )
 
-func (tree *btree) collect(dir direction, start, stop indexes.Key, includeStart bool, hit bool) (int, []storage.IDIterator) {
+func (tree *btree) collect(
+	dir direction,
+	start, stop indexes.Key,
+	includeStart bool,
+) (int, []storage.IDIterator) {
 	if nil == tree.root {
 		return 0, nil
 	}
@@ -273,27 +298,27 @@ func (tree *btree) collect(dir direction, start, stop indexes.Key, includeStart 
 	}
 	switch dir {
 	case ascend:
-		tree.root.iterateAscend(start, stop, includeStart, hit, iter)
+		tree.root.iterateAscend(start, stop, includeStart, false, iter)
 	case descend:
-		tree.root.iterateDescend(start, stop, includeStart, hit, iter)
+		tree.root.iterateDescend(start, stop, includeStart, false, iter)
 	}
 	return count, ids
 }
 
 func (tree *btree) LessThan(key indexes.Key) (int, []storage.IDIterator) {
-	return tree.collect(ascend, nil, key, false, false)
+	return tree.collect(ascend, nil, key, false)
 }
 
 func (tree *btree) LessOrEqual(key indexes.Key) (int, []storage.IDIterator) {
-	return tree.collect(descend, key, nil, true, false)
+	return tree.collect(descend, key, nil, true)
 }
 
 func (tree *btree) GreaterThan(key indexes.Key) (int, []storage.IDIterator) {
-	return tree.collect(descend, nil, key, false, false)
+	return tree.collect(descend, nil, key, false)
 }
 
 func (tree *btree) GreaterOrEqual(key indexes.Key) (int, []storage.IDIterator) {
-	return tree.collect(ascend, key, nil, true, false)
+	return tree.collect(ascend, key, nil, true)
 }
 
 func (tree *btree) All(iter func(key indexes.Key, records storage.IDStorage)) {
@@ -320,7 +345,7 @@ func setParent(nodes []*node, parent *node) {
 }
 
 func NewTree(maxChildren int, uniq bool) Storage {
-	return &btree{
+	return &btree{ //nolint:exhaustruct
 		maxChildren: maxChildren,
 	}
 }

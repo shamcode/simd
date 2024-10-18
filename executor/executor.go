@@ -1,3 +1,4 @@
+//nolint:varnamelen
 package executor
 
 import (
@@ -32,7 +33,7 @@ func (e *executor) FetchAllAndTotal(ctx context.Context, q query.Query) (Iterato
 	return e.exec(ctx, q, false)
 }
 
-func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Iterator, int, error) {
+func (e *executor) exec(ctx context.Context, q query.Query, onlyTotal bool) (Iterator, int, error) { //nolint:cyclop
 	if err := q.Error(); nil != err {
 		return nil, 0, NewValidateQueryError(err)
 	}

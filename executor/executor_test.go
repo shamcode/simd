@@ -70,7 +70,7 @@ func (s *storage) PreselectForExecutor(_ where.Conditions) ([]record.Record, err
 	return items, nil
 }
 
-func TestQueryExecutor(t *testing.T) {
+func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 	ns := &storage{
 		data: make(map[int64]record.Record),
 	}

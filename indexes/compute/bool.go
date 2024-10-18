@@ -14,8 +14,6 @@ type boolComparator interface {
 	CompareValue(value bool) (bool, error)
 }
 
-var _ indexes.IndexComputer = boolIndexComputation{}
-
 type boolIndexComputation struct {
 	getter record.BoolGetter
 }

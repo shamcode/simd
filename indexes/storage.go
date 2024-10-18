@@ -46,7 +46,7 @@ func (idx *concurrentStorage) Unwrap() Storage {
 }
 
 func CreateConcurrentStorage(original Storage, storeOnlyUniqID bool) ConcurrentStorage {
-	return &concurrentStorage{
+	return &concurrentStorage{ //nolint:exhaustruct
 		original: original,
 		uniq:     storeOnlyUniqID,
 	}

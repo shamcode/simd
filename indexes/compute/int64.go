@@ -14,8 +14,6 @@ type int64Comparator interface {
 	CompareValue(value int64) (bool, error)
 }
 
-var _ indexes.IndexComputer = int64IndexComputation{}
-
 type int64IndexComputation struct {
 	getter record.Int64Getter
 }

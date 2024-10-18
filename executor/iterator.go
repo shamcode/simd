@@ -51,7 +51,7 @@ func (i *heapIterator) Size() int {
 }
 
 func newHeapIterator(heap *binaryHeap, from, to, size int) Iterator {
-	return &heapIterator{
+	return &heapIterator{ //nolint:exhaustruct
 		from:  from,
 		index: from,
 		max:   to,

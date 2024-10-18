@@ -1,3 +1,4 @@
+//nolint:exhaustive,nonamedreturns
 package hash
 
 import (

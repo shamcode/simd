@@ -18,7 +18,7 @@ func (e ValidateQueryError) Unwrap() error {
 }
 
 func (e ValidateQueryError) Is(err error) bool {
-	_, ok := err.(ValidateQueryError)
+	_, ok := err.(ValidateQueryError) //nolint:errorlint
 	return ok
 }
 
@@ -31,7 +31,7 @@ func (e ExecuteQueryError) Unwrap() error {
 }
 
 func (e ExecuteQueryError) Is(err error) bool {
-	_, ok := err.(ExecuteQueryError)
+	_, ok := err.(ExecuteQueryError) //nolint:errorlint
 	return ok
 }
 

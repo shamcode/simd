@@ -14,8 +14,6 @@ type intComparator interface {
 	CompareValue(value int) (bool, error)
 }
 
-var _ indexes.IndexComputer = intIndexComputation{}
-
 type intIndexComputation struct {
 	getter record.IntGetter
 }

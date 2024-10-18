@@ -55,7 +55,9 @@ func (ibf byField) Update(oldItem, item record.Record) {
 			oldValue := idx.Compute().ForRecord(oldItem)
 			newValue := idx.Compute().ForRecord(item)
 
-			// TODO: if key is pointer, then compare invalid. Need add check for optional interface{ Equal(key interface{}} bool }
+			//nolint:godox
+			// TODO: if key is pointer, then compare invalid.
+			// Need add check for optional interface{ Equal(key interface{}} bool }
 			if newValue == oldValue {
 				// Field index not changed, ignore
 				continue
@@ -73,7 +75,7 @@ func (ibf byField) Update(oldItem, item record.Record) {
 	}
 }
 
-func (ibf byField) SelectForCondition(condition where.Condition) (
+func (ibf byField) SelectForCondition(condition where.Condition) ( //nolint:nonamedreturns
 	indexExists bool,
 	count int,
 	ids []storage.IDIterator,
@@ -82,7 +84,7 @@ func (ibf byField) SelectForCondition(condition where.Condition) (
 ) {
 	var indexes []Index
 	indexes, indexExists = ibf[condition.Cmp.GetField().Index()]
-	if !indexExists || 0 == len(indexes) {
+	if !indexExists || len(indexes) == 0 {
 		return
 	}
 	first := true
@@ -105,7 +107,7 @@ func (ibf byField) SelectForCondition(condition where.Condition) (
 		count, ids, err = indexForApply.Select(condition)
 		idsUnique = indexForApply.Unique()
 	}
-	return
+	return //nolint:nakedret
 }
 
 func CreateByField() ByField {

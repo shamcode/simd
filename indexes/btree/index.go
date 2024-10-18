@@ -1,3 +1,4 @@
+//nolint:exhaustive,nonamedreturns,funlen
 package btree
 
 import (
@@ -62,7 +63,11 @@ func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight i
 	}
 }
 
-func (idx index) Select(condition where.Condition) (count int, ids []storage.IDIterator, err error) {
+func (idx index) Select(condition where.Condition) ( //nolint:cyclop
+	count int,
+	ids []storage.IDIterator,
+	err error,
+) {
 	cmp := condition.Cmp.GetType()
 	if condition.WithNot {
 		switch cmp {
@@ -138,7 +143,7 @@ func (idx index) Select(condition where.Condition) (count int, ids []storage.IDI
 		}
 	})
 	idx.storage.RLock()
-	return
+	return //nolint:nakedret
 }
 
 func (idx index) ConcurrentStorage() indexes.ConcurrentStorage {
