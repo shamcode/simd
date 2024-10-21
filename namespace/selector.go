@@ -19,19 +19,26 @@ type result struct {
 
 type resultByBracketLevel map[int]*result
 
-func (byLevel resultByBracketLevel) save(level int, items []storage.IDIterator, idsUnique bool, size int, op selectorOperation) {
+func (byLevel resultByBracketLevel) save(
+	level int,
+	items []storage.IDIterator,
+	idsUnique bool,
+	size int,
+	operation selectorOperation,
+) {
 	res, exist := byLevel[level]
 	if !exist {
 		byLevel[level] = &result{
-			size:      size,
-			items:     items,
-			idsUnique: idsUnique,
-			operation: op,
+			items:               items,
+			idsUnique:           idsUnique,
+			size:                size,
+			operation:           operation,
+			operationRecognized: false,
 		}
 		return
 	}
 
-	switch op {
+	switch operation {
 	case union:
 		res.size += size
 		res.items = append(res.items, items...)

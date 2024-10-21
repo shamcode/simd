@@ -73,6 +73,7 @@ linters:
     - gomnd
     - wrapcheck
     - tparallel
+    - godox
     # Temporary disable
     - forcetypeassert
     - gochecknoglobals

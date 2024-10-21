@@ -13,7 +13,7 @@ func (e RecordAlreadyExistsError) Error() string {
 }
 
 func (e RecordAlreadyExistsError) Is(err error) bool {
-	_, ok := err.(RecordAlreadyExistsError)
+	_, ok := err.(RecordAlreadyExistsError) //nolint:errorlint
 	return ok
 }
 

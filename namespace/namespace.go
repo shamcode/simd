@@ -85,23 +85,26 @@ func (ns *WithIndexes) AddIndex(index indexes.Index) {
 	ns.indexes.Add(index)
 }
 
-func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ([]record.Record, error) {
+func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ( //nolint:funlen,gocognit,cyclop
+	[]record.Record,
+	error,
+) {
 	byLevel := make(resultByBracketLevel)
 	lastBracketLevel := 0
 
 	for _, condition := range conditions {
-		var op selectorOperation
+		var operation selectorOperation
 		if condition.IsOr {
-			op = union
+			operation = union
 		} else {
-			op = intersection
+			operation = intersection
 		}
 
 		if lastBracketLevel > 0 {
 			last := byLevel[lastBracketLevel]
 			if nil != last && condition.BracketLevel >= lastBracketLevel && !last.operationRecognized {
 				last.operationRecognized = true
-				last.operation = op
+				last.operation = operation
 			}
 		}
 
@@ -118,7 +121,7 @@ func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ([]reco
 		if lastBracketLevel > condition.BracketLevel {
 			subLevelItems, subLevelSize, subLevelIDSUnique, hasItems := byLevel.reduce(lastBracketLevel, condition.BracketLevel)
 			if hasItems {
-				switch op {
+				switch operation {
 				case union:
 					ids = append(ids, subLevelItems...)
 					indexSize += subLevelSize
@@ -133,7 +136,7 @@ func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ([]reco
 			}
 		}
 
-		byLevel.save(condition.BracketLevel, ids, idsUnique, indexSize, op)
+		byLevel.save(condition.BracketLevel, ids, idsUnique, indexSize, operation)
 		lastBracketLevel = condition.BracketLevel
 	}
 
