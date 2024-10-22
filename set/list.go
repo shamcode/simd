@@ -11,8 +11,8 @@ type List struct {
 }
 
 func NewList() *List {
-	return &List{
-		head: &ListElement{},
+	return &List{ //nolint:exhaustruct
+		head: &ListElement{}, //nolint:exhaustruct
 	}
 }
 
@@ -24,12 +24,16 @@ func (list *List) First() *ListElement {
 	return list.head.Next()
 }
 
-func (list *List) Add(searchStart *ListElement, hash uintptr, key int64) (element *ListElement, existed bool, inserted bool) {
+func (list *List) Add( //nolint:nonamedreturns
+	searchStart *ListElement,
+	hash uintptr,
+	key int64,
+) (element *ListElement, existed bool, inserted bool) {
 	left, found, right := list.search(searchStart, hash, key)
 	if found != nil { // existing item found
 		return found, true, false
 	}
-	element = &ListElement{
+	element = &ListElement{ //nolint:exhaustruct
 		keyHash: hash,
 		key:     key,
 	}
@@ -45,7 +49,11 @@ func (list *List) Delete(element *ListElement) {
 	atomic.AddInt64(&list.count, -1)
 }
 
-func (list *List) search(searchStart *ListElement, hash uintptr, key int64) (left, found, right *ListElement) {
+func (list *List) search( //nolint:cyclop,nonamedreturns
+	searchStart *ListElement,
+	hash uintptr,
+	key int64,
+) (left, found, right *ListElement) {
 	if searchStart != nil && hash < searchStart.keyHash {
 		searchStart = nil
 	}

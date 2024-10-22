@@ -14,7 +14,7 @@ type ListElement struct {
 
 func (e *ListElement) Next() *ListElement {
 	for next := (*ListElement)(atomic.LoadPointer(&e.next)); next != nil; {
-		if 0 == atomic.LoadInt64(&next.deleted) {
+		if atomic.LoadInt64(&next.deleted) == 0 {
 			return next
 		}
 		following := next.Next()

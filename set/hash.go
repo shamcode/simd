@@ -14,14 +14,14 @@ func xxHashQword(key int64) uintptr {
 	k1 := uint64(key) * prime2
 	k1 = bits.RotateLeft64(k1, 31)
 	k1 *= prime1
-	h := (prime5 + 8) ^ k1
-	h = bits.RotateLeft64(h, 27)*prime1 + prime4
+	hash := (prime5 + 8) ^ k1
+	hash = bits.RotateLeft64(hash, 27)*prime1 + prime4
 
-	h ^= h >> 33
-	h *= prime2
-	h ^= h >> 29
-	h *= prime3
-	h ^= h >> 32
+	hash ^= hash >> 33
+	hash *= prime2
+	hash ^= hash >> 29
+	hash *= prime3
+	hash ^= hash >> 32
 
-	return uintptr(h)
+	return uintptr(hash)
 }

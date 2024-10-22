@@ -21,7 +21,7 @@ type ByWithOrder interface {
 
 type asc struct{ By }
 
-func (_ asc) order() {}
+func (asc) order() {}
 
 func (a asc) String() string {
 	return a.By.String() + " ASC"
@@ -34,7 +34,7 @@ func Asc(by By) ByWithOrder {
 
 type desc struct{ By }
 
-func (_ desc) order() {}
+func (desc) order() {}
 
 func (d desc) Less(a, b record.Record) bool {
 	return d.By.Less(b, a)

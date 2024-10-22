@@ -27,7 +27,7 @@ func Benchmark_GoMapSet(b *testing.B) {
 	b.Run("map_rwmutex", func(b *testing.B) {
 		var wg sync.WaitGroup
 		sem := make(chan struct{}, concurrent)
-		store := &mapRWMutex{
+		store := &mapRWMutex{ //nolint:exhaustruct
 			data: make(map[int64]struct{}),
 		}
 		for i := 1; i < records; i++ {

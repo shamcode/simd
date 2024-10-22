@@ -26,28 +26,28 @@ func Offset(startOffset int) BuilderOption {
 
 type OrOption struct{}
 
-func (_ OrOption) Apply(b Builder) { b.Or() }
+func (OrOption) Apply(b Builder) { b.Or() }
 func Or() BuilderOption {
 	return OrOption{}
 }
 
 type NotOption struct{}
 
-func (_ NotOption) Apply(b Builder) { b.Not() }
+func (NotOption) Apply(b Builder) { b.Not() }
 func Not() BuilderOption {
 	return NotOption{}
 }
 
 type OpenBracketOption struct{}
 
-func (_ OpenBracketOption) Apply(b Builder) { b.OpenBracket() }
+func (OpenBracketOption) Apply(b Builder) { b.OpenBracket() }
 func OpenBracket() BuilderOption {
 	return OpenBracketOption{}
 }
 
 type CloseBracketOption struct{}
 
-func (_ CloseBracketOption) Apply(b Builder) { b.CloseBracket() }
+func (CloseBracketOption) Apply(b Builder) { b.CloseBracket() }
 func CloseBracket() BuilderOption {
 	return CloseBracketOption{}
 }

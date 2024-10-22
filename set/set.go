@@ -26,7 +26,7 @@ func NewSet() *Set {
 }
 
 func NewSetSized(size uintptr) *Set {
-	m := &Set{}
+	m := &Set{} //nolint:exhaustruct
 	m.allocate(size)
 	return m
 }
@@ -138,7 +138,7 @@ func (m *Set) grow(newSize uintptr, loop bool) {
 		index := make([]*ListElement, newSize)
 		header := (*reflect.SliceHeader)(unsafe.Pointer(&index))
 
-		newStore := &indexStore{
+		newStore := &indexStore{ //nolint:exhaustruct
 			keyShifts: strconv.IntSize - log2(newSize),
 			array:     unsafe.Pointer(header.Data), // use address of slice data storage
 			index:     index,
@@ -179,22 +179,22 @@ func (m *Set) fillIndexItems(store *indexStore) {
 }
 
 // roundUpPower2 rounds a number to the next power of 2.
-func roundUpPower2(i uintptr) uintptr {
-	i--
-	i |= i >> 1
-	i |= i >> 2
-	i |= i >> 4
-	i |= i >> 8
-	i |= i >> 16
-	i |= i >> 32
-	i++
-	return i
+func roundUpPower2(num uintptr) uintptr {
+	num--
+	num |= num >> 1
+	num |= num >> 2
+	num |= num >> 4
+	num |= num >> 8
+	num |= num >> 16
+	num |= num >> 32
+	num++
+	return num
 }
 
 // log2 computes the binary logarithm of x, rounded up to the next integer.
-func log2(i uintptr) uintptr {
+func log2(num uintptr) uintptr {
 	var n, p uintptr
-	for p = 1; p < i; p += p {
+	for p = 1; p < num; p += p {
 		n++
 	}
 	return n

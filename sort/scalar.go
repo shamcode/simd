@@ -6,8 +6,6 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-var _ By = byScalar{}
-
 // Scalar is a special case for sorting by comparing int64 values.
 type Scalar interface {
 	Calc(item record.Record) int64

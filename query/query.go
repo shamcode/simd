@@ -15,8 +15,6 @@ type Query interface {
 	Error() error
 }
 
-var _ Query = query{}
-
 type query struct {
 	offset              int
 	limit               int

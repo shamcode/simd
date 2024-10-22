@@ -7,7 +7,7 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Builder interface {
+type Builder interface { //nolint:interfacebloat
 	Limit(limitItems int)
 	Offset(startOffset int)
 	Not()
@@ -47,7 +47,8 @@ type queryBuilder struct {
 	where        where.Conditions
 	sortBy       []sort.ByWithOrder
 	onIteration  *func(item record.Record)
-	error        *multierror.Error // TODO: wait go1.20 https://go-review.googlesource.com/c/go/+/432898/11/src/errors/join.go
+	// TODO: wait go1.20 https://go-review.googlesource.com/c/go/+/432898/11/src/errors/join.go
+	error *multierror.Error
 }
 
 func (qb *queryBuilder) Limit(limitItems int) {
@@ -80,7 +81,7 @@ func (qb *queryBuilder) OpenBracket() {
 
 func (qb *queryBuilder) CloseBracket() {
 	qb.bracketLevel -= 1
-	if -1 == qb.bracketLevel {
+	if qb.bracketLevel == -1 {
 		qb.error = multierror.Append(qb.error, ErrCloseBracketWithoutOpen)
 	}
 	qb.conditionSet = true
@@ -119,10 +120,12 @@ func (qb *queryBuilder) MakeCopy() Builder {
 		withLimit:    qb.withLimit,
 		withNot:      qb.withNot,
 		isOr:         qb.isOr,
+		conditionSet: qb.conditionSet,
 		bracketLevel: qb.bracketLevel,
 		where:        make(where.Conditions, len(qb.where)),
 		sortBy:       make([]sort.ByWithOrder, len(qb.sortBy)),
 		onIteration:  qb.onIteration,
+		error:        qb.error,
 	}
 	copy(cpy.where, qb.where)
 	copy(cpy.sortBy, qb.sortBy)
@@ -145,7 +148,7 @@ func (qb *queryBuilder) Query() Query {
 }
 
 func NewBuilder(options ...BuilderOption) Builder {
-	b := &queryBuilder{}
+	b := &queryBuilder{} //nolint:exhaustruct
 	for _, opt := range options {
 		opt.Apply(b)
 	}
