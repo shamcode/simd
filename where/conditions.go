@@ -20,14 +20,14 @@ func (c Condition) String() string {
 type Conditions []Condition
 
 // Check checks that the record satisfies all the conditions.
-func (w Conditions) Check(item record.Record) (bool, error) {
+func (w Conditions) Check(item record.Record) (bool, error) { //nolint:funlen,gocognit,cyclop
 	stack := make(resultsByBracketLevel)
 	lastBracketLevel := 0
 
 	for _, condition := range w {
 		isAnd := !condition.IsOr
 
-		if lastBracketLevel > 0 {
+		if lastBracketLevel > 0 { //nolint:nestif
 			last := stack[lastBracketLevel]
 			if condition.BracketLevel >= lastBracketLevel {
 				if !last.opRecognized {
@@ -54,7 +54,7 @@ func (w Conditions) Check(item record.Record) (bool, error) {
 		// Expression A != B it's analog for (A && !B) || (!A && B)
 		conditionResult := condition.WithNot != compareResultForItem
 
-		if lastBracketLevel > condition.BracketLevel {
+		if lastBracketLevel > condition.BracketLevel { //nolint:nestif
 			// ( ... ) AND B
 			// ( ... ) OR B
 			if isAnd != conditionResult {
@@ -77,7 +77,7 @@ func (w Conditions) Check(item record.Record) (bool, error) {
 		lastBracketLevel = condition.BracketLevel
 	}
 
-	if 0 == len(stack) {
+	if len(stack) == 0 {
 		return true, nil
 	}
 

@@ -20,7 +20,7 @@ func (fc MapFieldComparator) GetField() record.Field {
 }
 
 func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.MapHasValue:
 		cmp, ok := fc.Value[0].(record.MapValueComparator)
 		if !ok {

@@ -20,7 +20,7 @@ func (fc InterfaceFieldComparator) GetField() record.Field {
 }
 
 func (fc InterfaceFieldComparator) CompareValue(value interface{}) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
 	case where.InArray:

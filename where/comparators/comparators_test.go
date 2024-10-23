@@ -125,7 +125,7 @@ var stringGetter = record.StringGetter{
 	Get:   func(item record.Record) string { return item.(*user).string },
 }
 
-func TestComparators(t *testing.T) {
+func TestComparators(t *testing.T) { //nolint:maintidx
 	item := &user{
 		bool:   true,
 		enum8:  2,
@@ -156,7 +156,7 @@ func TestComparators(t *testing.T) {
 		expectedValues []interface{}
 	}
 
-	checkTestCases := func(t *testing.T, testCases []testCase) {
+	checkTestCases := func(t *testing.T, testCases []testCase) { //nolint:thelper
 		for _, test := range testCases {
 			t.Run(test.name, func(t *testing.T) {
 				res, err := test.comparator.Compare(item)
@@ -1003,14 +1003,14 @@ func TestComparators(t *testing.T) {
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
 					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
-						return 8 == item.(int), nil
+						return item.(int) == 8, nil
 					})},
 				},
 				expectedResult: true,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
 				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
-					return 8 == item.(int), nil
+					return item.(int) == 8, nil
 				})},
 			},
 			{
@@ -1019,14 +1019,14 @@ func TestComparators(t *testing.T) {
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
 					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
-						return 10 == item.(int), nil
+						return item.(int) == 10, nil
 					})},
 				},
 				expectedResult: false,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
 				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
-					return 10 == item.(int), nil
+					return item.(int) == 10, nil
 				})},
 			},
 			{

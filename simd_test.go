@@ -1,3 +1,4 @@
+//nolint:exhaustruct
 package simd
 
 import (
@@ -162,7 +163,7 @@ func (sorting byOnline) Calc(item record.Record) int64 {
 	return 1
 }
 
-func Test_FetchAllAndTotal(t *testing.T) {
+func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 	store := namespace.CreateNamespace()
 	store.AddIndex(hash.NewInt64HashIndex(userID, true))
 	store.AddIndex(hash.NewStringHashIndex(userName, false))

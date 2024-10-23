@@ -20,7 +20,7 @@ func (fc SetFieldComparator) GetField() record.Field {
 }
 
 func (fc SetFieldComparator) CompareValue(value record.Set) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.SetHas:
 		return value.Has(fc.Value[0]), nil
 	default:

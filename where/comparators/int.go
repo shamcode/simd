@@ -20,7 +20,7 @@ func (fc IntFieldComparator) GetField() record.Field {
 }
 
 func (fc IntFieldComparator) CompareValue(value int) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
 	case where.GT:

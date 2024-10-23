@@ -22,23 +22,24 @@ func returnToPool(a *result) {
 
 var bracketLevelResultPool = &sync.Pool{
 	New: func() interface{} {
-		return &result{}
+		return &result{} //nolint:exhaustruct
 	},
 }
 
 func (stack resultsByBracketLevel) save(level int, value, isAnd bool) {
 	item, exists := stack[level]
-	if !exists {
+	switch {
+	case !exists:
 		// A
 		// First item, just save
 		item = getFromPool()
 		item.value = value
 		stack[level] = item
-	} else if isAnd {
+	case isAnd:
 		// ... AND A
 		// Not first item, merge as AND
 		item.value = item.value && value
-	} else {
+	default:
 		// ... OR A
 		// Not first item, merge as OR
 		item.value = item.value || value

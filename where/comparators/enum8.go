@@ -20,7 +20,7 @@ func (fc Enum8FieldComparator) GetField() record.Field {
 }
 
 func (fc Enum8FieldComparator) CompareValue(value uint8) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0].Value(), nil
 	case where.InArray:

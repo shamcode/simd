@@ -48,7 +48,7 @@ func (r *recordsByID) GetData(stores []IDIterator, totalCount int, idsUnique boo
 	if idsUnique {
 		return r.selectByUniqIDsStore(stores, totalCount)
 	}
-	if 1 == len(stores) {
+	if len(stores) == 1 {
 		// Optimization for one store case
 		return r.selectByStore(stores[0], totalCount)
 	}
@@ -71,8 +71,7 @@ func (r *recordsByID) selectByUniqIDsStore(stores []IDIterator, totalCount int) 
 	items := make([]record.Record, 0, totalCount)
 	r.RLock()
 	for _, store := range stores {
-		id := store.(UniqueIDStorage).ID()
-		if 0 != id {
+		if id := store.(UniqueIDStorage).ID(); id != 0 {
 			items = append(items, r.data[id])
 		}
 	}
@@ -109,7 +108,7 @@ func (r *recordsByID) GetAllData() []record.Record {
 }
 
 func CreateRecordsByID() RecordsByID {
-	return &recordsByID{
+	return &recordsByID{ //nolint:exhaustruct
 		ids:  CreateMapIDStorage(),
 		data: make(map[int64]record.Record),
 	}

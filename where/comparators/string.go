@@ -22,8 +22,8 @@ func (fc StringFieldComparator) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc StringFieldComparator) CompareValue(value string) (bool, error) {
-	switch fc.Cmp {
+func (fc StringFieldComparator) CompareValue(value string) (bool, error) { //nolint:cyclop
+	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
 	case where.GT:
@@ -76,7 +76,7 @@ func (fc StringFieldRegexpComparator) GetField() record.Field {
 }
 
 func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.Regexp:
 		return fc.Value.MatchString(value), nil
 	default:
@@ -93,7 +93,7 @@ func (fc StringFieldRegexpComparator) ValuesCount() int {
 }
 
 func (fc StringFieldRegexpComparator) ValueAt(index int) interface{} {
-	if 0 == index {
+	if index == 0 {
 		return fc.Value
 	}
 	return nil

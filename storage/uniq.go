@@ -9,15 +9,13 @@ type uniqID int64
 func (u *uniqID) RLock()   {}
 func (u *uniqID) RUnlock() {}
 func (u *uniqID) Iterate(f func(id int64)) {
-	id := atomic.LoadInt64((*int64)(u))
-	if 0 != id {
+	if id := atomic.LoadInt64((*int64)(u)); id != 0 {
 		f(id)
 	}
 }
 
 func (u *uniqID) Count() int {
-	id := atomic.LoadInt64((*int64)(u))
-	if 0 == id {
+	if id := atomic.LoadInt64((*int64)(u)); id == 0 {
 		return 0
 	}
 	return 1

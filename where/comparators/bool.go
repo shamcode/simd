@@ -20,7 +20,7 @@ func (fc BoolFieldComparator) GetField() record.Field {
 }
 
 func (fc BoolFieldComparator) CompareValue(value bool) (bool, error) {
-	switch fc.Cmp {
+	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
 	default:

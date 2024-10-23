@@ -25,7 +25,7 @@ func (e NotImplementComparatorError) Error() string {
 }
 
 func (e NotImplementComparatorError) Is(err error) bool {
-	_, ok := err.(NotImplementComparatorError)
+	_, ok := err.(NotImplementComparatorError) //nolint:errorlint
 	return ok
 }
 
@@ -47,11 +47,16 @@ func (e FailCastTypeError) Error() string {
 }
 
 func (e FailCastTypeError) Is(err error) bool {
-	_, ok := err.(FailCastTypeError)
+	_, ok := err.(FailCastTypeError) //nolint:errorlint
 	return ok
 }
 
-func NewFailCastTypeError(field record.Field, cmp where.ComparatorType, receivedType interface{}, expectedType string) error {
+func NewFailCastTypeError(
+	field record.Field,
+	cmp where.ComparatorType,
+	receivedType interface{},
+	expectedType string,
+) error {
 	return FailCastTypeError{
 		Field:        field,
 		Cmp:          cmp,
