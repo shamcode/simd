@@ -17,7 +17,7 @@ type Storage interface {
 	GreaterThan(key indexes.Key) (int, []storage.IDIterator)
 	GreaterOrEqual(key indexes.Key) (int, []storage.IDIterator)
 	ForKey(key indexes.Key) (int, storage.IDIterator)
-	All(func(key indexes.Key, records storage.IDStorage))
+	All(callback func(key indexes.Key, records storage.IDStorage))
 }
 
 type index struct {
@@ -116,7 +116,7 @@ func (idx index) Select(condition where.Condition) ( //nolint:cyclop
 			return
 		case where.InArray:
 			idx.storage.RLock()
-			for i := 0; i < condition.Cmp.ValuesCount(); i++ {
+			for i := range condition.Cmp.ValuesCount() {
 				countForValue, idsForValue := idx.btree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 				if countForValue > 0 {
 					count += countForValue

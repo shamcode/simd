@@ -15,7 +15,7 @@ type FieldComparatorDumper func(builder *strings.Builder, cmp where.FieldCompara
 
 type QueryBuilderWithDumper interface {
 	query.Builder
-	SetFieldComparatorDumper(FieldComparatorDumper)
+	SetFieldComparatorDumper(dumber FieldComparatorDumper)
 	Dump() string
 }
 
@@ -151,7 +151,7 @@ func (q *debugQueryBuilder) saveFieldComparatorForDump(cmp where.FieldComparator
 		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.InArray:
 		chunk.WriteString(" IN (")
-		for i := 0; i < cmp.ValuesCount(); i++ {
+		for i := range cmp.ValuesCount() {
 			if i != 0 {
 				chunk.WriteString(", ")
 			}
@@ -178,7 +178,7 @@ func (q *debugQueryBuilder) saveFieldComparatorForDump(cmp where.FieldComparator
 	default:
 		if nil == q.fieldComparatorDumper {
 			chunk.WriteString(fmt.Sprintf(" (ComparatorType(%d) ", cmp.GetType()))
-			for i := 0; i < cmp.ValuesCount(); i++ {
+			for i := range cmp.ValuesCount() {
 				if i != 0 {
 					chunk.WriteString(" ")
 				}

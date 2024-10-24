@@ -85,7 +85,7 @@ func (ns *WithIndexes) AddIndex(index indexes.Index) {
 	ns.indexes.Add(index)
 }
 
-func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ( //nolint:funlen,gocognit,cyclop
+func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ( //nolint:funlen,cyclop
 	[]record.Record,
 	error,
 ) {

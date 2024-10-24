@@ -50,7 +50,7 @@ func Benchmark_Indexes(b *testing.B) {
 			err := store.Upsert(&User{
 				ID:       int64(i),
 				Name:     "user_" + strconv.Itoa(i),
-				Status:   StatusEnum(1 + i%2),
+				Status:   StatusEnum(1 + i%2), //nolint:gosec
 				Age:      int64(1 + i%100),
 				Score:    i % 150,
 				IsOnline: i%2 == 0,
@@ -219,7 +219,7 @@ func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 			err := store.Upsert(&User{
 				ID:       int64(i),
 				Name:     "user_" + strconv.Itoa(i),
-				Status:   StatusEnum(1 + i%2),
+				Status:   StatusEnum(1 + i%2), //nolint:gosec
 				Age:      int64(i%100 + 1),
 				Score:    i % 150,
 				IsOnline: i%2 == 0,

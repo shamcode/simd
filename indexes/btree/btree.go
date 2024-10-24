@@ -25,7 +25,7 @@ func (node *node) search(key indexes.Key) (index int, found bool) { //nolint:non
 	low, high := 0, len(node.entries)-1
 	var mid int
 	for low <= high {
-		mid = int(uint(high+low) >> 1)
+		mid = int(uint(high+low) >> 1) //nolint:gosec
 		itemKey := node.entries[mid].key
 		switch {
 		case key.Less(itemKey):

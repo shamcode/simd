@@ -80,7 +80,6 @@ func TestIndex(t *testing.T) {
 		}
 
 		for _, test := range testCases {
-			test := test
 			t.Run(test.condition.String(), func(t *testing.T) {
 				t.Parallel()
 				canApply, weight := index.Weight(test.condition)
@@ -177,7 +176,6 @@ func TestIndex(t *testing.T) {
 		}
 
 		for _, test := range testCases {
-			test := test
 			t.Run(test.condition.String(), func(t *testing.T) {
 				t.Parallel()
 				count, idsStorage, err := index.Select(test.condition)

@@ -25,7 +25,7 @@ func (e NotImplementComparatorError) Error() string {
 }
 
 func (e NotImplementComparatorError) Is(err error) bool {
-	_, ok := err.(NotImplementComparatorError) //nolint:errorlint
+	_, ok := err.(NotImplementComparatorError)
 	return ok
 }
 
@@ -47,7 +47,7 @@ func (e FailCastTypeError) Error() string {
 }
 
 func (e FailCastTypeError) Is(err error) bool {
-	_, ok := err.(FailCastTypeError) //nolint:errorlint
+	_, ok := err.(FailCastTypeError)
 	return ok
 }
 

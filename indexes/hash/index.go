@@ -73,7 +73,7 @@ func (idx index) selectForEqual(condition where.Condition) (count int, ids []sto
 }
 
 func (idx index) selectForInArray(condition where.Condition) (count int, ids []storage.IDIterator) {
-	for i := 0; i < condition.Cmp.ValuesCount(); i++ {
+	for i := range condition.Cmp.ValuesCount() {
 		itemsByValue := idx.storage.Get(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 		if nil != itemsByValue {
 			countForValue := itemsByValue.Count()

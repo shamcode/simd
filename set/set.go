@@ -1,7 +1,6 @@
 package set
 
 import (
-	"reflect"
 	"strconv"
 	"sync/atomic"
 	"unsafe"
@@ -136,11 +135,10 @@ func (m *Set) grow(newSize uintptr, loop bool) {
 		}
 
 		index := make([]*ListElement, newSize)
-		header := (*reflect.SliceHeader)(unsafe.Pointer(&index))
 
 		newStore := &indexStore{ //nolint:exhaustruct
 			keyShifts: strconv.IntSize - log2(newSize),
-			array:     unsafe.Pointer(header.Data), // use address of slice data storage
+			array:     unsafe.Pointer(unsafe.SliceData(index)), // use address of slice data storage
 			index:     index,
 		}
 

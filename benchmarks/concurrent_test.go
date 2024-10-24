@@ -30,7 +30,7 @@ func Benchmark_Concurrent(b *testing.B) {
 		err := store.Upsert(&User{ //nolint:exhaustruct
 			ID:       int64(i),
 			Name:     "user_" + strconv.Itoa(i),
-			Status:   StatusEnum(1 + i%2),
+			Status:   StatusEnum(1 + i%2), //nolint:gosec
 			Score:    i % 150,
 			IsOnline: i%2 == 0,
 		})

@@ -11,7 +11,7 @@ const (
 )
 
 func xxHashQword(key int64) uintptr {
-	k1 := uint64(key) * prime2
+	k1 := uint64(key) * prime2 //nolint:gosec
 	k1 = bits.RotateLeft64(k1, 31)
 	k1 *= prime1
 	hash := (prime5 + 8) ^ k1

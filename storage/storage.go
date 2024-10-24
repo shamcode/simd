@@ -3,7 +3,7 @@ package storage
 import "github.com/shamcode/simd/record"
 
 type IDIterator interface {
-	Iterate(func(id int64))
+	Iterate(f func(id int64))
 }
 
 type IDStorage interface {

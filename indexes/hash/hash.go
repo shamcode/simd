@@ -7,8 +7,6 @@ import (
 
 type hashTable map[indexes.Key]storage.IDStorage
 
-var _ Storage = hashTable{}
-
 func (idx hashTable) Get(key indexes.Key) storage.IDStorage {
 	return idx[key]
 }

@@ -51,16 +51,6 @@ linters:
   disable:
     - paralleltest
     - tagliatelle
-    - golint
-    - nosnakecase
-    - varcheck
-    - maligned
-    - scopelint
-    - exhaustivestruct
-    - structcheck
-    - ifshort
-    - deadcode
-    - interfacer
     - testpackage
     - rowserrcheck
     - sqlclosecheck
@@ -74,10 +64,12 @@ linters:
     - wrapcheck
     - tparallel
     - godox
-    # Temporary disable
     - forcetypeassert
     - gochecknoglobals
     - ireturn
+    - mnd
+    - depguard
+    - nakedret
 
 issues:
   exclude-rules:

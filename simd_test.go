@@ -555,7 +555,6 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 	qe := executor.CreateQueryExecutor(store)
 
 	for _, testCase := range testCases {
-		testCase := testCase
 		t.Run(testCase.Name, func(t *testing.T) {
 			t.Parallel()
 
@@ -588,7 +587,7 @@ func Test_Context(t *testing.T) {
 	_, err := executor.CreateQueryExecutor(store).FetchTotal(ctx, query.NewBuilder().Query())
 
 	asserts.Equals(t, "context canceled", err.Error(), "check error")
-	asserts.Equals(t, true, errors.Is(context.Canceled, err), "error is context.Canceled")
+	asserts.Equals(t, true, errors.Is(err, context.Canceled), "error is context.Canceled")
 }
 
 func Test_CallbackOnIteration(t *testing.T) {

@@ -1,6 +1,6 @@
 module github.com/shamcode/simd
 
-go 1.17
+go 1.23
 
 require (
 	github.com/hashicorp/go-multierror v1.1.1

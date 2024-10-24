@@ -20,7 +20,7 @@ func (c Condition) String() string {
 type Conditions []Condition
 
 // Check checks that the record satisfies all the conditions.
-func (w Conditions) Check(item record.Record) (bool, error) { //nolint:funlen,gocognit,cyclop
+func (w Conditions) Check(item record.Record) (bool, error) { //nolint:funlen,cyclop
 	stack := make(resultsByBracketLevel)
 	lastBracketLevel := 0
 

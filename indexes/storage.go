@@ -6,8 +6,6 @@ import (
 	"github.com/shamcode/simd/storage"
 )
 
-var _ ConcurrentStorage = (*concurrentStorage)(nil)
-
 type concurrentStorage struct {
 	sync.RWMutex
 	original Storage

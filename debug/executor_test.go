@@ -1,3 +1,4 @@
+//nolint:exhaustruct
 package debug
 
 import (
@@ -349,7 +350,6 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 	qe := executor.CreateQueryExecutor(ns)
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -412,7 +412,6 @@ func TestFieldComparatorDumper(t *testing.T) {
 	qe := executor.CreateQueryExecutor(ns)
 
 	for _, test := range tests {
-		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
 
