@@ -9,21 +9,21 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-type TimeFieldComparator struct {
+type TimeFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
-	Getter types.TimeGetter
+	Getter types.TimeGetter[R]
 	Value  []time.Time
 }
 
-func (fc TimeFieldComparator) GetType() where.ComparatorType {
+func (fc TimeFieldComparator[R]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc TimeFieldComparator) GetField() record.Field {
+func (fc TimeFieldComparator[R]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
+func (fc TimeFieldComparator[R]) CompareValue(value time.Time) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value.Equal(fc.Value[0]), nil
@@ -40,14 +40,14 @@ func (fc TimeFieldComparator) CompareValue(value time.Time) (bool, error) {
 	}
 }
 
-func (fc TimeFieldComparator) Compare(item record.Record) (bool, error) {
+func (fc TimeFieldComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc TimeFieldComparator) ValuesCount() int {
+func (fc TimeFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc TimeFieldComparator) ValueAt(index int) interface{} {
+func (fc TimeFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }

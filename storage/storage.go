@@ -18,12 +18,12 @@ type UniqueIDStorage interface {
 	ID() int64
 }
 
-type RecordsByID interface {
+type RecordsByID[R record.Record] interface {
 	GetIDStorage() IDIterator
-	Get(id int64) record.Record
-	Set(id int64, item record.Record)
+	Get(id int64) (R, bool)
+	Set(id int64, item R)
 	Delete(id int64)
 	Count() int
-	GetData(stores []IDIterator, totalCount int, idsUnique bool) []record.Record
-	GetAllData() []record.Record
+	GetData(stores []IDIterator, totalCount int, idsUnique bool) []R
+	GetAllData() []R
 }

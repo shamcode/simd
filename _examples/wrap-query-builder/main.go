@@ -17,8 +17,8 @@ func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 	flag.Parse()
 
-	store := namespace.CreateNamespace()
-	queryBuilder := query.NewBuilder
+	store := namespace.CreateNamespace[*User]()
+	queryBuilder := query.NewBuilder[*User]
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
@@ -28,7 +28,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(hash.NewEnum8HashIndex(status, false))
+	store.AddIndex(hash.NewEnumHashIndex(status, false))
 
 	for _, user := range []*User{
 		{
@@ -68,7 +68,7 @@ func main() {
 		log.Fatal(err)
 	}
 	for cur.Next(ctx) {
-		log.Printf("%#v", cur.Item().(*User))
+		log.Printf("%#v", cur.Item())
 	}
 	if err := cur.Err(); nil != err {
 		log.Fatal(err)

@@ -6,25 +6,23 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-type Iterator interface {
+type Iterator[R record.Record] interface {
 	Next(ctx context.Context) bool
-	Item() record.Record
+	Item() R
 	Size() int
 	Err() error
 }
 
-var _ Iterator = (*heapIterator)(nil)
-
-type heapIterator struct {
+type heapIterator[R record.Record] struct {
 	from      int
 	index     int
 	max       int
 	size      int
-	heap      *binaryHeap
+	heap      *binaryHeap[R]
 	lastError error
 }
 
-func (i *heapIterator) Next(ctx context.Context) bool {
+func (i *heapIterator[R]) Next(ctx context.Context) bool {
 	select {
 	case <-ctx.Done():
 		i.lastError = ctx.Err()
@@ -38,20 +36,20 @@ func (i *heapIterator) Next(ctx context.Context) bool {
 	}
 }
 
-func (i *heapIterator) Item() record.Record {
+func (i *heapIterator[R]) Item() R {
 	return i.heap.Remove(i.from)
 }
 
-func (i *heapIterator) Err() error {
+func (i *heapIterator[R]) Err() error {
 	return i.lastError
 }
 
-func (i *heapIterator) Size() int {
+func (i *heapIterator[R]) Size() int {
 	return i.size
 }
 
-func newHeapIterator(heap *binaryHeap, from, to, size int) Iterator {
-	return &heapIterator{ //nolint:exhaustruct
+func newHeapIterator[R record.Record](heap *binaryHeap[R], from, to, size int) Iterator[R] {
+	return &heapIterator[R]{ //nolint:exhaustruct
 		from:  from,
 		index: from,
 		max:   to,

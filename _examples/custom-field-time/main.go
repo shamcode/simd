@@ -27,10 +27,12 @@ func (u *Item) GetID() int64 { return u.ID }
 
 var itemFields = record.NewFields()
 
-var createdAt = types.TimeGetter{
+var id = record.NewIDGetter[*Item]()
+
+var createdAt = types.TimeGetter[*Item]{
 	Field: itemFields.New("created_at"),
-	Get: func(item record.Record) time.Time {
-		return item.(*Item).CreateAt
+	Get: func(item *Item) time.Time {
+		return item.CreateAt
 	},
 }
 
@@ -38,9 +40,9 @@ func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 	flag.Parse()
 
-	store := namespace.CreateNamespace()
+	store := namespace.CreateNamespace[*Item]()
 
-	queryBuilder := query.NewBuilder
+	queryBuilder := query.NewBuilder[*Item]
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
@@ -74,7 +76,7 @@ func main() {
 
 	query := queryBuilder(
 		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local)),
-		query.Sort(sort.Asc(record.ID)),
+		query.Sort(sort.Asc(id)),
 	).Query()
 
 	ctx := context.Background()
@@ -83,7 +85,7 @@ func main() {
 		log.Fatal(err)
 	}
 	for cur.Next(ctx) {
-		log.Printf("%#v", cur.Item().(*Item))
+		log.Printf("%#v", cur.Item())
 	}
 	if err := cur.Err(); nil != err {
 		log.Fatal(err)

@@ -15,7 +15,7 @@ func TestField(t *testing.T) {
 		expectedIndex uint8
 	}{
 		{
-			field:         ID.Field,
+			field:         NewIDGetter[Record](),
 			expectedName:  "ID",
 			expectedIndex: 0,
 		},

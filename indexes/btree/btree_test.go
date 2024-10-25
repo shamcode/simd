@@ -28,18 +28,18 @@ func TestBTree(t *testing.T) {
 	for i := 1; i <= n; i++ {
 		idStorage := storage.CreateUniqueIDStorage()
 		idStorage.Add(int64(i))
-		tree.Set(compute.IntKey(i), idStorage)
+		tree.Set(compute.ComparableKey[int]{Value: i}, idStorage)
 	}
 
 	t.Run("GetForKey", func(t *testing.T) {
 		for i := 1; i <= n; i++ {
-			asserts.Equals(t, 1, tree.Get(compute.IntKey(i)).Count(), "check count")
+			asserts.Equals(t, 1, tree.Get(compute.ComparableKey[int]{Value: i}).Count(), "check count")
 		}
 	})
 
 	t.Run("LessThan", func(t *testing.T) {
 		testCases := []struct {
-			key           compute.IntKey
+			key           int
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -52,7 +52,7 @@ func TestBTree(t *testing.T) {
 			{key: 12, expectedCount: 10, expectedIDS: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
 		}
 		for _, testCase := range testCases {
-			count, ids := tree.LessThan(testCase.key)
+			count, ids := tree.LessThan(compute.ComparableKey[int]{Value: testCase.key})
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
 			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
@@ -60,7 +60,7 @@ func TestBTree(t *testing.T) {
 
 	t.Run("LessOrEqual", func(t *testing.T) {
 		testCases := []struct {
-			key           compute.IntKey
+			key           int
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -73,7 +73,7 @@ func TestBTree(t *testing.T) {
 			{key: 12, expectedCount: 10, expectedIDS: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 10}},
 		}
 		for _, testCase := range testCases {
-			count, ids := tree.LessOrEqual(testCase.key)
+			count, ids := tree.LessOrEqual(compute.ComparableKey[int]{Value: testCase.key})
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
 			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
@@ -81,7 +81,7 @@ func TestBTree(t *testing.T) {
 
 	t.Run("GreaterThan", func(t *testing.T) {
 		testCases := []struct {
-			key           compute.IntKey
+			key           int
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -94,7 +94,7 @@ func TestBTree(t *testing.T) {
 			{key: 11, expectedCount: 0, expectedIDS: nil},
 		}
 		for _, testCase := range testCases {
-			count, ids := tree.GreaterThan(testCase.key)
+			count, ids := tree.GreaterThan(compute.ComparableKey[int]{Value: testCase.key})
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
 			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}
@@ -102,7 +102,7 @@ func TestBTree(t *testing.T) {
 
 	t.Run("GreaterOrEqual", func(t *testing.T) {
 		testCases := []struct {
-			key           compute.IntKey
+			key           int
 			expectedCount int
 			expectedIDS   []int
 		}{
@@ -115,7 +115,7 @@ func TestBTree(t *testing.T) {
 			{key: 11, expectedCount: 0, expectedIDS: nil},
 		}
 		for _, testCase := range testCases {
-			count, ids := tree.GreaterOrEqual(testCase.key)
+			count, ids := tree.GreaterOrEqual(compute.ComparableKey[int]{Value: testCase.key})
 			asserts.Equals(t, testCase.expectedCount, count, fmt.Sprintf("check count for %d", testCase.key))
 			asserts.Equals(t, testCase.expectedIDS, concatIDs(ids), fmt.Sprintf("check _int64 for %d", testCase.key))
 		}

@@ -1,25 +1,29 @@
 package debug
 
-import "github.com/shamcode/simd/query"
+import (
+	"github.com/shamcode/simd/query"
+	"github.com/shamcode/simd/record"
+)
 
-type QueryWithDumper interface {
-	query.Query
+type QueryWithDumper[R record.Record] interface {
+	query.Query[R]
 	String() string
 }
 
-var _ QueryWithDumper = (*debugQuery)(nil)
-
-type debugQuery struct {
-	query.Query
+type debugQuery[R record.Record] struct {
+	query.Query[R]
 	queryDump string
 }
 
-func (dq *debugQuery) String() string {
+func (dq *debugQuery[R]) String() string {
 	return dq.queryDump
 }
 
-func NewQueryWithDumper(query query.Query, dumpString string) QueryWithDumper {
-	return &debugQuery{
+func NewQueryWithDumper[R record.Record](
+	query query.Query[R],
+	dumpString string,
+) QueryWithDumper[R] {
+	return &debugQuery[R]{
 		Query:     query,
 		queryDump: dumpString,
 	}

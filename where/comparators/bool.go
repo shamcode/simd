@@ -5,21 +5,21 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type BoolFieldComparator struct {
+type BoolFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
-	Getter record.BoolGetter
+	Getter record.BoolGetter[R]
 	Value  []bool
 }
 
-func (fc BoolFieldComparator) GetType() where.ComparatorType {
+func (fc BoolFieldComparator[R]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc BoolFieldComparator) GetField() record.Field {
+func (fc BoolFieldComparator[R]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc BoolFieldComparator) CompareValue(value bool) (bool, error) {
+func (fc BoolFieldComparator[R]) CompareValue(value bool) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
@@ -28,14 +28,14 @@ func (fc BoolFieldComparator) CompareValue(value bool) (bool, error) {
 	}
 }
 
-func (fc BoolFieldComparator) Compare(item record.Record) (bool, error) {
+func (fc BoolFieldComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc BoolFieldComparator) ValuesCount() int {
+func (fc BoolFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc BoolFieldComparator) ValueAt(index int) interface{} {
+func (fc BoolFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }

@@ -76,54 +76,54 @@ func (s set) Has(item interface{}) bool {
 
 var fields = record.NewFields()
 
-var boolGetter = record.BoolGetter{
+var boolGetter = record.BoolGetter[*user]{
 	Field: fields.New("bool"),
-	Get:   func(item record.Record) bool { return item.(*user).bool },
+	Get:   func(item *user) bool { return item.bool },
 }
 
-var enum8Getter = record.Enum8Getter{
+var enum8Getter = record.EnumGetter[*user, uint8]{
 	Field: fields.New("enum8"),
-	Get:   func(item record.Record) record.Enum8 { return item.(*user).enum8 },
+	Get:   func(item *user) record.Enum[uint8] { return item.enum8 },
 }
 
-var enum16Getter = record.Enum16Getter{
+var enum16Getter = record.EnumGetter[*user, uint16]{
 	Field: fields.New("enum16"),
-	Get:   func(item record.Record) record.Enum16 { return item.(*user).enum16 },
+	Get:   func(item *user) record.Enum[uint16] { return item.enum16 },
 }
 
-var intGetter = record.IntGetter{
+var intGetter = record.ComparableGetter[*user, int]{
 	Field: fields.New("int"),
-	Get:   func(item record.Record) int { return item.(*user).int },
+	Get:   func(item *user) int { return item.int },
 }
 
-var int32Getter = record.Int32Getter{
+var int32Getter = record.ComparableGetter[*user, int32]{
 	Field: fields.New("int32"),
-	Get:   func(item record.Record) int32 { return item.(*user).int32 },
+	Get:   func(item *user) int32 { return item.int32 },
 }
 
-var int64Getter = record.Int64Getter{
+var int64Getter = record.ComparableGetter[*user, int64]{
 	Field: fields.New("int64"),
-	Get:   func(item record.Record) int64 { return item.(*user).int64 },
+	Get:   func(item *user) int64 { return item.int64 },
 }
 
-var ifaceGetter = record.InterfaceGetter{
+var ifaceGetter = record.InterfaceGetter[*user]{
 	Field: fields.New("iface"),
-	Get:   func(item record.Record) interface{} { return item.(*user).iface },
+	Get:   func(item *user) any { return item.iface },
 }
 
-var mapGetter = record.MapGetter{
+var mapGetter = record.MapGetter[*user]{
 	Field: fields.New("map"),
-	Get:   func(item record.Record) record.Map { return item.(*user).mp },
+	Get:   func(item *user) record.Map { return item.mp },
 }
 
-var setGetter = record.SetGetter{
+var setGetter = record.SetGetter[*user]{
 	Field: fields.New("set"),
-	Get:   func(item record.Record) record.Set { return item.(*user).set },
+	Get:   func(item *user) record.Set { return item.set },
 }
 
-var stringGetter = record.StringGetter{
+var stringGetter = record.StringGetter[*user]{
 	Field: fields.New("string"),
-	Get:   func(item record.Record) string { return item.(*user).string },
+	Get:   func(item *user) string { return item.string },
 }
 
 func TestComparators(t *testing.T) { //nolint:maintidx
@@ -149,7 +149,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 
 	type testCase struct {
 		name           string
-		comparator     where.FieldComparator
+		comparator     where.FieldComparator[*user]
 		expectedResult bool
 		expectedError  error
 		expectedCmp    where.ComparatorType
@@ -178,7 +178,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "true = true",
-				comparator: BoolFieldComparator{
+				comparator: BoolFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: boolGetter,
 					Value:  []bool{true},
@@ -190,7 +190,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "true = false",
-				comparator: BoolFieldComparator{
+				comparator: BoolFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: boolGetter,
 					Value:  []bool{false},
@@ -202,7 +202,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "true ? true",
-				comparator: BoolFieldComparator{
+				comparator: BoolFieldComparator[*user]{
 					Cmp:    0,
 					Getter: boolGetter,
 					Value:  []bool{true},
@@ -220,10 +220,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "2 = 2",
-				comparator: Enum8FieldComparator{
+				comparator: EnumFieldComparator[*user, uint8]{
 					Cmp:    where.EQ,
 					Getter: enum8Getter,
-					Value:  []record.Enum8{enum8(2)},
+					Value:  []record.Enum[uint8]{enum8(2)},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
@@ -232,10 +232,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 = 3",
-				comparator: Enum8FieldComparator{
+				comparator: EnumFieldComparator[*user, uint8]{
 					Cmp:    where.EQ,
 					Getter: enum8Getter,
-					Value:  []record.Enum8{enum8(3)},
+					Value:  []record.Enum[uint8]{enum8(3)},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
@@ -244,10 +244,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 IN (1, 2)",
-				comparator: Enum8FieldComparator{
+				comparator: EnumFieldComparator[*user, uint8]{
 					Cmp:    where.InArray,
 					Getter: enum8Getter,
-					Value:  []record.Enum8{enum8(1), enum8(2)},
+					Value:  []record.Enum[uint8]{enum8(1), enum8(2)},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
@@ -256,10 +256,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 IN (1, 3)",
-				comparator: Enum8FieldComparator{
+				comparator: EnumFieldComparator[*user, uint8]{
 					Cmp:    where.InArray,
 					Getter: enum8Getter,
-					Value:  []record.Enum8{enum8(1), enum8(3)},
+					Value:  []record.Enum[uint8]{enum8(1), enum8(3)},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
@@ -268,10 +268,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 ? 2",
-				comparator: Enum8FieldComparator{
+				comparator: EnumFieldComparator[*user, uint8]{
 					Cmp:    0,
 					Getter: enum8Getter,
-					Value:  []record.Enum8{enum8(2)},
+					Value:  []record.Enum[uint8]{enum8(2)},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(enum8Getter.Field, 0),
@@ -286,10 +286,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "2 = 2",
-				comparator: Enum16FieldComparator{
+				comparator: EnumFieldComparator[*user, uint16]{
 					Cmp:    where.EQ,
 					Getter: enum16Getter,
-					Value:  []record.Enum16{enum16(2)},
+					Value:  []record.Enum[uint16]{enum16(2)},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
@@ -298,10 +298,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 = 3",
-				comparator: Enum16FieldComparator{
+				comparator: EnumFieldComparator[*user, uint16]{
 					Cmp:    where.EQ,
 					Getter: enum16Getter,
-					Value:  []record.Enum16{enum16(3)},
+					Value:  []record.Enum[uint16]{enum16(3)},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
@@ -310,10 +310,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 IN (1, 2)",
-				comparator: Enum16FieldComparator{
+				comparator: EnumFieldComparator[*user, uint16]{
 					Cmp:    where.InArray,
 					Getter: enum16Getter,
-					Value:  []record.Enum16{enum16(1), enum16(2)},
+					Value:  []record.Enum[uint16]{enum16(1), enum16(2)},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
@@ -322,10 +322,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 IN (1, 3)",
-				comparator: Enum16FieldComparator{
+				comparator: EnumFieldComparator[*user, uint16]{
 					Cmp:    where.InArray,
 					Getter: enum16Getter,
-					Value:  []record.Enum16{enum16(1), enum16(3)},
+					Value:  []record.Enum[uint16]{enum16(1), enum16(3)},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
@@ -334,10 +334,10 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "2 ? 2",
-				comparator: Enum16FieldComparator{
+				comparator: EnumFieldComparator[*user, uint16]{
 					Cmp:    0,
 					Getter: enum16Getter,
-					Value:  []record.Enum16{enum16(2)},
+					Value:  []record.Enum[uint16]{enum16(2)},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(enum16Getter.Field, 0),
@@ -352,7 +352,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "10 = 10",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.EQ,
 					Getter: intGetter,
 					Value:  []int{10},
@@ -364,7 +364,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 = 3",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.EQ,
 					Getter: intGetter,
 					Value:  []int{3},
@@ -376,7 +376,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 > 3",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.GT,
 					Getter: intGetter,
 					Value:  []int{3},
@@ -388,7 +388,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 > 30",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.GT,
 					Getter: intGetter,
 					Value:  []int{30},
@@ -400,7 +400,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 3",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.GE,
 					Getter: intGetter,
 					Value:  []int{3},
@@ -412,7 +412,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 30",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.GE,
 					Getter: intGetter,
 					Value:  []int{30},
@@ -424,7 +424,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 10",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.GE,
 					Getter: intGetter,
 					Value:  []int{10},
@@ -436,7 +436,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 < 3",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.LT,
 					Getter: intGetter,
 					Value:  []int{3},
@@ -448,7 +448,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 < 30",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.LT,
 					Getter: intGetter,
 					Value:  []int{30},
@@ -460,7 +460,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 3",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.LE,
 					Getter: intGetter,
 					Value:  []int{3},
@@ -472,7 +472,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 30",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.LE,
 					Getter: intGetter,
 					Value:  []int{30},
@@ -484,7 +484,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 10",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.LE,
 					Getter: intGetter,
 					Value:  []int{10},
@@ -496,7 +496,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 IN (1, 2, 10)",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.InArray,
 					Getter: intGetter,
 					Value:  []int{1, 2, 10},
@@ -508,7 +508,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 IN (1, 3)",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    where.InArray,
 					Getter: intGetter,
 					Value:  []int{1, 3},
@@ -520,7 +520,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 ? 10",
-				comparator: IntFieldComparator{
+				comparator: ComparableFieldComparator[*user, int]{
 					Cmp:    0,
 					Getter: intGetter,
 					Value:  []int{10},
@@ -538,7 +538,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "10 = 10",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.EQ,
 					Getter: int32Getter,
 					Value:  []int32{10},
@@ -550,7 +550,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 = 3",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.EQ,
 					Getter: int32Getter,
 					Value:  []int32{3},
@@ -562,7 +562,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 > 3",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.GT,
 					Getter: int32Getter,
 					Value:  []int32{3},
@@ -574,7 +574,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 > 30",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.GT,
 					Getter: int32Getter,
 					Value:  []int32{30},
@@ -586,7 +586,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 3",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.GE,
 					Getter: int32Getter,
 					Value:  []int32{3},
@@ -598,7 +598,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 30",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.GE,
 					Getter: int32Getter,
 					Value:  []int32{30},
@@ -610,7 +610,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 10",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.GE,
 					Getter: int32Getter,
 					Value:  []int32{10},
@@ -622,7 +622,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 < 3",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.LT,
 					Getter: int32Getter,
 					Value:  []int32{3},
@@ -634,7 +634,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 < 30",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.LT,
 					Getter: int32Getter,
 					Value:  []int32{30},
@@ -646,7 +646,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 3",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.LE,
 					Getter: int32Getter,
 					Value:  []int32{3},
@@ -658,7 +658,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 30",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.LE,
 					Getter: int32Getter,
 					Value:  []int32{30},
@@ -670,7 +670,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 10",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.LE,
 					Getter: int32Getter,
 					Value:  []int32{10},
@@ -682,7 +682,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 IN (1, 2, 10)",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.InArray,
 					Getter: int32Getter,
 					Value:  []int32{1, 2, 10},
@@ -694,7 +694,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 IN (1, 3)",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    where.InArray,
 					Getter: int32Getter,
 					Value:  []int32{1, 3},
@@ -706,7 +706,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 ? 10",
-				comparator: Int32FieldComparator{
+				comparator: ComparableFieldComparator[*user, int32]{
 					Cmp:    0,
 					Getter: int32Getter,
 					Value:  []int32{10},
@@ -724,7 +724,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "10 = 10",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.EQ,
 					Getter: int64Getter,
 					Value:  []int64{10},
@@ -736,7 +736,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 = 3",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.EQ,
 					Getter: int64Getter,
 					Value:  []int64{3},
@@ -748,7 +748,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 > 3",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.GT,
 					Getter: int64Getter,
 					Value:  []int64{3},
@@ -760,7 +760,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 > 30",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.GT,
 					Getter: int64Getter,
 					Value:  []int64{30},
@@ -772,7 +772,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 3",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.GE,
 					Getter: int64Getter,
 					Value:  []int64{3},
@@ -784,7 +784,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 30",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.GE,
 					Getter: int64Getter,
 					Value:  []int64{30},
@@ -796,7 +796,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 >= 10",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.GE,
 					Getter: int64Getter,
 					Value:  []int64{10},
@@ -808,7 +808,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 < 3",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.LT,
 					Getter: int64Getter,
 					Value:  []int64{3},
@@ -820,7 +820,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 < 30",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.LT,
 					Getter: int64Getter,
 					Value:  []int64{30},
@@ -832,7 +832,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 3",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.LE,
 					Getter: int64Getter,
 					Value:  []int64{3},
@@ -844,7 +844,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 30",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.LE,
 					Getter: int64Getter,
 					Value:  []int64{30},
@@ -856,7 +856,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 <= 10",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.LE,
 					Getter: int64Getter,
 					Value:  []int64{10},
@@ -868,7 +868,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 IN (1, 2, 10)",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.InArray,
 					Getter: int64Getter,
 					Value:  []int64{1, 2, 10},
@@ -880,7 +880,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 IN (1, 3)",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    where.InArray,
 					Getter: int64Getter,
 					Value:  []int64{1, 3},
@@ -892,7 +892,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "10 ? 10",
-				comparator: Int64FieldComparator{
+				comparator: ComparableFieldComparator[*user, int64]{
 					Cmp:    0,
 					Getter: int64Getter,
 					Value:  []int64{10},
@@ -910,7 +910,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "42 = 42",
-				comparator: InterfaceFieldComparator{
+				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: ifaceGetter,
 					Value:  []interface{}{42},
@@ -922,7 +922,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 = 10",
-				comparator: InterfaceFieldComparator{
+				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: ifaceGetter,
 					Value:  []interface{}{10},
@@ -934,7 +934,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 IN (10, 42)",
-				comparator: InterfaceFieldComparator{
+				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.InArray,
 					Getter: ifaceGetter,
 					Value:  []interface{}{10, 42},
@@ -946,7 +946,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 IN (10, 4)",
-				comparator: InterfaceFieldComparator{
+				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.InArray,
 					Getter: ifaceGetter,
 					Value:  []interface{}{10, 4},
@@ -958,7 +958,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 ? 2",
-				comparator: InterfaceFieldComparator{
+				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    0,
 					Getter: ifaceGetter,
 					Value:  []interface{}{2},
@@ -976,7 +976,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "MapHasKey 2",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasKey,
 					Getter: mapGetter,
 					Value:  []interface{}{2},
@@ -988,7 +988,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasKey 4",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasKey,
 					Getter: mapGetter,
 					Value:  []interface{}{4},
@@ -1000,7 +1000,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue 8",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
 					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
@@ -1016,7 +1016,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue 10",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
 					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
@@ -1032,7 +1032,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue cast error",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
 					Value:  []interface{}{42},
@@ -1045,7 +1045,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue error",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
 					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
@@ -1062,7 +1062,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "? 2",
-				comparator: MapFieldComparator{
+				comparator: MapFieldComparator[*user]{
 					Cmp:    0,
 					Getter: mapGetter,
 					Value:  []interface{}{2},
@@ -1080,7 +1080,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "SetHas 2",
-				comparator: SetFieldComparator{
+				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
 					Value:  []interface{}{2},
@@ -1092,7 +1092,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "SetHas 3",
-				comparator: SetFieldComparator{
+				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
 					Value:  []interface{}{3},
@@ -1104,7 +1104,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "? 2",
-				comparator: SetFieldComparator{
+				comparator: SetFieldComparator[*user]{
 					Cmp:    0,
 					Getter: setGetter,
 					Value:  []interface{}{2},
@@ -1122,7 +1122,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "SetHas 2",
-				comparator: SetFieldComparator{
+				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
 					Value:  []interface{}{2},
@@ -1134,7 +1134,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "SetHas 3",
-				comparator: SetFieldComparator{
+				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
 					Value:  []interface{}{3},
@@ -1146,7 +1146,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "? 2",
-				comparator: SetFieldComparator{
+				comparator: SetFieldComparator[*user]{
 					Cmp:    0,
 					Getter: setGetter,
 					Value:  []interface{}{2},
@@ -1164,7 +1164,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "foo = foo",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: stringGetter,
 					Value:  []string{"foo"},
@@ -1176,7 +1176,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo = bar",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: stringGetter,
 					Value:  []string{"bar"},
@@ -1188,7 +1188,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo > bar",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.GT,
 					Getter: stringGetter,
 					Value:  []string{"bar"},
@@ -1200,7 +1200,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo > zzz",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.GT,
 					Getter: stringGetter,
 					Value:  []string{"zzz"},
@@ -1212,7 +1212,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo >= bar",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.GE,
 					Getter: stringGetter,
 					Value:  []string{"bar"},
@@ -1224,7 +1224,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo >= zzz",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.GE,
 					Getter: stringGetter,
 					Value:  []string{"zzz"},
@@ -1236,7 +1236,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo >= foo",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.GE,
 					Getter: stringGetter,
 					Value:  []string{"foo"},
@@ -1248,7 +1248,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo < bar",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.LT,
 					Getter: stringGetter,
 					Value:  []string{"bar"},
@@ -1260,7 +1260,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo < zzz",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.LT,
 					Getter: stringGetter,
 					Value:  []string{"zzz"},
@@ -1272,7 +1272,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo <= bar",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.LE,
 					Getter: stringGetter,
 					Value:  []string{"bar"},
@@ -1284,7 +1284,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo <= zzz",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.LE,
 					Getter: stringGetter,
 					Value:  []string{"zzz"},
@@ -1296,7 +1296,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo <= foo",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.LE,
 					Getter: stringGetter,
 					Value:  []string{"foo"},
@@ -1308,7 +1308,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo IN (bar, foo)",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.InArray,
 					Getter: stringGetter,
 					Value:  []string{"bar", "foo"},
@@ -1320,7 +1320,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo IN (bar, zzz)",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.InArray,
 					Getter: stringGetter,
 					Value:  []string{"bar", "zzz"},
@@ -1332,7 +1332,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo LIKE oo",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.Like,
 					Getter: stringGetter,
 					Value:  []string{"oo"},
@@ -1344,7 +1344,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo LIKE ff",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    where.Like,
 					Getter: stringGetter,
 					Value:  []string{"ff"},
@@ -1356,7 +1356,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo ? bar",
-				comparator: StringFieldComparator{
+				comparator: StringFieldComparator[*user]{
 					Cmp:    0,
 					Getter: stringGetter,
 					Value:  []string{"bar"},
@@ -1374,7 +1374,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "foo Regexp /fo+/",
-				comparator: StringFieldRegexpComparator{
+				comparator: StringFieldRegexpComparator[*user]{
 					Cmp:    where.Regexp,
 					Getter: stringGetter,
 					Value:  regexp.MustCompile(`fo+`),
@@ -1386,7 +1386,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo Regexp /\\d+/",
-				comparator: StringFieldRegexpComparator{
+				comparator: StringFieldRegexpComparator[*user]{
 					Cmp:    where.Regexp,
 					Getter: stringGetter,
 					Value:  regexp.MustCompile(`\d+`),
@@ -1398,7 +1398,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo ? fo+",
-				comparator: StringFieldRegexpComparator{
+				comparator: StringFieldRegexpComparator[*user]{
 					Cmp:    0,
 					Getter: stringGetter,
 					Value:  regexp.MustCompile("fo+"),

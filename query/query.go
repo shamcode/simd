@@ -6,45 +6,45 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Query interface {
-	Conditions() where.Conditions
-	Sorting() []sort.ByWithOrder
+type Query[R record.Record] interface {
+	Conditions() where.Conditions[R]
+	Sorting() []sort.ByWithOrder[R]
 	Limit() (count int, set bool)
 	Offset() int
-	OnIterationCallback() *func(item record.Record)
+	OnIterationCallback() *func(item R)
 	Error() error
 }
 
-type query struct {
+type query[R record.Record] struct {
 	offset              int
 	limit               int
 	withLimit           bool
-	conditions          where.Conditions
-	sorting             []sort.ByWithOrder
-	onIterationCallback *func(item record.Record)
+	conditions          where.Conditions[R]
+	sorting             []sort.ByWithOrder[R]
+	onIterationCallback *func(item R)
 	error               error
 }
 
-func (q query) Conditions() where.Conditions {
+func (q query[R]) Conditions() where.Conditions[R] {
 	return q.conditions
 }
 
-func (q query) Sorting() []sort.ByWithOrder {
+func (q query[R]) Sorting() []sort.ByWithOrder[R] {
 	return q.sorting
 }
 
-func (q query) Limit() (int, bool) {
+func (q query[R]) Limit() (int, bool) {
 	return q.limit, q.withLimit
 }
 
-func (q query) Offset() int {
+func (q query[R]) Offset() int {
 	return q.offset
 }
 
-func (q query) OnIterationCallback() *func(item record.Record) {
+func (q query[R]) OnIterationCallback() *func(item R) {
 	return q.onIterationCallback
 }
 
-func (q query) Error() error {
+func (q query[R]) Error() error {
 	return q.error
 }

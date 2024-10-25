@@ -8,21 +8,21 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type StringFieldComparator struct {
+type StringFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
-	Getter record.StringGetter
+	Getter record.StringGetter[R]
 	Value  []string
 }
 
-func (fc StringFieldComparator) GetType() where.ComparatorType {
+func (fc StringFieldComparator[R]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc StringFieldComparator) GetField() record.Field {
+func (fc StringFieldComparator[R]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc StringFieldComparator) CompareValue(value string) (bool, error) { //nolint:cyclop
+func (fc StringFieldComparator[R]) CompareValue(value string) (bool, error) { //nolint:cyclop
 	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
@@ -48,34 +48,34 @@ func (fc StringFieldComparator) CompareValue(value string) (bool, error) { //nol
 	}
 }
 
-func (fc StringFieldComparator) Compare(item record.Record) (bool, error) {
+func (fc StringFieldComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc StringFieldComparator) ValuesCount() int {
+func (fc StringFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc StringFieldComparator) ValueAt(index int) interface{} {
+func (fc StringFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }
 
 // StringFieldRegexpComparator is a special comparator for handling Regexp.
-type StringFieldRegexpComparator struct {
+type StringFieldRegexpComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
-	Getter record.StringGetter
+	Getter record.StringGetter[R]
 	Value  *regexp.Regexp
 }
 
-func (fc StringFieldRegexpComparator) GetType() where.ComparatorType {
+func (fc StringFieldRegexpComparator[R]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc StringFieldRegexpComparator) GetField() record.Field {
+func (fc StringFieldRegexpComparator[R]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
+func (fc StringFieldRegexpComparator[R]) CompareValue(value string) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.Regexp:
 		return fc.Value.MatchString(value), nil
@@ -84,15 +84,15 @@ func (fc StringFieldRegexpComparator) CompareValue(value string) (bool, error) {
 	}
 }
 
-func (fc StringFieldRegexpComparator) Compare(item record.Record) (bool, error) {
+func (fc StringFieldRegexpComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc StringFieldRegexpComparator) ValuesCount() int {
+func (fc StringFieldRegexpComparator[R]) ValuesCount() int {
 	return 1
 }
 
-func (fc StringFieldRegexpComparator) ValueAt(index int) interface{} {
+func (fc StringFieldRegexpComparator[R]) ValueAt(index int) interface{} {
 	if index == 0 {
 		return fc.Value
 	}

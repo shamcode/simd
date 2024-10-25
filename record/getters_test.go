@@ -63,69 +63,70 @@ func TestGetters(t *testing.T) {
 	t.Run("less", func(t *testing.T) {
 		testCases := []struct {
 			getter interface {
-				Less(a, b Record) bool
+				Less(a, b user) bool
 				String() string
 			}
 			expectedOrder []int64
 		}{
 			{
-				getter:        ID,
+				getter:        NewIDGetter[user](),
 				expectedOrder: []int64{1, 2, 3},
 			},
 			{
-				getter: BoolGetter{
+				getter: BoolGetter[user]{
 					Field: fields.New("bool"),
-					Get:   func(item Record) bool { return item.(user).bool },
+					Get:   func(item user) bool { return item.bool },
 				},
 				expectedOrder: []int64{2, 1, 3},
 			},
 			{
-				getter: IntGetter{
+				getter: ComparableGetter[user, int]{
 					Field: fields.New("int"),
-					Get:   func(item Record) int { return item.(user).int },
+					Get:   func(item user) int { return item.int },
 				},
 				expectedOrder: []int64{3, 2, 1},
 			},
 			{
-				getter: Enum8Getter{
+				getter: EnumGetter[user, uint8]{
 					Field: fields.New("enum8"),
-					Get:   func(item Record) Enum8 { return item.(user).enum8 },
+					Get:   func(item user) Enum[uint8] { return item.enum8 },
 				},
 				expectedOrder: []int64{1, 3, 2},
 			},
 			{
-				getter: Enum16Getter{
+				getter: EnumGetter[user, uint16]{
 					Field: fields.New("enum16"),
-					Get:   func(item Record) Enum16 { return item.(user).enum16 },
+					Get:   func(item user) Enum[uint16] { return item.enum16 },
 				},
 				expectedOrder: []int64{2, 3, 1},
 			},
 			{
-				getter: Int32Getter{
+				getter: ComparableGetter[user, int32]{
 					Field: fields.New("int32"),
-					Get:   func(item Record) int32 { return item.(user).int32 },
+					Get:   func(item user) int32 { return item.int32 },
 				},
 				expectedOrder: []int64{1, 3, 2},
 			},
 			{
-				getter: StringGetter{
+				getter: StringGetter[user]{
 					Field: fields.New("string"),
-					Get:   func(item Record) string { return item.(user).string },
+					Get:   func(item user) string { return item.string },
 				},
 				expectedOrder: []int64{2, 3, 1},
 			},
 		}
 
-		for _, testCase := range testCases {
-			users := users
-			sort.SliceStable(users, func(i, j int) bool {
-				return testCase.getter.Less(users[i], users[j])
+		for _, tc := range testCases {
+			t.Run(tc.getter.String(), func(t *testing.T) {
+				sort.SliceStable(users, func(i, j int) bool {
+					return tc.getter.Less(users[i], users[j])
+				})
+				ids := make([]int64, len(users))
+				for i := range users {
+					ids[i] = users[i].GetID()
+				}
+				asserts.Equals(t, tc.expectedOrder, ids, tc.getter.String())
 			})
-			ids := make([]int64, len(users))
-			for i := range users {
-				ids[i] = users[i].GetID()
-			}
-			asserts.Equals(t, testCase.expectedOrder, ids, testCase.getter.String())
 		}
 	})
 }

@@ -14,22 +14,25 @@ type stringComparator interface {
 	CompareValue(value string) (bool, error)
 }
 
-type stringIndexComputation struct {
-	getter record.StringGetter
+type stringIndexComputation[R record.Record] struct {
+	getter record.StringGetter[R]
 }
 
-func (idx stringIndexComputation) ForRecord(item record.Record) indexes.Key {
+func (idx stringIndexComputation[R]) ForRecord(item R) indexes.Key {
 	return StringKey(idx.getter.Get(item))
 }
 
-func (idx stringIndexComputation) ForValue(value interface{}) indexes.Key {
+func (idx stringIndexComputation[R]) ForValue(value interface{}) indexes.Key {
 	return StringKey(value.(string))
 }
 
-func (idx stringIndexComputation) Check(indexKey indexes.Key, comparator where.FieldComparator) (bool, error) {
+func (idx stringIndexComputation[R]) Check(
+	indexKey indexes.Key,
+	comparator where.FieldComparator[R],
+) (bool, error) {
 	return comparator.(stringComparator).CompareValue(string(indexKey.(StringKey)))
 }
 
-func CreateStringIndexComputation(getter record.StringGetter) indexes.IndexComputer {
-	return stringIndexComputation{getter: getter}
+func CreateStringIndexComputation[R record.Record](getter record.StringGetter[R]) indexes.IndexComputer[R] {
+	return stringIndexComputation[R]{getter: getter}
 }

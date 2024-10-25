@@ -8,32 +8,37 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-type builderOptionFunction func(b Builder)
+type builderOptionFunction[R record.Record] func(b BuilderGeneric[R])
 
-func (fn builderOptionFunction) Apply(b Builder) {
-	fn(b)
+func (fn builderOptionFunction[R]) Apply(b any) {
+	fn(b.(BuilderGeneric[R]))
 }
 
-type whereStructStack struct {
-	cmp where.FieldComparator
+type whereStructStack[R record.Record] struct {
+	cmp where.FieldComparator[R]
 }
 
-func (w whereStructStack) Apply(b Builder) {
-	b.AddWhere(w.cmp)
+func (w whereStructStack[R]) Apply(b any) {
+	b.(BuilderGeneric[R]).AddWhere(w.cmp)
 }
 
-type whereStructHeap struct {
-	cmp where.FieldComparator
+type whereStructHeap[R record.Record] struct {
+	cmp where.FieldComparator[R]
 }
 
-func (w *whereStructHeap) Apply(b Builder) {
-	b.AddWhere(w.cmp)
+func (w *whereStructHeap[R]) Apply(b any) {
+	b.(BuilderGeneric[R]).AddWhere(w.cmp)
 }
 
 func Benchmark_OptionsStructAndFunction(b *testing.B) {
-	var whereInt64Fn = func(getter record.Int64Getter, condition where.ComparatorType, value ...int64) BuilderOption {
-		return builderOptionFunction(func(b Builder) {
-			b.AddWhere(comparators.Int64FieldComparator{
+	_id := record.NewIDGetter[record.Record]()
+	var whereInt64Fn = func(
+		getter record.ComparableGetter[record.Record, int64],
+		condition where.ComparatorType,
+		value ...int64,
+	) BuilderOption {
+		return builderOptionFunction[record.Record](func(b BuilderGeneric[record.Record]) {
+			b.AddWhere(comparators.ComparableFieldComparator[record.Record, int64]{
 				Cmp:    condition,
 				Getter: getter,
 				Value:  value,
@@ -41,9 +46,13 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 		})
 	}
 
-	var whereInt64StructStack = func(getter record.Int64Getter, condition where.ComparatorType, value ...int64) BuilderOption {
-		return whereStructStack{
-			cmp: comparators.Int64FieldComparator{
+	var whereInt64StructStack = func(
+		getter record.ComparableGetter[record.Record, int64],
+		condition where.ComparatorType,
+		value ...int64,
+	) BuilderOption {
+		return whereStructStack[record.Record]{
+			cmp: comparators.ComparableFieldComparator[record.Record, int64]{
 				Cmp:    condition,
 				Getter: getter,
 				Value:  value,
@@ -51,9 +60,13 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 		}
 	}
 
-	var whereInt64StructHeap = func(getter record.Int64Getter, condition where.ComparatorType, value ...int64) BuilderOption {
-		return &whereStructHeap{
-			cmp: comparators.Int64FieldComparator{
+	var whereInt64StructHeap = func(
+		getter record.ComparableGetter[record.Record, int64],
+		condition where.ComparatorType,
+		value ...int64,
+	) BuilderOption {
+		return &whereStructHeap[record.Record]{
+			cmp: comparators.ComparableFieldComparator[record.Record, int64]{
 				Cmp:    condition,
 				Getter: getter,
 				Value:  value,
@@ -62,23 +75,23 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 	}
 
 	b.Run("struct stack", func(b *testing.B) {
-		qb := NewBuilder()
+		qb := NewBuilder[record.Record]()
 		for i := 0; i < b.N; i++ {
-			qb.Append(whereInt64StructStack(record.ID, where.EQ, 1))
+			qb.Append(whereInt64StructStack(_id, where.EQ, 1))
 		}
 	})
 
 	b.Run("struct heap", func(b *testing.B) {
-		qb := NewBuilder()
+		qb := NewBuilder[record.Record]()
 		for i := 0; i < b.N; i++ {
-			qb.Append(whereInt64StructHeap(record.ID, where.EQ, 1))
+			qb.Append(whereInt64StructHeap(_id, where.EQ, 1))
 		}
 	})
 
 	b.Run("func", func(b *testing.B) {
-		qb := NewBuilder()
+		qb := NewBuilder[record.Record]()
 		for i := 0; i < b.N; i++ {
-			qb.Append(whereInt64Fn(record.ID, where.EQ, 1))
+			qb.Append(whereInt64Fn(_id, where.EQ, 1))
 		}
 	})
 }

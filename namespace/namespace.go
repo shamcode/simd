@@ -10,12 +10,12 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Namespace interface {
-	Get(id int64) record.Record
-	Insert(item record.Record) error
+type Namespace[R record.Record] interface {
+	Get(id int64) (R, bool)
+	Insert(item R) error
 	Delete(id int64) error
-	Upsert(item record.Record) error
-	executor.Selector
+	Upsert(item R) error
+	executor.Selector[R]
 }
 
 type fieldsComputer interface {
@@ -24,37 +24,35 @@ type fieldsComputer interface {
 	ComputeFields()
 }
 
-var _ Namespace = (*WithIndexes)(nil)
-
-type WithIndexes struct {
+type WithIndexes[R record.Record] struct {
 	logger  Logger
-	storage storage.RecordsByID
-	indexes indexes.ByField
+	storage storage.RecordsByID[R]
+	indexes indexes.ByField[R]
 }
 
-func (ns *WithIndexes) Get(id int64) record.Record {
+func (ns *WithIndexes[R]) Get(id int64) (R, bool) {
 	return ns.storage.Get(id)
 }
 
-func (ns *WithIndexes) Insert(item record.Record) error {
-	if nil != ns.Get(item.GetID()) {
+func (ns *WithIndexes[R]) Insert(item R) error {
+	if _, exists := ns.Get(item.GetID()); exists {
 		return NewRecordAlreadyExists(item.GetID())
 	}
 	ns.insert(item)
 	return nil
 }
 
-func (ns *WithIndexes) insert(item record.Record) {
-	if item, ok := item.(fieldsComputer); ok {
+func (ns *WithIndexes[R]) insert(item R) {
+	if item, ok := any(item).(fieldsComputer); ok {
 		item.ComputeFields()
 	}
 	ns.indexes.Insert(item)
 	ns.storage.Set(item.GetID(), item)
 }
 
-func (ns *WithIndexes) Delete(id int64) error {
-	item := ns.Get(id)
-	if nil == item {
+func (ns *WithIndexes[R]) Delete(id int64) error {
+	item, exists := ns.Get(id)
+	if !exists {
 		return nil
 	}
 	ns.indexes.Delete(item)
@@ -62,18 +60,18 @@ func (ns *WithIndexes) Delete(id int64) error {
 	return nil
 }
 
-func (ns *WithIndexes) Upsert(item record.Record) error {
+func (ns *WithIndexes[R]) Upsert(item R) error {
 	id := item.GetID()
-	oldItem := ns.Get(id)
+	oldItem, exists := ns.Get(id)
 
-	if nil == oldItem {
+	if !exists {
 		// It's insert
 		ns.insert(item)
 		return nil
 	}
 
 	// It's update
-	if item, ok := item.(fieldsComputer); ok {
+	if item, ok := any(item).(fieldsComputer); ok {
 		item.ComputeFields()
 	}
 	ns.indexes.Update(oldItem, item)
@@ -81,12 +79,12 @@ func (ns *WithIndexes) Upsert(item record.Record) error {
 	return nil
 }
 
-func (ns *WithIndexes) AddIndex(index indexes.Index) {
+func (ns *WithIndexes[R]) AddIndex(index indexes.Index[R]) {
 	ns.indexes.Add(index)
 }
 
-func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ( //nolint:funlen,cyclop
-	[]record.Record,
+func (ns *WithIndexes[R]) PreselectForExecutor(conditions where.Conditions[R]) ( //nolint:funlen,cyclop
+	[]R,
 	error,
 ) {
 	byLevel := make(resultByBracketLevel)
@@ -154,14 +152,14 @@ func (ns *WithIndexes) PreselectForExecutor(conditions where.Conditions) ( //nol
 	return ns.storage.GetData(items, size, idsUnique), nil
 }
 
-func (ns *WithIndexes) SetLogger(logger Logger) {
+func (ns *WithIndexes[R]) SetLogger(logger Logger) {
 	ns.logger = logger
 }
 
-func CreateNamespace() *WithIndexes {
-	return &WithIndexes{
+func CreateNamespace[R record.Record]() *WithIndexes[R] {
+	return &WithIndexes[R]{
 		logger:  log.Default(),
-		storage: storage.CreateRecordsByID(),
-		indexes: indexes.CreateByField(),
+		storage: storage.CreateRecordsByID[R](),
+		indexes: indexes.CreateByField[R](),
 	}
 }

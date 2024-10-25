@@ -20,13 +20,13 @@ type UserQueryBuilder interface { //nolint:interfacebloat
 	WhereName(condition where.ComparatorType, name ...string) UserQueryBuilder
 	WhereStatus(condition where.ComparatorType, status ...Status) UserQueryBuilder
 
-	Sort(by sort.ByWithOrder) UserQueryBuilder
+	Sort(by sort.ByWithOrder[*User]) UserQueryBuilder
 	MakeCopy() UserQueryBuilder
-	Query() query.Query
+	Query() query.Query[*User]
 }
 
 type userQueryBuilder struct {
-	builder query.Builder
+	builder query.BuilderGeneric[*User]
 }
 
 func (uq userQueryBuilder) Limit(limitItems int) UserQueryBuilder {
@@ -60,16 +60,16 @@ func (uq userQueryBuilder) CloseBracket() UserQueryBuilder {
 }
 
 func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int64) UserQueryBuilder {
-	uq.builder.AddWhere(comparators.Int64FieldComparator{
+	uq.builder.AddWhere(comparators.ComparableFieldComparator[*User, int64]{
 		Cmp:    condition,
-		Getter: record.ID,
+		Getter: id,
 		Value:  value,
 	})
 	return uq
 }
 
 func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...string) UserQueryBuilder {
-	uq.builder.AddWhere(comparators.StringFieldComparator{
+	uq.builder.AddWhere(comparators.StringFieldComparator[*User]{
 		Cmp:    condition,
 		Getter: name,
 		Value:  value,
@@ -78,11 +78,11 @@ func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...st
 }
 
 func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...Status) UserQueryBuilder {
-	enums := make([]record.Enum8, len(value))
+	enums := make([]record.Enum[uint8], len(value))
 	for i, x := range value {
 		enums[i] = x
 	}
-	uq.builder.AddWhere(comparators.Enum8FieldComparator{
+	uq.builder.AddWhere(comparators.EnumFieldComparator[*User, uint8]{
 		Cmp:    condition,
 		Getter: status,
 		Value:  enums,
@@ -90,7 +90,7 @@ func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...
 	return uq
 }
 
-func (uq userQueryBuilder) Sort(by sort.ByWithOrder) UserQueryBuilder {
+func (uq userQueryBuilder) Sort(by sort.ByWithOrder[*User]) UserQueryBuilder {
 	uq.builder.Sort(by)
 	return uq
 }
@@ -101,11 +101,11 @@ func (uq userQueryBuilder) MakeCopy() UserQueryBuilder {
 	}
 }
 
-func (uq userQueryBuilder) Query() query.Query {
+func (uq userQueryBuilder) Query() query.Query[*User] {
 	return uq.builder.Query()
 }
 
-func NewUserQueryBuilder(b query.Builder) UserQueryBuilder {
+func NewUserQueryBuilder(b query.BuilderGeneric[*User]) UserQueryBuilder {
 	return userQueryBuilder{
 		builder: b,
 	}

@@ -13,7 +13,6 @@ import (
 	"github.com/shamcode/simd/indexes/hash"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"
-	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )
 
@@ -48,8 +47,8 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 			b.Fatal(err)
 		}
 
-		simd := namespace.CreateNamespace()
-		simd.AddIndex(hash.NewInt64HashIndex(record.ID, true))
+		simd := namespace.CreateNamespace[*User]()
+		simd.AddIndex(hash.NewComparableHashIndex(userID, true))
 
 		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)")
 		if nil != err {
@@ -76,20 +75,20 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 
 		stmt.Close()
 
-		qe := executor.CreateQueryExecutor(simd)
+		qe := executor.CreateQueryExecutor[*User](simd)
 		b.Run(strconv.Itoa(usersCount)+"_simd", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount/4; i++ {
 					cur, err := qe.FetchAll(
 						context.Background(),
-						query.NewBuilder(
-							query.WhereInt64(record.ID, where.EQ, int64(i)),
+						query.NewBuilder[*User](
+							query.Where(userID, where.EQ, int64(i)),
 						).Query(),
 					)
 					if nil != err {
 						b.Fatalf("query: %s", err)
 					}
-					u := cur.Item().(*User)
+					u := cur.Item()
 					if u.IsOnline != (i%2 == 0) {
 						b.Fatalf("wrong is_online: %d", i)
 					}

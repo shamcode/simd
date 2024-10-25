@@ -11,11 +11,11 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type FieldComparatorDumper func(builder *strings.Builder, cmp where.FieldComparator)
+type FieldComparatorDumper[R record.Record] func(builder *strings.Builder, cmp where.FieldComparator[R])
 
-type QueryBuilderWithDumper interface {
-	query.Builder
-	SetFieldComparatorDumper(dumber FieldComparatorDumper)
+type QueryBuilderWithDumper[R record.Record] interface {
+	query.BuilderGeneric[R]
+	SetFieldComparatorDumper(dumber FieldComparatorDumper[R])
 	Dump() string
 }
 
@@ -26,41 +26,39 @@ const (
 	chunkSort
 )
 
-var _ QueryBuilderWithDumper = (*debugQueryBuilder)(nil)
-
-type debugQueryBuilder struct {
+type debugQueryBuilder[R record.Record] struct {
 	chunks                map[uint8]*strings.Builder
 	requireOp             bool
 	withNot               bool
 	isOr                  bool
-	fieldComparatorDumper *FieldComparatorDumper
+	fieldComparatorDumper *FieldComparatorDumper[R]
 }
 
-func (q *debugQueryBuilder) SetFieldComparatorDumper(dumper FieldComparatorDumper) {
+func (q *debugQueryBuilder[R]) SetFieldComparatorDumper(dumper FieldComparatorDumper[R]) {
 	q.fieldComparatorDumper = &dumper
 }
 
-func (q *debugQueryBuilder) Limit(limitItems int) {
+func (q *debugQueryBuilder[R]) Limit(limitItems int) {
 	chunk := q.chunks[chunkLimit]
 	chunk.WriteString("LIMIT ")
 	chunk.WriteString(strconv.Itoa(limitItems))
 }
 
-func (q *debugQueryBuilder) Offset(startOffset int) {
+func (q *debugQueryBuilder[R]) Offset(startOffset int) {
 	chunk := q.chunks[chunkOffset]
 	chunk.WriteString("OFFSET ")
 	chunk.WriteString(strconv.Itoa(startOffset))
 }
 
-func (q *debugQueryBuilder) Not() {
+func (q *debugQueryBuilder[R]) Not() {
 	q.withNot = !q.withNot
 }
 
-func (q *debugQueryBuilder) Or() {
+func (q *debugQueryBuilder[R]) Or() {
 	q.isOr = true
 }
 
-func (q *debugQueryBuilder) OpenBracket() {
+func (q *debugQueryBuilder[R]) OpenBracket() {
 	chunk := q.chunks[chunkWhere]
 	if q.requireOp {
 		if q.isOr {
@@ -73,18 +71,18 @@ func (q *debugQueryBuilder) OpenBracket() {
 	q.requireOp = false
 }
 
-func (q *debugQueryBuilder) CloseBracket() {
+func (q *debugQueryBuilder[R]) CloseBracket() {
 	q.chunks[chunkWhere].WriteString(")")
 	q.requireOp = true
 }
-func (q *debugQueryBuilder) AddWhere(cmp where.FieldComparator) {
+func (q *debugQueryBuilder[R]) AddWhere(cmp where.FieldComparator[R]) {
 	q.saveFieldComparatorForDump(cmp)
 	q.withNot = false
 	q.isOr = false
 	q.requireOp = true
 }
 
-func (q *debugQueryBuilder) Sort(sortBy sort.ByWithOrder) {
+func (q *debugQueryBuilder[R]) Sort(sortBy sort.ByWithOrder[R]) {
 	chunk := q.chunks[chunkSort]
 	if chunk.Len() > 0 {
 		chunk.WriteString(", ")
@@ -92,22 +90,22 @@ func (q *debugQueryBuilder) Sort(sortBy sort.ByWithOrder) {
 	chunk.WriteString(sortBy.String())
 }
 
-func (q *debugQueryBuilder) OnIteration(_ func(item record.Record)) {
+func (q *debugQueryBuilder[R]) OnIteration(_ func(item R)) {
 }
 
-func (q *debugQueryBuilder) Append(options ...query.BuilderOption) {
+func (q *debugQueryBuilder[R]) Append(options ...query.BuilderOption) {
 	for _, opt := range options {
 		opt.Apply(q)
 	}
 }
 
-func (q *debugQueryBuilder) MakeCopy() query.Builder {
+func (q *debugQueryBuilder[R]) MakeCopy() query.BuilderGeneric[R] {
 	chunks := make(map[uint8]*strings.Builder, len(q.chunks))
 	for key := range q.chunks {
 		chunks[key] = &strings.Builder{}
 		chunks[key].WriteString(q.chunks[key].String())
 	}
-	return &debugQueryBuilder{
+	return &debugQueryBuilder[R]{
 		chunks:                chunks,
 		requireOp:             q.requireOp,
 		withNot:               q.withNot,
@@ -116,11 +114,11 @@ func (q *debugQueryBuilder) MakeCopy() query.Builder {
 	}
 }
 
-func (q *debugQueryBuilder) Query() query.Query {
+func (q *debugQueryBuilder[R]) Query() query.Query[R] {
 	return nil
 }
 
-func (q *debugQueryBuilder) saveFieldComparatorForDump(cmp where.FieldComparator) { //nolint:funlen,cyclop
+func (q *debugQueryBuilder[R]) saveFieldComparatorForDump(cmp where.FieldComparator[R]) { //nolint:funlen,cyclop
 	chunk := q.chunks[chunkWhere]
 	if q.requireOp {
 		if q.isOr {
@@ -169,7 +167,7 @@ func (q *debugQueryBuilder) saveFieldComparatorForDump(cmp where.FieldComparator
 		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
 	case where.MapHasValue:
 		chunk.WriteString(" MAP_HAS_VALUE FIELD ")
-		mapCmp := cmp.ValueAt(0).(where.FieldComparator)
+		mapCmp := cmp.ValueAt(0).(where.FieldComparator[R])
 		chunk.WriteString(mapCmp.GetField().String())
 		chunk.WriteString(fmt.Sprintf(" COMPARE %v", mapCmp))
 	case where.MapHasKey:
@@ -191,7 +189,7 @@ func (q *debugQueryBuilder) saveFieldComparatorForDump(cmp where.FieldComparator
 	}
 }
 
-func (q *debugQueryBuilder) Dump() string {
+func (q *debugQueryBuilder[R]) Dump() string {
 	var result strings.Builder
 	if q.chunks[chunkWhere].Len() > 0 {
 		result.WriteString(" WHERE ")
@@ -212,8 +210,8 @@ func (q *debugQueryBuilder) Dump() string {
 	return result.String()
 }
 
-func CreateDebugQueryBuilder(options ...query.BuilderOption) QueryBuilderWithDumper {
-	debugQB := &debugQueryBuilder{
+func CreateDebugQueryBuilder[R record.Record](options ...query.BuilderOption) QueryBuilderWithDumper[R] {
+	debugQB := &debugQueryBuilder[R]{
 		chunks: map[uint8]*strings.Builder{
 			chunkLimit:  {},
 			chunkOffset: {},

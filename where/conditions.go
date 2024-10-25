@@ -6,21 +6,21 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-type Condition struct {
+type Condition[R record.Record] struct {
 	WithNot      bool
 	IsOr         bool
 	BracketLevel int
-	Cmp          FieldComparator
+	Cmp          FieldComparator[R]
 }
 
-func (c Condition) String() string {
+func (c Condition[R]) String() string {
 	return fmt.Sprintf("{%t %t %d %s %d}", c.WithNot, c.IsOr, c.BracketLevel, c.Cmp.GetField(), c.Cmp.GetType())
 }
 
-type Conditions []Condition
+type Conditions[R record.Record] []Condition[R]
 
 // Check checks that the record satisfies all the conditions.
-func (w Conditions) Check(item record.Record) (bool, error) { //nolint:funlen,cyclop
+func (w Conditions[R]) Check(item R) (bool, error) { //nolint:funlen,cyclop
 	stack := make(resultsByBracketLevel)
 	lastBracketLevel := 0
 

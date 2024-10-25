@@ -18,10 +18,10 @@ const (
 	MapHasKey
 )
 
-type FieldComparator interface {
+type FieldComparator[R record.Record] interface {
 	GetField() record.Field
 	GetType() ComparatorType
-	Compare(item record.Record) (bool, error)
+	Compare(item R) (bool, error)
 	ValuesCount() int
 	ValueAt(index int) interface{}
 }

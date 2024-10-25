@@ -5,21 +5,21 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type MapFieldComparator struct {
+type MapFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
-	Getter record.MapGetter
+	Getter record.MapGetter[R]
 	Value  []interface{}
 }
 
-func (fc MapFieldComparator) GetType() where.ComparatorType {
+func (fc MapFieldComparator[R]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc MapFieldComparator) GetField() record.Field {
+func (fc MapFieldComparator[R]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
+func (fc MapFieldComparator[R]) CompareValue(value record.Map) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.MapHasValue:
 		cmp, ok := fc.Value[0].(record.MapValueComparator)
@@ -34,14 +34,14 @@ func (fc MapFieldComparator) CompareValue(value record.Map) (bool, error) {
 	}
 }
 
-func (fc MapFieldComparator) Compare(item record.Record) (bool, error) {
+func (fc MapFieldComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc MapFieldComparator) ValuesCount() int {
+func (fc MapFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc MapFieldComparator) ValueAt(index int) interface{} {
+func (fc MapFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }

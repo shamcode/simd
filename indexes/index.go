@@ -10,18 +10,18 @@ type Key interface {
 	Less(than Key) bool
 }
 
-type IndexComputer interface {
-	ForRecord(item record.Record) Key
+type IndexComputer[R record.Record] interface {
+	ForRecord(item R) Key
 	ForValue(value interface{}) Key
-	Check(indexKey Key, comparator where.FieldComparator) (bool, error)
+	Check(indexKey Key, comparator where.FieldComparator[R]) (bool, error)
 }
 
-type Index interface {
+type Index[R record.Record] interface {
 	Field() record.Field
 	Unique() bool
-	Compute() IndexComputer
-	Weight(condition where.Condition) (canApplyIndex bool, weight IndexWeight)
-	Select(condition where.Condition) (count int, ids []storage.IDIterator, err error)
+	Compute() IndexComputer[R]
+	Weight(condition where.Condition[R]) (canApplyIndex bool, weight IndexWeight)
+	Select(condition where.Condition[R]) (count int, ids []storage.IDIterator, err error)
 	ConcurrentStorage() ConcurrentStorage
 }
 

@@ -36,12 +36,14 @@ func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 
-var name = record.StringGetter{
+var id = record.NewIDGetter[*User]()
+
+var name = record.StringGetter[*User]{
 	Field: userFields.New("name"),
-	Get:   func(item record.Record) string { return item.(*User).Name },
+	Get:   func(item *User) string { return item.Name },
 }
 
-var status = record.Enum8Getter{
+var status = record.EnumGetter[*User, uint8]{
 	Field: userFields.New("status"),
-	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
+	Get:   func(item *User) record.Enum[uint8] { return item.Status },
 }

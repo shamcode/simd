@@ -5,21 +5,21 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Enum16FieldComparator struct {
+type EnumFieldComparator[R record.Record, T record.LessComparable] struct {
 	Cmp    where.ComparatorType
-	Getter record.Enum16Getter
-	Value  []record.Enum16
+	Getter record.EnumGetter[R, T]
+	Value  []record.Enum[T]
 }
 
-func (fc Enum16FieldComparator) GetType() where.ComparatorType {
+func (fc EnumFieldComparator[R, T]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc Enum16FieldComparator) GetField() record.Field {
+func (fc EnumFieldComparator[R, T]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc Enum16FieldComparator) CompareValue(value uint16) (bool, error) {
+func (fc EnumFieldComparator[R, T]) CompareValue(value T) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0].Value(), nil
@@ -35,14 +35,14 @@ func (fc Enum16FieldComparator) CompareValue(value uint16) (bool, error) {
 	}
 }
 
-func (fc Enum16FieldComparator) Compare(item record.Record) (bool, error) {
+func (fc EnumFieldComparator[R, T]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item).Value())
 }
 
-func (fc Enum16FieldComparator) ValuesCount() int {
+func (fc EnumFieldComparator[R, T]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc Enum16FieldComparator) ValueAt(index int) interface{} {
+func (fc EnumFieldComparator[R, T]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }

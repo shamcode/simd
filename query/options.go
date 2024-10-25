@@ -11,7 +11,7 @@ import (
 
 type LimitOption int
 
-func (o LimitOption) Apply(b Builder) { b.Limit(int(o)) }
+func (o LimitOption) Apply(b any) { b.(Builder).Limit(int(o)) }
 
 func Limit(limitItems int) BuilderOption {
 	return LimitOption(limitItems)
@@ -19,57 +19,61 @@ func Limit(limitItems int) BuilderOption {
 
 type OffsetOption int
 
-func (o OffsetOption) Apply(b Builder) { b.Offset(int(o)) }
+func (o OffsetOption) Apply(b any) { b.(Builder).Offset(int(o)) }
 func Offset(startOffset int) BuilderOption {
 	return OffsetOption(startOffset)
 }
 
 type OrOption struct{}
 
-func (OrOption) Apply(b Builder) { b.Or() }
-func Or() BuilderOption {
+func (OrOption) Apply(b any) { b.(Builder).Or() }
+func Or() OrOption {
 	return OrOption{}
 }
 
 type NotOption struct{}
 
-func (NotOption) Apply(b Builder) { b.Not() }
+func (NotOption) Apply(b any) { b.(Builder).Not() }
 func Not() BuilderOption {
 	return NotOption{}
 }
 
 type OpenBracketOption struct{}
 
-func (OpenBracketOption) Apply(b Builder) { b.OpenBracket() }
+func (OpenBracketOption) Apply(b any) { b.(Builder).OpenBracket() }
 func OpenBracket() BuilderOption {
 	return OpenBracketOption{}
 }
 
 type CloseBracketOption struct{}
 
-func (CloseBracketOption) Apply(b Builder) { b.CloseBracket() }
+func (CloseBracketOption) Apply(b any) { b.(Builder).CloseBracket() }
 func CloseBracket() BuilderOption {
 	return CloseBracketOption{}
 }
 
-type SortOption struct {
-	by sort.ByWithOrder
+type SortOption[R record.Record] struct {
+	by sort.ByWithOrder[R]
 }
 
-func (o SortOption) Apply(b Builder) { b.Sort(o.by) }
-func Sort(by sort.ByWithOrder) BuilderOption {
-	return SortOption{by: by}
+func (o SortOption[R]) Apply(b any) { b.(BuilderGeneric[R]).Sort(o.by) }
+func Sort[R record.Record](by sort.ByWithOrder[R]) BuilderOption {
+	return SortOption[R]{by: by}
 }
 
-type AddWhereOption struct {
-	Cmp where.FieldComparator
+type AddWhereOption[R record.Record] struct {
+	Cmp where.FieldComparator[R]
 }
 
-func (o AddWhereOption) Apply(b Builder) { b.AddWhere(o.Cmp) }
+func (o AddWhereOption[R]) Apply(b any) { b.(BuilderGeneric[R]).AddWhere(o.Cmp) }
 
-func Where(getter record.InterfaceGetter, condition where.ComparatorType, values ...interface{}) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.InterfaceFieldComparator{
+func WhereAny[R record.Record](
+	getter record.InterfaceGetter[R],
+	condition where.ComparatorType,
+	values ...interface{},
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.InterfaceFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  values,
@@ -77,9 +81,13 @@ func Where(getter record.InterfaceGetter, condition where.ComparatorType, values
 	}
 }
 
-func WhereInt(getter record.IntGetter, condition where.ComparatorType, value ...int) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.IntFieldComparator{
+func Where[R record.Record, T record.LessComparable](
+	getter record.ComparableGetter[R, T],
+	condition where.ComparatorType,
+	value ...T,
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.ComparableFieldComparator[R, T]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
@@ -87,9 +95,13 @@ func WhereInt(getter record.IntGetter, condition where.ComparatorType, value ...
 	}
 }
 
-func WhereInt32(getter record.Int32Getter, condition where.ComparatorType, value ...int32) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.Int32FieldComparator{
+func WhereString[R record.Record](
+	getter record.StringGetter[R],
+	condition where.ComparatorType,
+	value ...string,
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.StringFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
@@ -97,29 +109,12 @@ func WhereInt32(getter record.Int32Getter, condition where.ComparatorType, value
 	}
 }
 
-func WhereInt64(getter record.Int64Getter, condition where.ComparatorType, value ...int64) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.Int64FieldComparator{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
-	}
-}
-
-func WhereString(getter record.StringGetter, condition where.ComparatorType, value ...string) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.StringFieldComparator{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
-	}
-}
-
-func WhereStringRegexp(getter record.StringGetter, value *regexp.Regexp) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.StringFieldRegexpComparator{
+func WhereStringRegexp[R record.Record](
+	getter record.StringGetter[R],
+	value *regexp.Regexp,
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.StringFieldRegexpComparator[R]{
 			Cmp:    where.Regexp,
 			Getter: getter,
 			Value:  value,
@@ -127,9 +122,13 @@ func WhereStringRegexp(getter record.StringGetter, value *regexp.Regexp) Builder
 	}
 }
 
-func WhereBool(getter record.BoolGetter, condition where.ComparatorType, value ...bool) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.BoolFieldComparator{
+func WhereBool[R record.Record](
+	getter record.BoolGetter[R],
+	condition where.ComparatorType,
+	value ...bool,
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.BoolFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
@@ -137,9 +136,13 @@ func WhereBool(getter record.BoolGetter, condition where.ComparatorType, value .
 	}
 }
 
-func WhereEnum8(getter record.Enum8Getter, condition where.ComparatorType, value ...record.Enum8) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.Enum8FieldComparator{
+func WhereEnum[R record.Record, T record.LessComparable](
+	getter record.EnumGetter[R, T],
+	condition where.ComparatorType,
+	value ...record.Enum[T],
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.EnumFieldComparator[R, T]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
@@ -147,9 +150,13 @@ func WhereEnum8(getter record.Enum8Getter, condition where.ComparatorType, value
 	}
 }
 
-func WhereEnum16(getter record.Enum16Getter, condition where.ComparatorType, value ...record.Enum16) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.Enum16FieldComparator{
+func WhereMap[R record.Record](
+	getter record.MapGetter[R],
+	condition where.ComparatorType,
+	value ...interface{},
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.MapFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
@@ -157,9 +164,13 @@ func WhereEnum16(getter record.Enum16Getter, condition where.ComparatorType, val
 	}
 }
 
-func WhereMap(getter record.MapGetter, condition where.ComparatorType, value ...interface{}) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.MapFieldComparator{
+func WhereSet[R record.Record](
+	getter record.SetGetter[R],
+	condition where.ComparatorType,
+	value ...interface{},
+) BuilderOption {
+	return AddWhereOption[R]{
+		Cmp: comparators.SetFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
@@ -167,20 +178,10 @@ func WhereMap(getter record.MapGetter, condition where.ComparatorType, value ...
 	}
 }
 
-func WhereSet(getter record.SetGetter, condition where.ComparatorType, value ...interface{}) BuilderOption {
-	return AddWhereOption{
-		Cmp: comparators.SetFieldComparator{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
-	}
-}
+type OnIterationOption[R record.Record] func(item R)
 
-type onIterationOption func(item record.Record)
+func (o OnIterationOption[R]) Apply(b any) { b.(BuilderGeneric[R]).OnIteration(o) }
 
-func (o onIterationOption) Apply(b Builder) { b.OnIteration(o) }
-
-func OnIteration(cb func(item record.Record)) BuilderOption {
-	return onIterationOption(cb)
+func OnIteration[R record.Record](cb func(item R)) OnIterationOption[R] {
+	return cb
 }

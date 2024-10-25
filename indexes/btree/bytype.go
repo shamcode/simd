@@ -6,8 +6,12 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-func NewEnum8BTreeIndex(getter record.Enum8Getter, maxChildren int, uniq bool) indexes.Index {
-	return NewIndex(
+func NewEnumBTreeIndex[R record.Record, V record.LessComparable](
+	getter record.EnumGetter[R, V],
+	maxChildren int,
+	uniq bool,
+) indexes.Index[R] {
+	return NewIndex[R](
 		getter.Field,
 		compute.CreateEnum8IndexComputation(getter),
 		NewTree(maxChildren, uniq),
@@ -15,43 +19,24 @@ func NewEnum8BTreeIndex(getter record.Enum8Getter, maxChildren int, uniq bool) i
 	)
 }
 
-func NewEnum16BTreeIndex(getter record.Enum16Getter, maxChildren int, uniq bool) indexes.Index {
-	return NewIndex(
+func NewComparableBTreeIndex[R record.Record, V record.LessComparable](
+	getter record.ComparableGetter[R, V],
+	maxChildren int,
+	uniq bool,
+) indexes.Index[R] {
+	return NewIndex[R](
 		getter.Field,
-		compute.CreateEnum16IndexComputation(getter),
+		compute.CreateIndexComputation(getter),
 		NewTree(maxChildren, uniq),
 		uniq,
 	)
 }
 
-func NewIntBTreeIndex(getter record.IntGetter, maxChildren int, uniq bool) indexes.Index {
-	return NewIndex(
-		getter.Field,
-		compute.CreateIntIndexComputation(getter),
-		NewTree(maxChildren, uniq),
-		uniq,
-	)
-}
-
-func NewInt32BTreeIndex(getter record.Int32Getter, maxChildren int, uniq bool) indexes.Index {
-	return NewIndex(
-		getter.Field,
-		compute.CreateInt32IndexComputation(getter),
-		NewTree(maxChildren, uniq),
-		uniq,
-	)
-}
-
-func NewInt64BTreeIndex(getter record.Int64Getter, maxChildren int, uniq bool) indexes.Index {
-	return NewIndex(
-		getter.Field,
-		compute.CreateInt64IndexComputation(getter),
-		NewTree(maxChildren, uniq),
-		uniq,
-	)
-}
-
-func NewStringBTreeIndex(getter record.StringGetter, maxChildren int, uniq bool) indexes.Index {
+func NewStringBTreeIndex[R record.Record](
+	getter record.StringGetter[R],
+	maxChildren int,
+	uniq bool,
+) indexes.Index[R] {
 	return NewIndex(
 		getter.Field,
 		compute.CreateStringIndexComputation(getter),

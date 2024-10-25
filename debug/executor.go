@@ -4,45 +4,54 @@ import (
 	"context"
 	"strings"
 
+	"github.com/shamcode/simd/record"
+
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/query"
 )
 
-type QueryExecutorWithDump interface {
-	executor.QueryExecutor
-	DumpQuery(query query.Query, onlyTotal bool)
+type QueryExecutorWithDump[R record.Record] interface {
+	executor.QueryExecutor[R]
+	DumpQuery(query query.Query[R], onlyTotal bool)
 }
 
-var _ executor.QueryExecutor = (*debugExecutor)(nil)
-
-type debugExecutor struct {
-	executor executor.QueryExecutor
+type debugExecutor[R record.Record] struct {
+	executor executor.QueryExecutor[R]
 	dump     func(string)
 }
 
-func (e *debugExecutor) FetchTotal(ctx context.Context, query query.Query) (int, error) {
+func (e *debugExecutor[R]) FetchTotal(
+	ctx context.Context,
+	query query.Query[R],
+) (int, error) {
 	e.DumpQuery(query, true)
 	return e.executor.FetchTotal(ctx, query)
 }
 
-func (e *debugExecutor) FetchAll(ctx context.Context, query query.Query) (executor.Iterator, error) {
+func (e *debugExecutor[R]) FetchAll(
+	ctx context.Context,
+	query query.Query[R],
+) (executor.Iterator[R], error) {
 	e.DumpQuery(query, false)
 	return e.executor.FetchAll(ctx, query)
 }
 
-func (e *debugExecutor) FetchAllAndTotal(ctx context.Context, query query.Query) (executor.Iterator, int, error) {
+func (e *debugExecutor[R]) FetchAllAndTotal(
+	ctx context.Context,
+	query query.Query[R],
+) (executor.Iterator[R], int, error) {
 	e.DumpQuery(query, false)
 	return e.executor.FetchAllAndTotal(ctx, query)
 }
 
-func (e *debugExecutor) DumpQuery(query query.Query, onlyTotal bool) {
+func (e *debugExecutor[R]) DumpQuery(query query.Query[R], onlyTotal bool) {
 	var result strings.Builder
 	result.WriteString("SELECT ")
 	if !onlyTotal {
 		result.WriteString("*, ")
 	}
 	result.WriteString("COUNT(*)")
-	if dq, ok := query.(QueryWithDumper); ok {
+	if dq, ok := any(query).(QueryWithDumper[R]); ok {
 		result.WriteString(dq.String())
 	} else {
 		result.WriteString(" <Query dont implement QueryWithDumper interface, check QueryBuilder>")
@@ -50,8 +59,11 @@ func (e *debugExecutor) DumpQuery(query query.Query, onlyTotal bool) {
 	e.dump(result.String())
 }
 
-func WrapQueryExecutor(executor executor.QueryExecutor, dump func(string)) executor.QueryExecutor {
-	return &debugExecutor{
+func WrapQueryExecutor[R record.Record](
+	executor executor.QueryExecutor[R],
+	dump func(string),
+) executor.QueryExecutor[R] {
+	return &debugExecutor[R]{
 		executor: executor,
 		dump:     dump,
 	}

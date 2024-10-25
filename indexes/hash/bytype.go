@@ -6,7 +6,10 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-func NewBoolHashIndex(getter record.BoolGetter, unique bool) indexes.Index {
+func NewBoolHashIndex[R record.Record](
+	getter record.BoolGetter[R],
+	unique bool,
+) indexes.Index[R] {
 	return NewIndex(
 		getter.Field,
 		compute.CreateBoolIndexComputation(getter),
@@ -15,7 +18,10 @@ func NewBoolHashIndex(getter record.BoolGetter, unique bool) indexes.Index {
 	)
 }
 
-func NewEnum8HashIndex(getter record.Enum8Getter, unique bool) indexes.Index {
+func NewEnumHashIndex[R record.Record, T record.LessComparable](
+	getter record.EnumGetter[R, T],
+	unique bool,
+) indexes.Index[R] {
 	return NewIndex(
 		getter.Field,
 		compute.CreateEnum8IndexComputation(getter),
@@ -24,34 +30,22 @@ func NewEnum8HashIndex(getter record.Enum8Getter, unique bool) indexes.Index {
 	)
 }
 
-func NewEnum16HashIndex(getter record.Enum16Getter, unique bool) indexes.Index {
+func NewComparableHashIndex[R record.Record, T record.LessComparable](
+	getter record.ComparableGetter[R, T],
+	unique bool,
+) indexes.Index[R] {
 	return NewIndex(
 		getter.Field,
-		compute.CreateEnum16IndexComputation(getter),
+		compute.CreateIndexComputation(getter),
 		CreateHashTable(),
 		unique,
 	)
 }
 
-func NewInt32HashIndex(getter record.Int32Getter, unique bool) indexes.Index {
-	return NewIndex(
-		getter.Field,
-		compute.CreateInt32IndexComputation(getter),
-		CreateHashTable(),
-		unique,
-	)
-}
-
-func NewInt64HashIndex(getter record.Int64Getter, unique bool) indexes.Index {
-	return NewIndex(
-		getter.Field,
-		compute.CreateInt64IndexComputation(getter),
-		CreateHashTable(),
-		unique,
-	)
-}
-
-func NewStringHashIndex(getter record.StringGetter, unique bool) indexes.Index {
+func NewStringHashIndex[R record.Record](
+	getter record.StringGetter[R],
+	unique bool,
+) indexes.Index[R] {
 	return NewIndex(
 		getter.Field,
 		compute.CreateStringIndexComputation(getter),

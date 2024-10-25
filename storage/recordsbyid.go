@@ -6,45 +6,44 @@ import (
 	"github.com/shamcode/simd/record"
 )
 
-var _ RecordsByID = (*recordsByID)(nil)
-
-type recordsByID struct {
+type recordsByID[R record.Record] struct {
 	sync.RWMutex
-	data map[int64]record.Record
+	data map[int64]R
 	ids  MapIDStorage
 }
 
-func (r *recordsByID) GetIDStorage() IDIterator {
+func (r *recordsByID[R]) GetIDStorage() IDIterator {
 	return r.ids
 }
 
-func (r *recordsByID) Get(id int64) record.Record {
+func (r *recordsByID[R]) Get(id int64) (R, bool) {
 	r.RLock()
 	defer r.RUnlock()
-	return r.data[id]
+	value, ok := r.data[id]
+	return value, ok
 }
 
-func (r *recordsByID) Set(id int64, item record.Record) {
+func (r *recordsByID[R]) Set(id int64, item R) {
 	r.Lock()
 	r.data[id] = item
 	r.ids[id] = struct{}{}
 	r.Unlock()
 }
 
-func (r *recordsByID) Delete(id int64) {
+func (r *recordsByID[R]) Delete(id int64) {
 	r.Lock()
 	delete(r.data, id)
 	delete(r.ids, id)
 	r.Unlock()
 }
 
-func (r *recordsByID) Count() int {
+func (r *recordsByID[R]) Count() int {
 	r.RLock()
 	defer r.RUnlock()
 	return len(r.data)
 }
 
-func (r *recordsByID) GetData(stores []IDIterator, totalCount int, idsUnique bool) []record.Record {
+func (r *recordsByID[R]) GetData(stores []IDIterator, totalCount int, idsUnique bool) []R {
 	if idsUnique {
 		return r.selectByUniqIDsStore(stores, totalCount)
 	}
@@ -55,8 +54,8 @@ func (r *recordsByID) GetData(stores []IDIterator, totalCount int, idsUnique boo
 	return r.selectUniq(stores, totalCount)
 }
 
-func (r *recordsByID) selectByStore(store IDIterator, totalCount int) []record.Record {
-	items := make([]record.Record, totalCount)
+func (r *recordsByID[R]) selectByStore(store IDIterator, totalCount int) []R {
+	items := make([]R, totalCount)
 	var i int
 	r.RLock()
 	store.Iterate(func(id int64) {
@@ -67,8 +66,8 @@ func (r *recordsByID) selectByStore(store IDIterator, totalCount int) []record.R
 	return items
 }
 
-func (r *recordsByID) selectByUniqIDsStore(stores []IDIterator, totalCount int) []record.Record {
-	items := make([]record.Record, 0, totalCount)
+func (r *recordsByID[R]) selectByUniqIDsStore(stores []IDIterator, totalCount int) []R {
+	items := make([]R, 0, totalCount)
 	r.RLock()
 	for _, store := range stores {
 		if id := store.(UniqueIDStorage).ID(); id != 0 {
@@ -79,8 +78,8 @@ func (r *recordsByID) selectByUniqIDsStore(stores []IDIterator, totalCount int) 
 	return items
 }
 
-func (r *recordsByID) selectUniq(stores []IDIterator, totalCount int) []record.Record {
-	var items []record.Record
+func (r *recordsByID[R]) selectUniq(stores []IDIterator, totalCount int) []R {
+	var items []R
 	added := make(map[int64]struct{}, totalCount)
 	r.RLock()
 	for _, store := range stores {
@@ -95,9 +94,9 @@ func (r *recordsByID) selectUniq(stores []IDIterator, totalCount int) []record.R
 	return items
 }
 
-func (r *recordsByID) GetAllData() []record.Record {
+func (r *recordsByID[R]) GetAllData() []R {
 	r.RLock()
-	items := make([]record.Record, len(r.data))
+	items := make([]R, len(r.data))
 	var i int
 	for _, item := range r.data {
 		items[i] = item
@@ -107,9 +106,9 @@ func (r *recordsByID) GetAllData() []record.Record {
 	return items
 }
 
-func CreateRecordsByID() RecordsByID {
-	return &recordsByID{ //nolint:exhaustruct
+func CreateRecordsByID[R record.Record]() RecordsByID[R] {
+	return &recordsByID[R]{ //nolint:exhaustruct
 		ids:  CreateMapIDStorage(),
-		data: make(map[int64]record.Record),
+		data: make(map[int64]R),
 	}
 }

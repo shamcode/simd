@@ -24,17 +24,19 @@ func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 
-var name = record.StringGetter{
+var id = record.NewIDGetter[*User]()
+
+var name = record.StringGetter[*User]{
 	Field: userFields.New("name"),
-	Get:   func(item record.Record) string { return item.(*User).Name },
+	Get:   func(item *User) string { return item.Name },
 }
 
 func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 	flag.Parse()
 
-	store := namespace.CreateNamespace()
-	queryBuilder := query.NewBuilder
+	store := namespace.CreateNamespace[*User]()
+	queryBuilder := query.NewBuilder[*User]
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	// if debug enabled, add logging for query
@@ -45,7 +47,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(hash.NewInt64HashIndex(record.ID, true))
+	store.AddIndex(hash.NewComparableHashIndex(id, true))
 	store.AddIndex(hash.NewStringHashIndex(name, false))
 
 	for _, user := range []*User{
@@ -69,7 +71,7 @@ func main() {
 	}
 
 	query := queryBuilder(
-		query.WhereInt64(record.ID, where.GT, 1),
+		query.Where(id, where.GT, 1),
 		query.Sort(sort.Asc(name)),
 	).Query()
 
@@ -79,7 +81,7 @@ func main() {
 		log.Fatal(err)
 	}
 	for cur.Next(ctx) {
-		log.Printf("%#v", cur.Item().(*User))
+		log.Printf("%#v", cur.Item())
 	}
 	if err := cur.Err(); nil != err {
 		log.Fatal(err)

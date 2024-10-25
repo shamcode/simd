@@ -14,22 +14,25 @@ type boolComparator interface {
 	CompareValue(value bool) (bool, error)
 }
 
-type boolIndexComputation struct {
-	getter record.BoolGetter
+type boolIndexComputation[R record.Record] struct {
+	getter record.BoolGetter[R]
 }
 
-func (idx boolIndexComputation) ForRecord(item record.Record) indexes.Key {
+func (idx boolIndexComputation[R]) ForRecord(item R) indexes.Key {
 	return BoolKey(idx.getter.Get(item))
 }
 
-func (idx boolIndexComputation) ForValue(value interface{}) indexes.Key {
+func (idx boolIndexComputation[R]) ForValue(value interface{}) indexes.Key {
 	return BoolKey(value.(bool))
 }
 
-func (idx boolIndexComputation) Check(indexKey indexes.Key, comparator where.FieldComparator) (bool, error) {
+func (idx boolIndexComputation[R]) Check(
+	indexKey indexes.Key,
+	comparator where.FieldComparator[R],
+) (bool, error) {
 	return comparator.(boolComparator).CompareValue(bool(indexKey.(BoolKey)))
 }
 
-func CreateBoolIndexComputation(getter record.BoolGetter) indexes.IndexComputer {
-	return boolIndexComputation{getter: getter}
+func CreateBoolIndexComputation[R record.Record](getter record.BoolGetter[R]) indexes.IndexComputer[R] {
+	return boolIndexComputation[R]{getter: getter}
 }

@@ -7,23 +7,23 @@ import (
 )
 
 // Scalar is a special case for sorting by comparing int64 values.
-type Scalar interface {
-	Calc(item record.Record) int64
+type Scalar[R record.Record] interface {
+	Calc(item R) int64
 }
 
-type byScalar struct {
-	Scalar
+type byScalar[R record.Record] struct {
+	Scalar[R]
 }
 
-func (bi byScalar) Less(a, b record.Record) bool {
+func (bi byScalar[R]) Less(a, b R) bool {
 	return bi.Calc(a) < bi.Calc(b)
 }
 
-func (bi byScalar) String() string {
+func (bi byScalar[R]) String() string {
 	return fmt.Sprintf("%#v", bi.Scalar)
 }
 
 // ByScalar create sorting by int64 values.
-func ByScalar(s Scalar) By {
-	return byScalar{s}
+func ByScalar[R record.Record](s Scalar[R]) By[R] {
+	return byScalar[R]{s}
 }

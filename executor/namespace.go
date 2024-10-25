@@ -5,6 +5,6 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type Selector interface {
-	PreselectForExecutor(conditions where.Conditions) ([]record.Record, error)
+type Selector[R record.Record] interface {
+	PreselectForExecutor(conditions where.Conditions[R]) ([]R, error)
 }

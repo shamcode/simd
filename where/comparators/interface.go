@@ -5,21 +5,21 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type InterfaceFieldComparator struct {
+type InterfaceFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
-	Getter record.InterfaceGetter
-	Value  []interface{}
+	Getter record.InterfaceGetter[R]
+	Value  []any
 }
 
-func (fc InterfaceFieldComparator) GetType() where.ComparatorType {
+func (fc InterfaceFieldComparator[R]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc InterfaceFieldComparator) GetField() record.Field {
+func (fc InterfaceFieldComparator[R]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc InterfaceFieldComparator) CompareValue(value interface{}) (bool, error) {
+func (fc InterfaceFieldComparator[R]) CompareValue(value any) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
@@ -35,14 +35,14 @@ func (fc InterfaceFieldComparator) CompareValue(value interface{}) (bool, error)
 	}
 }
 
-func (fc InterfaceFieldComparator) Compare(item record.Record) (bool, error) {
+func (fc InterfaceFieldComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc InterfaceFieldComparator) ValuesCount() int {
+func (fc InterfaceFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc InterfaceFieldComparator) ValueAt(index int) interface{} {
+func (fc InterfaceFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }

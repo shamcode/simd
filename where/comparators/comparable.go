@@ -5,21 +5,21 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type IntFieldComparator struct {
+type ComparableFieldComparator[R record.Record, T record.LessComparable] struct {
 	Cmp    where.ComparatorType
-	Getter record.IntGetter
-	Value  []int
+	Getter record.ComparableGetter[R, T]
+	Value  []T
 }
 
-func (fc IntFieldComparator) GetType() where.ComparatorType {
+func (fc ComparableFieldComparator[R, T]) GetType() where.ComparatorType {
 	return fc.Cmp
 }
 
-func (fc IntFieldComparator) GetField() record.Field {
+func (fc ComparableFieldComparator[R, T]) GetField() record.Field {
 	return fc.Getter.Field
 }
 
-func (fc IntFieldComparator) CompareValue(value int) (bool, error) {
+func (fc ComparableFieldComparator[R, T]) CompareValue(value T) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
 	case where.EQ:
 		return value == fc.Value[0], nil
@@ -43,14 +43,14 @@ func (fc IntFieldComparator) CompareValue(value int) (bool, error) {
 	}
 }
 
-func (fc IntFieldComparator) Compare(item record.Record) (bool, error) {
+func (fc ComparableFieldComparator[R, T]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.Get(item))
 }
 
-func (fc IntFieldComparator) ValuesCount() int {
+func (fc ComparableFieldComparator[R, T]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc IntFieldComparator) ValueAt(index int) interface{} {
+func (fc ComparableFieldComparator[R, T]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }

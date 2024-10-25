@@ -15,29 +15,39 @@ type timeComparator interface {
 	CompareValue(value time.Time) (bool, error)
 }
 
-type timeIndexComputation struct {
-	getter types.TimeGetter
+type timeIndexComputation[R record.Record] struct {
+	getter types.TimeGetter[R]
 }
 
-func (idx timeIndexComputation) ForRecord(item record.Record) indexes.Key {
-	return compute.Int64Key(idx.getter.Get(item).UnixNano())
+func (idx timeIndexComputation[R]) ForRecord(item R) indexes.Key {
+	return compute.ComparableKey[int64]{
+		Value: idx.getter.Get(item).UnixNano(),
+	}
 }
 
-func (idx timeIndexComputation) ForValue(item interface{}) indexes.Key {
-	return compute.Int64Key(item.(time.Time).UnixNano())
+func (idx timeIndexComputation[R]) ForValue(item interface{}) indexes.Key {
+	return compute.ComparableKey[int64]{
+		Value: item.(time.Time).UnixNano(),
+	}
 }
 
-func (idx timeIndexComputation) Check(
+func (idx timeIndexComputation[R]) Check(
 	indexKey indexes.Key,
-	comparator where.FieldComparator,
+	comparator where.FieldComparator[R],
 ) (bool, error) {
-	return comparator.(timeComparator).CompareValue(time.Unix(0, int64(indexKey.(compute.Int64Key)))) //nolint:wrapcheck
+	return comparator.(timeComparator).CompareValue(
+		time.Unix(0, indexKey.(compute.ComparableKey[int64]).Value),
+	) //nolint:wrapcheck
 }
 
-func NewTimeBTreeIndex(getter types.TimeGetter, maxChildren int, unique bool) indexes.Index {
-	return btree.NewIndex(
+func NewTimeBTreeIndex[R record.Record](
+	getter types.TimeGetter[R],
+	maxChildren int,
+	unique bool,
+) indexes.Index[R] {
+	return btree.NewIndex[R](
 		getter.Field,
-		timeIndexComputation{getter: getter},
+		timeIndexComputation[R]{getter: getter},
 		btree.NewTree(maxChildren, unique),
 		unique,
 	)

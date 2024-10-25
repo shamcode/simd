@@ -8,8 +8,6 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-var _ indexes.Index = (*index)(nil)
-
 type Storage interface {
 	indexes.Storage
 	LessThan(key indexes.Key) (int, []storage.IDIterator)
@@ -20,30 +18,30 @@ type Storage interface {
 	All(callback func(key indexes.Key, records storage.IDStorage))
 }
 
-type index struct {
+type index[R record.Record] struct {
 	field   record.Field
 	unique  bool
-	compute indexes.IndexComputer
+	compute indexes.IndexComputer[R]
 	storage indexes.ConcurrentStorage
 }
 
-func (idx index) btree() Storage {
+func (idx index[R]) btree() Storage {
 	return idx.storage.Unwrap().(Storage)
 }
 
-func (idx index) Field() record.Field {
+func (idx index[R]) Field() record.Field {
 	return idx.field
 }
 
-func (idx index) Unique() bool {
+func (idx index[R]) Unique() bool {
 	return idx.unique
 }
 
-func (idx index) Compute() indexes.IndexComputer {
+func (idx index[R]) Compute() indexes.IndexComputer[R] {
 	return idx.compute
 }
 
-func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight indexes.IndexWeight) {
+func (idx index[R]) Weight(condition where.Condition[R]) (canApplyIndex bool, weight indexes.IndexWeight) {
 	switch condition.Cmp.GetType() {
 	case where.LT, where.LE, where.GT, where.GE:
 
@@ -63,7 +61,7 @@ func (idx index) Weight(condition where.Condition) (canApplyIndex bool, weight i
 	}
 }
 
-func (idx index) Select(condition where.Condition) ( //nolint:cyclop
+func (idx index[R]) Select(condition where.Condition[R]) ( //nolint:cyclop
 	count int,
 	ids []storage.IDIterator,
 	err error,
@@ -146,12 +144,17 @@ func (idx index) Select(condition where.Condition) ( //nolint:cyclop
 	return //nolint:nakedret
 }
 
-func (idx index) ConcurrentStorage() indexes.ConcurrentStorage {
+func (idx index[R]) ConcurrentStorage() indexes.ConcurrentStorage {
 	return idx.storage
 }
 
-func NewIndex(field record.Field, compute indexes.IndexComputer, btree Storage, unique bool) indexes.Index {
-	return index{
+func NewIndex[R record.Record](
+	field record.Field,
+	compute indexes.IndexComputer[R],
+	btree Storage,
+	unique bool,
+) indexes.Index[R] {
+	return index[R]{
 		field:   field,
 		unique:  unique,
 		compute: compute,

@@ -22,7 +22,7 @@ func (u *user) ComputeFields() {
 
 func TestComputeFields(t *testing.T) {
 	item := &user{id: 1}
-	store := CreateNamespace()
+	store := CreateNamespace[*user]()
 
 	asserts.Success(t, store.Insert(item))
 	asserts.Equals(t, 1, item.computedCounter, "compute on insert")

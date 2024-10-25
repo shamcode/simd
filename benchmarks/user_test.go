@@ -36,22 +36,24 @@ func (u *User) GetID() int64 { return u.ID }
 
 var userFields = record.NewFields()
 
-var userName = record.StringGetter{
+var userID = record.NewIDGetter[*User]()
+
+var userName = record.StringGetter[*User]{
 	Field: userFields.New("name"),
-	Get:   func(item record.Record) string { return item.(*User).Name },
+	Get:   func(item *User) string { return item.Name },
 }
 
-var userStatus = record.Enum8Getter{
+var userStatus = record.EnumGetter[*User, uint8]{
 	Field: userFields.New("status"),
-	Get:   func(item record.Record) record.Enum8 { return item.(*User).Status },
+	Get:   func(item *User) record.Enum[uint8] { return item.Status },
 }
 
-var userAge = record.Int64Getter{
+var userAge = record.ComparableGetter[*User, int64]{
 	Field: userFields.New("age"),
-	Get:   func(item record.Record) int64 { return item.(*User).Age },
+	Get:   func(item *User) int64 { return item.Age },
 }
 
-var userIsOnline = record.BoolGetter{
+var userIsOnline = record.BoolGetter[*User]{
 	Field: userFields.New("is_online"),
-	Get:   func(item record.Record) bool { return item.(*User).IsOnline },
+	Get:   func(item *User) bool { return item.IsOnline },
 }

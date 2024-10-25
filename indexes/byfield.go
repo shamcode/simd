@@ -6,12 +6,12 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type ByField interface {
-	Add(index Index)
-	Insert(item record.Record)
-	Delete(item record.Record)
-	Update(oldItem, item record.Record)
-	SelectForCondition(condition where.Condition) (
+type ByField[R record.Record] interface {
+	Add(index Index[R])
+	Insert(item R)
+	Delete(item R)
+	Update(oldItem, item R)
+	SelectForCondition(condition where.Condition[R]) (
 		indexExists bool,
 		count int,
 		ids []storage.IDIterator,
@@ -20,16 +20,14 @@ type ByField interface {
 	)
 }
 
-var _ ByField = byField{}
+type byField[R record.Record] map[uint8][]Index[R]
 
-type byField map[uint8][]Index
-
-func (ibf byField) Add(index Index) {
+func (ibf byField[R]) Add(index Index[R]) {
 	i := index.Field().Index()
 	ibf[i] = append(ibf[i], index)
 }
 
-func (ibf byField) Insert(item record.Record) {
+func (ibf byField[R]) Insert(item R) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
 			key := idx.Compute().ForRecord(item)
@@ -38,7 +36,7 @@ func (ibf byField) Insert(item record.Record) {
 	}
 }
 
-func (ibf byField) Delete(item record.Record) {
+func (ibf byField[R]) Delete(item R) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
 			records := idx.ConcurrentStorage().Get(idx.Compute().ForRecord(item))
@@ -49,7 +47,7 @@ func (ibf byField) Delete(item record.Record) {
 	}
 }
 
-func (ibf byField) Update(oldItem, item record.Record) {
+func (ibf byField[R]) Update(oldItem, item R) {
 	for _, indexesForField := range ibf {
 		for _, idx := range indexesForField {
 			oldValue := idx.Compute().ForRecord(oldItem)
@@ -75,21 +73,21 @@ func (ibf byField) Update(oldItem, item record.Record) {
 	}
 }
 
-func (ibf byField) SelectForCondition(condition where.Condition) ( //nolint:nonamedreturns
+func (ibf byField[R]) SelectForCondition(condition where.Condition[R]) ( //nolint:nonamedreturns
 	indexExists bool,
 	count int,
 	ids []storage.IDIterator,
 	idsUnique bool,
 	err error,
 ) {
-	var indexes []Index
+	var indexes []Index[R]
 	indexes, indexExists = ibf[condition.Cmp.GetField().Index()]
 	if !indexExists || len(indexes) == 0 {
 		return
 	}
 	first := true
 	var minWeight IndexWeight
-	var indexForApply Index
+	var indexForApply Index[R]
 	for _, index := range indexes {
 		canApplyIndex, weight := index.Weight(condition)
 		if !canApplyIndex {
@@ -110,6 +108,6 @@ func (ibf byField) SelectForCondition(condition where.Condition) ( //nolint:nona
 	return //nolint:nakedret
 }
 
-func CreateByField() ByField {
-	return make(byField)
+func CreateByField[R record.Record]() ByField[R] {
+	return make(byField[R])
 }
