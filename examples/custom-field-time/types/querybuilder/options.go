@@ -4,8 +4,8 @@ import (
 	"github.com/shamcode/simd/record"
 	"time"
 
-	"github.com/shamcode/simd/_examples/custom-field-time/types"
-	"github.com/shamcode/simd/_examples/custom-field-time/types/comparators"
+	"github.com/shamcode/simd/examples/custom-field-time/types"
+	"github.com/shamcode/simd/examples/custom-field-time/types/comparators"
 	"github.com/shamcode/simd/query"
 	"github.com/shamcode/simd/where"
 )

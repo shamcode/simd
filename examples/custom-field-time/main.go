@@ -6,10 +6,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/shamcode/simd/_examples/custom-field-time/types"
-	indexesByType "github.com/shamcode/simd/_examples/custom-field-time/types/indexes"
-	"github.com/shamcode/simd/_examples/custom-field-time/types/querybuilder"
 	"github.com/shamcode/simd/debug"
+	"github.com/shamcode/simd/examples/custom-field-time/types"
+	indexesByType "github.com/shamcode/simd/examples/custom-field-time/types/indexes"
+	"github.com/shamcode/simd/examples/custom-field-time/types/querybuilder"
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/namespace"
 	"github.com/shamcode/simd/query"

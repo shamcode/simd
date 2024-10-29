@@ -3,7 +3,7 @@ package comparators
 import (
 	"time"
 
-	"github.com/shamcode/simd/_examples/custom-field-time/types"
+	"github.com/shamcode/simd/examples/custom-field-time/types"
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"

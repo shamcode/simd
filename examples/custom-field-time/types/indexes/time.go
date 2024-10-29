@@ -3,7 +3,7 @@ package indexes
 import (
 	"time"
 
-	"github.com/shamcode/simd/_examples/custom-field-time/types"
+	"github.com/shamcode/simd/examples/custom-field-time/types"
 	"github.com/shamcode/simd/indexes"
 	"github.com/shamcode/simd/indexes/btree"
 	"github.com/shamcode/simd/indexes/compute"

@@ -1,11 +1,11 @@
 example_common:
-	go run ./_examples/common -debug
+	go run ./examples/common -debug
 
 example_custom_field_time:
-	go run ./_examples/custom-field-time -debug
+	go run ./examples/custom-field-time -debug
 
 example_wrap_query_builder:
-	go run ./_examples/wrap-query-builder -debug
+	go run ./examples/wrap-query-builder -debug
 
 example: example_common example_custom_field_time example_wrap_query_builder
 
