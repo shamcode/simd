@@ -3,6 +3,7 @@ package query
 import (
 	"errors"
 	"fmt"
+
 	"github.com/shamcode/simd/record"
 )
 
