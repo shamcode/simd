@@ -21,7 +21,7 @@ func Benchmark_Concurrent(b *testing.B) {
 	store := namespace.CreateNamespace[*User]()
 	store.AddIndex(hash.NewComparableHashIndex(userID, true))
 	store.AddIndex(btree.NewComparableBTreeIndex(userID, 8, true))
-	store.AddIndex(hash.NewStringHashIndex(userName, false))
+	store.AddIndex(hash.NewComparableHashIndex(userName, false))
 	store.AddIndex(hash.NewEnumHashIndex(userStatus, false))
 	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
 

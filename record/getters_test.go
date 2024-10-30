@@ -108,7 +108,7 @@ func TestGetters(t *testing.T) {
 				expectedOrder: []int64{1, 3, 2},
 			},
 			{
-				getter: StringGetter[user]{
+				getter: ComparableGetter[user, string]{
 					Field: fields.New("string"),
 					Get:   func(item user) string { return item.string },
 				},

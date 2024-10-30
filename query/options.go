@@ -52,6 +52,16 @@ func CloseBracket() BuilderOption {
 	return CloseBracketOption{}
 }
 
+type ErrorOption struct {
+	err error
+}
+
+func (o ErrorOption) Apply(b any) { b.(Builder).Error(o.err) }
+
+func Error(err error) BuilderOption {
+	return ErrorOption{err: err}
+}
+
 type SortOption[R record.Record] struct {
 	by sort.ByWithOrder[R]
 }
@@ -86,31 +96,36 @@ func Where[R record.Record, T record.LessComparable](
 	condition where.ComparatorType,
 	value ...T,
 ) BuilderOption {
-	return AddWhereOption[R]{
-		Cmp: comparators.ComparableFieldComparator[R, T]{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
-	}
-}
+	switch castedGetter := any(getter).(type) {
+	case record.ComparableGetter[R, string]:
+		castedValue, err := Cast[[]T, []string](value)
+		if err != nil {
+			return Error(GetterError{Field: getter.Field, Err: err})
+		}
 
-func WhereString[R record.Record](
-	getter record.StringGetter[R],
-	condition where.ComparatorType,
-	value ...string,
-) BuilderOption {
-	return AddWhereOption[R]{
-		Cmp: comparators.StringFieldComparator[R]{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
+		return AddWhereOption[R]{
+			Cmp: comparators.StringFieldComparator[R]{
+				ComparableFieldComparator: comparators.ComparableFieldComparator[R, string]{
+					Cmp:    condition,
+					Getter: castedGetter,
+					Value:  castedValue,
+				},
+			},
+		}
+
+	default:
+		return AddWhereOption[R]{
+			Cmp: comparators.ComparableFieldComparator[R, T]{
+				Cmp:    condition,
+				Getter: getter,
+				Value:  value,
+			},
+		}
 	}
 }
 
 func WhereStringRegexp[R record.Record](
-	getter record.StringGetter[R],
+	getter record.ComparableGetter[R, string],
 	value *regexp.Regexp,
 ) BuilderOption {
 	return AddWhereOption[R]{

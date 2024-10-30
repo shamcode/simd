@@ -42,6 +42,11 @@ func (q *combineBuilder[R]) CloseBracket() {
 	q.base.CloseBracket()
 }
 
+func (q *combineBuilder[R]) Error(err error) {
+	q.debug.Error(err)
+	q.base.Error(err)
+}
+
 func (q *combineBuilder[R]) AddWhere(cmp where.FieldComparator[R]) {
 	q.debug.AddWhere(cmp)
 	q.base.AddWhere(cmp)

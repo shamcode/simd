@@ -41,15 +41,3 @@ func NewComparableHashIndex[R record.Record, T record.LessComparable](
 		unique,
 	)
 }
-
-func NewStringHashIndex[R record.Record](
-	getter record.StringGetter[R],
-	unique bool,
-) indexes.Index[R] {
-	return NewIndex(
-		getter.Field,
-		compute.CreateStringIndexComputation(getter),
-		CreateHashTable(),
-		unique,
-	)
-}

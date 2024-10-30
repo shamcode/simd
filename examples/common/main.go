@@ -26,7 +26,7 @@ var userFields = record.NewFields()
 
 var id = record.NewIDGetter[*User]()
 
-var name = record.StringGetter[*User]{
+var name = record.ComparableGetter[*User, string]{
 	Field: userFields.New("name"),
 	Get:   func(item *User) string { return item.Name },
 }
@@ -48,7 +48,7 @@ func main() {
 	}
 
 	store.AddIndex(hash.NewComparableHashIndex(id, true))
-	store.AddIndex(hash.NewStringHashIndex(name, false))
+	store.AddIndex(hash.NewComparableHashIndex(name, false))
 
 	for _, user := range []*User{
 		{

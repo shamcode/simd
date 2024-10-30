@@ -15,6 +15,9 @@ type Builder interface {
 	Or()
 	OpenBracket()
 	CloseBracket()
+
+	// Error save error to builder
+	Error(err error)
 }
 
 type BuilderGeneric[R record.Record] interface {
@@ -89,6 +92,12 @@ func (qb *queryBuilder[R]) CloseBracket() {
 		qb.errors = append(qb.errors, ErrCloseBracketWithoutOpen)
 	}
 	qb.conditionSet = true
+}
+
+func (qb *queryBuilder[R]) Error(err error) {
+	if err != nil {
+		qb.errors = append(qb.errors, err)
+	}
 }
 
 func (qb *queryBuilder[R]) Sort(sortBy sort.ByWithOrder[R]) {

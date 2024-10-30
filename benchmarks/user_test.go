@@ -38,7 +38,7 @@ var userFields = record.NewFields()
 
 var userID = record.NewIDGetter[*User]()
 
-var userName = record.StringGetter[*User]{
+var userName = record.ComparableGetter[*User, string]{
 	Field: userFields.New("name"),
 	Get:   func(item *User) string { return item.Name },
 }

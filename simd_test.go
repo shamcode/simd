@@ -122,14 +122,14 @@ var userFields = record.NewFields()
 
 var userID = record.NewIDGetter[*User]()
 
-var userName = record.StringGetter[*User]{
+var userName = record.ComparableGetter[*User, string]{
 	Field: userFields.New("name"),
 	Get:   func(item *User) string { return item.Name },
 }
 
-var userStatus = record.EnumGetter[*User, uint8]{
+var userStatus = record.ComparableGetter[*User, StatusEnum]{
 	Field: userFields.New("status"),
-	Get:   func(item *User) record.Enum[uint8] { return item.Status },
+	Get:   func(item *User) StatusEnum { return item.Status },
 }
 
 var userScore = record.ComparableGetter[*User, int]{
@@ -166,8 +166,8 @@ func (sorting byOnline) Calc(item *User) int64 {
 func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 	store := namespace.CreateNamespace[*User]()
 	store.AddIndex(hash.NewComparableHashIndex(userID, true))
-	store.AddIndex(hash.NewStringHashIndex(userName, false))
-	store.AddIndex(hash.NewEnumHashIndex(userStatus, false))
+	store.AddIndex(hash.NewComparableHashIndex(userName, false))
+	store.AddIndex(hash.NewComparableHashIndex(userStatus, false))
 	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
 	store.AddIndex(btree.NewComparableBTreeIndex(userScore, 16, false))
 	asserts.Success(t, store.Insert(&User{
@@ -226,7 +226,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		{
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id ASC",
 			Query: query.NewBuilder[*User](
-				query.WhereEnum(userStatus, where.EQ, StatusActive),
+				query.Where(userStatus, where.EQ, StatusActive),
 				query.Sort(sort.Asc(userID)),
 			).Query(),
 			ExpectedCount: 2,
@@ -235,7 +235,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		{
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id DESC",
 			Query: query.NewBuilder[*User](
-				query.WhereEnum(userStatus, where.EQ, StatusActive),
+				query.Where(userStatus, where.EQ, StatusActive),
 				query.Sort(sort.Desc(userID)),
 			).Query(),
 			ExpectedCount: 2,
@@ -245,7 +245,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			Name: "SELECT *, COUNT(*) WHERE status != DISABLED ORDER BY id ASC",
 			Query: query.NewBuilder[*User](
 				query.Not(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.Sort(sort.Asc(userID)),
 			).Query(),
 			ExpectedCount: 2,
@@ -299,8 +299,8 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		{
 			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == ACTIVE",
 			Query: query.NewBuilder[*User](
-				query.WhereString(userName, where.EQ, "Fourth"),
-				query.WhereEnum(userStatus, where.EQ, StatusActive),
+				query.Where(userName, where.EQ, "Fourth"),
+				query.Where(userStatus, where.EQ, StatusActive),
 			).Query(),
 			ExpectedCount: 1,
 			ExpectedIDs:   []int64{4},
@@ -308,8 +308,8 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		{
 			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == DISABLED",
 			Query: query.NewBuilder[*User](
-				query.WhereString(userName, where.EQ, "Fourth"),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userName, where.EQ, "Fourth"),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 			).Query(),
 			ExpectedCount: 0,
 			ExpectedIDs:   []int64{},
@@ -317,7 +317,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		{
 			Name: "SELECT *, COUNT(*) WHERE name LIKE 'th' ORDER BY id ASC",
 			Query: query.NewBuilder[*User](
-				query.WhereString(userName, where.Like, "t"),
+				query.Where(userName, where.Like, "t"),
 				query.Sort(sort.Asc(userID)),
 			).Query(),
 			ExpectedCount: 2,
@@ -328,7 +328,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			Query: query.NewBuilder[*User](
 				query.Where(userID, where.EQ, 1),
 				query.Or(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.Sort(sort.Asc(userID)),
 			).Query(),
 			ExpectedCount: 3,
@@ -341,7 +341,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 				query.Or(),
 				query.OpenBracket(),
 				query.Not(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.CloseBracket(),
 				query.Sort(sort.Asc(userID)),
 			).Query(),
@@ -355,7 +355,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 				query.Or(),
 				query.OpenBracket(),
 				query.Not(),
-				query.WhereEnum(userStatus, where.EQ, StatusActive),
+				query.Where(userStatus, where.EQ, StatusActive),
 				query.Or(),
 				query.Not(),
 				query.WhereBool(userIsOnline, where.EQ, true),
@@ -371,7 +371,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 				query.Where(userID, where.EQ, 1),
 				query.Or(),
 				query.OpenBracket(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, false),
 				query.CloseBracket(),
@@ -384,7 +384,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			Name: "SELECT *, COUNT(*) WHERE (status == DISABLED OR is_online = false) OR id = 1 ORDER BY id ASC",
 			Query: query.NewBuilder[*User](
 				query.OpenBracket(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, false),
 				query.CloseBracket(),
@@ -401,7 +401,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 				query.Where(userID, where.EQ, 4),
 				query.Or(),
 				query.OpenBracket(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, false),
 				query.CloseBracket(),
@@ -415,7 +415,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			Query: query.NewBuilder[*User](
 				query.Where(userID, where.EQ, 4),
 				query.OpenBracket(),
-				query.WhereEnum(userStatus, where.EQ, StatusDisabled),
+				query.Where(userStatus, where.EQ, StatusDisabled),
 				query.Or(),
 				query.WhereBool(userIsOnline, where.EQ, true),
 				query.CloseBracket(),
@@ -454,7 +454,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		{
 			Name: "SELECT *, COUNT(*) WHERE name IN (Second, Third) ORDER BY id ASC",
 			Query: query.NewBuilder[*User](
-				query.WhereString(userName, where.InArray, "Second", "Third"),
+				query.Where(userName, where.InArray, "Second", "Third"),
 				query.Sort(sort.Asc(userID)),
 			).Query(),
 			ExpectedCount: 2,
@@ -611,7 +611,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
 		context.Background(),
 		query.NewBuilder[*User](
-			query.WhereEnum(userStatus, where.EQ, StatusActive),
+			query.Where(userStatus, where.EQ, StatusActive),
 			query.Limit(1),
 			query.Sort(sort.Asc(userID)),
 			query.OnIteration(func(item *User) {
@@ -648,7 +648,7 @@ func Test_InsertAlreadyExisted(t *testing.T) {
 func Test_Upsert(t *testing.T) {
 	store := namespace.CreateNamespace[*User]()
 	store.AddIndex(hash.NewComparableHashIndex(userID, true))
-	store.AddIndex(hash.NewEnumHashIndex(userStatus, true))
+	store.AddIndex(hash.NewComparableHashIndex(userStatus, true))
 	asserts.Success(t, store.Insert(&User{
 		ID:     1,
 		Status: StatusActive,

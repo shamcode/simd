@@ -31,16 +31,3 @@ func NewComparableBTreeIndex[R record.Record, V record.LessComparable](
 		uniq,
 	)
 }
-
-func NewStringBTreeIndex[R record.Record](
-	getter record.StringGetter[R],
-	maxChildren int,
-	uniq bool,
-) indexes.Index[R] {
-	return NewIndex(
-		getter.Field,
-		compute.CreateStringIndexComputation(getter),
-		NewTree(maxChildren, uniq),
-		uniq,
-	)
-}

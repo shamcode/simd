@@ -25,7 +25,7 @@ var userFields = record.NewFields()
 
 var id = record.NewIDGetter[*user]()
 
-var name = record.StringGetter[*user]{
+var name = record.ComparableGetter[*user, string]{
 	Field: userFields.New("name"),
 	Get: func(item *user) string {
 		return item.Name
@@ -255,7 +255,7 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where name like \"th\"",
 			query: query.NewBuilder[*user](
-				query.WhereString(name, where.Like, "th"),
+				query.Where(name, where.Like, "th"),
 				query.Sort(sort.Asc[*user](id)),
 			).Query(),
 			expected: []int64{3, 4, 5},
@@ -263,9 +263,9 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where name like \"th\" or name like \"first\"",
 			query: query.NewBuilder[*user](
-				query.WhereString(name, where.Like, "th"),
+				query.Where(name, where.Like, "th"),
 				query.Or(),
-				query.WhereString(name, where.Like, "first"),
+				query.Where(name, where.Like, "first"),
 				query.Sort(sort.Asc[*user](id)),
 			).Query(),
 			expected: []int64{1, 3, 4, 5},

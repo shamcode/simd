@@ -75,6 +75,9 @@ func (q *debugQueryBuilder[R]) CloseBracket() {
 	q.chunks[chunkWhere].WriteString(")")
 	q.requireOp = true
 }
+
+func (q *debugQueryBuilder[R]) Error(err error) {}
+
 func (q *debugQueryBuilder[R]) AddWhere(cmp where.FieldComparator[R]) {
 	q.saveFieldComparatorForDump(cmp)
 	q.withNot = false

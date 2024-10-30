@@ -1,6 +1,8 @@
 package comparators
 
 import (
+	"slices"
+
 	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/where"
 )
@@ -24,12 +26,7 @@ func (fc InterfaceFieldComparator[R]) CompareValue(value any) (bool, error) {
 	case where.EQ:
 		return value == fc.Value[0], nil
 	case where.InArray:
-		for _, x := range fc.Value {
-			if x == value {
-				return true, nil
-			}
-		}
-		return false, nil
+		return slices.Index(fc.Value, value) != -1, nil
 	default:
 		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)
 	}

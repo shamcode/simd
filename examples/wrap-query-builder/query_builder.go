@@ -70,9 +70,11 @@ func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int6
 
 func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...string) UserQueryBuilder {
 	uq.builder.AddWhere(comparators.StringFieldComparator[*User]{
-		Cmp:    condition,
-		Getter: name,
-		Value:  value,
+		ComparableFieldComparator: comparators.ComparableFieldComparator[*User, string]{
+			Cmp:    condition,
+			Getter: name,
+			Value:  value,
+		},
 	})
 	return uq
 }

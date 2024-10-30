@@ -18,7 +18,7 @@ type user struct {
 	int    int
 	int32  int32
 	int64  int64
-	iface  interface{}
+	iface  any
 	mp     mp
 	set    set
 	string string
@@ -36,7 +36,7 @@ func (e enum16) Value() uint16 { return uint16(e) }
 
 type mp map[int]int
 
-func (m mp) HasKey(key interface{}) bool {
+func (m mp) HasKey(key any) bool {
 	intKey, ok := key.(int)
 	if !ok {
 		return false
@@ -57,15 +57,15 @@ func (m mp) HasValue(check record.MapValueComparator) (bool, error) {
 	return false, nil
 }
 
-type mapValueComparator func(item interface{}) (bool, error)
+type mapValueComparator func(item any) (bool, error)
 
-func (e mapValueComparator) Compare(item interface{}) (bool, error) {
+func (e mapValueComparator) Compare(item any) (bool, error) {
 	return e(item)
 }
 
 type set map[int]struct{}
 
-func (s set) Has(item interface{}) bool {
+func (s set) Has(item any) bool {
 	intValue, ok := item.(int)
 	if !ok {
 		return false
@@ -121,7 +121,7 @@ var setGetter = record.SetGetter[*user]{
 	Get:   func(item *user) record.Set { return item.set },
 }
 
-var stringGetter = record.StringGetter[*user]{
+var stringGetter = record.ComparableGetter[*user, string]{
 	Field: fields.New("string"),
 	Get:   func(item *user) string { return item.string },
 }
@@ -154,7 +154,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		expectedError  error
 		expectedCmp    where.ComparatorType
 		expectedField  string
-		expectedValues []interface{}
+		expectedValues []any
 	}
 
 	checkTestCases := func(t *testing.T, testCases []testCase) { //nolint:thelper
@@ -165,7 +165,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				asserts.Equals(t, test.expectedError, err, "error")
 				asserts.Equals(t, test.comparator.GetType(), test.expectedCmp, "comparator type")
 				asserts.Equals(t, test.comparator.GetField().String(), test.expectedField, "field")
-				var values []interface{}
+				var values []any
 				for i := range test.comparator.ValuesCount() {
 					values = append(values, test.comparator.ValueAt(i))
 				}
@@ -186,7 +186,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "bool",
-				expectedValues: []interface{}{true},
+				expectedValues: []any{true},
 			},
 			{
 				name: "true = false",
@@ -198,7 +198,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "bool",
-				expectedValues: []interface{}{false},
+				expectedValues: []any{false},
 			},
 			{
 				name: "true ? true",
@@ -211,7 +211,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(boolGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "bool",
-				expectedValues: []interface{}{true},
+				expectedValues: []any{true},
 			},
 		})
 	})
@@ -228,7 +228,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum8",
-				expectedValues: []interface{}{enum8(2)},
+				expectedValues: []any{enum8(2)},
 			},
 			{
 				name: "2 = 3",
@@ -240,7 +240,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum8",
-				expectedValues: []interface{}{enum8(3)},
+				expectedValues: []any{enum8(3)},
 			},
 			{
 				name: "2 IN (1, 2)",
@@ -252,7 +252,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum8",
-				expectedValues: []interface{}{enum8(1), enum8(2)},
+				expectedValues: []any{enum8(1), enum8(2)},
 			},
 			{
 				name: "2 IN (1, 3)",
@@ -264,7 +264,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum8",
-				expectedValues: []interface{}{enum8(1), enum8(3)},
+				expectedValues: []any{enum8(1), enum8(3)},
 			},
 			{
 				name: "2 ? 2",
@@ -277,7 +277,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(enum8Getter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "enum8",
-				expectedValues: []interface{}{enum8(2)},
+				expectedValues: []any{enum8(2)},
 			},
 		})
 	})
@@ -294,7 +294,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum16",
-				expectedValues: []interface{}{enum16(2)},
+				expectedValues: []any{enum16(2)},
 			},
 			{
 				name: "2 = 3",
@@ -306,7 +306,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum16",
-				expectedValues: []interface{}{enum16(3)},
+				expectedValues: []any{enum16(3)},
 			},
 			{
 				name: "2 IN (1, 2)",
@@ -318,7 +318,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum16",
-				expectedValues: []interface{}{enum16(1), enum16(2)},
+				expectedValues: []any{enum16(1), enum16(2)},
 			},
 			{
 				name: "2 IN (1, 3)",
@@ -330,7 +330,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum16",
-				expectedValues: []interface{}{enum16(1), enum16(3)},
+				expectedValues: []any{enum16(1), enum16(3)},
 			},
 			{
 				name: "2 ? 2",
@@ -343,7 +343,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(enum16Getter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "enum16",
-				expectedValues: []interface{}{enum16(2)},
+				expectedValues: []any{enum16(2)},
 			},
 		})
 	})
@@ -360,7 +360,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "int",
-				expectedValues: []interface{}{10},
+				expectedValues: []any{10},
 			},
 			{
 				name: "10 = 3",
@@ -372,7 +372,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "int",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "10 > 3",
@@ -384,7 +384,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GT,
 				expectedField:  "int",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "10 > 30",
@@ -396,7 +396,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.GT,
 				expectedField:  "int",
-				expectedValues: []interface{}{30},
+				expectedValues: []any{30},
 			},
 			{
 				name: "10 >= 3",
@@ -408,7 +408,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "10 >= 30",
@@ -420,7 +420,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.GE,
 				expectedField:  "int",
-				expectedValues: []interface{}{30},
+				expectedValues: []any{30},
 			},
 			{
 				name: "10 >= 10",
@@ -432,7 +432,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int",
-				expectedValues: []interface{}{10},
+				expectedValues: []any{10},
 			},
 			{
 				name: "10 < 3",
@@ -444,7 +444,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.LT,
 				expectedField:  "int",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "10 < 30",
@@ -456,7 +456,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LT,
 				expectedField:  "int",
-				expectedValues: []interface{}{30},
+				expectedValues: []any{30},
 			},
 			{
 				name: "10 <= 3",
@@ -468,7 +468,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.LE,
 				expectedField:  "int",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "10 <= 30",
@@ -480,7 +480,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int",
-				expectedValues: []interface{}{30},
+				expectedValues: []any{30},
 			},
 			{
 				name: "10 <= 10",
@@ -492,7 +492,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int",
-				expectedValues: []interface{}{10},
+				expectedValues: []any{10},
 			},
 			{
 				name: "10 IN (1, 2, 10)",
@@ -504,7 +504,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "int",
-				expectedValues: []interface{}{1, 2, 10},
+				expectedValues: []any{1, 2, 10},
 			},
 			{
 				name: "10 IN (1, 3)",
@@ -516,7 +516,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "int",
-				expectedValues: []interface{}{1, 3},
+				expectedValues: []any{1, 3},
 			},
 			{
 				name: "10 ? 10",
@@ -529,7 +529,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(intGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "int",
-				expectedValues: []interface{}{10},
+				expectedValues: []any{10},
 			},
 		})
 	})
@@ -546,7 +546,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(10)},
+				expectedValues: []any{int32(10)},
 			},
 			{
 				name: "10 = 3",
@@ -558,7 +558,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(3)},
+				expectedValues: []any{int32(3)},
 			},
 			{
 				name: "10 > 3",
@@ -570,7 +570,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GT,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(3)},
+				expectedValues: []any{int32(3)},
 			},
 			{
 				name: "10 > 30",
@@ -582,7 +582,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.GT,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(30)},
+				expectedValues: []any{int32(30)},
 			},
 			{
 				name: "10 >= 3",
@@ -594,7 +594,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(3)},
+				expectedValues: []any{int32(3)},
 			},
 			{
 				name: "10 >= 30",
@@ -606,7 +606,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.GE,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(30)},
+				expectedValues: []any{int32(30)},
 			},
 			{
 				name: "10 >= 10",
@@ -618,7 +618,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(10)},
+				expectedValues: []any{int32(10)},
 			},
 			{
 				name: "10 < 3",
@@ -630,7 +630,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.LT,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(3)},
+				expectedValues: []any{int32(3)},
 			},
 			{
 				name: "10 < 30",
@@ -642,7 +642,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LT,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(30)},
+				expectedValues: []any{int32(30)},
 			},
 			{
 				name: "10 <= 3",
@@ -654,7 +654,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.LE,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(3)},
+				expectedValues: []any{int32(3)},
 			},
 			{
 				name: "10 <= 30",
@@ -666,7 +666,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(30)},
+				expectedValues: []any{int32(30)},
 			},
 			{
 				name: "10 <= 10",
@@ -678,7 +678,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(10)},
+				expectedValues: []any{int32(10)},
 			},
 			{
 				name: "10 IN (1, 2, 10)",
@@ -690,7 +690,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(1), int32(2), int32(10)},
+				expectedValues: []any{int32(1), int32(2), int32(10)},
 			},
 			{
 				name: "10 IN (1, 3)",
@@ -702,7 +702,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(1), int32(3)},
+				expectedValues: []any{int32(1), int32(3)},
 			},
 			{
 				name: "10 ? 10",
@@ -715,7 +715,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(int32Getter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "int32",
-				expectedValues: []interface{}{int32(10)},
+				expectedValues: []any{int32(10)},
 			},
 		})
 	})
@@ -732,7 +732,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(10)},
+				expectedValues: []any{int64(10)},
 			},
 			{
 				name: "10 = 3",
@@ -744,7 +744,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(3)},
+				expectedValues: []any{int64(3)},
 			},
 			{
 				name: "10 > 3",
@@ -756,7 +756,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GT,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(3)},
+				expectedValues: []any{int64(3)},
 			},
 			{
 				name: "10 > 30",
@@ -768,7 +768,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.GT,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(30)},
+				expectedValues: []any{int64(30)},
 			},
 			{
 				name: "10 >= 3",
@@ -780,7 +780,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(3)},
+				expectedValues: []any{int64(3)},
 			},
 			{
 				name: "10 >= 30",
@@ -792,7 +792,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.GE,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(30)},
+				expectedValues: []any{int64(30)},
 			},
 			{
 				name: "10 >= 10",
@@ -804,7 +804,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(10)},
+				expectedValues: []any{int64(10)},
 			},
 			{
 				name: "10 < 3",
@@ -816,7 +816,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.LT,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(3)},
+				expectedValues: []any{int64(3)},
 			},
 			{
 				name: "10 < 30",
@@ -828,7 +828,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LT,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(30)},
+				expectedValues: []any{int64(30)},
 			},
 			{
 				name: "10 <= 3",
@@ -840,7 +840,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.LE,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(3)},
+				expectedValues: []any{int64(3)},
 			},
 			{
 				name: "10 <= 30",
@@ -852,7 +852,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(30)},
+				expectedValues: []any{int64(30)},
 			},
 			{
 				name: "10 <= 10",
@@ -864,7 +864,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(10)},
+				expectedValues: []any{int64(10)},
 			},
 			{
 				name: "10 IN (1, 2, 10)",
@@ -876,7 +876,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(1), int64(2), int64(10)},
+				expectedValues: []any{int64(1), int64(2), int64(10)},
 			},
 			{
 				name: "10 IN (1, 3)",
@@ -888,7 +888,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(1), int64(3)},
+				expectedValues: []any{int64(1), int64(3)},
 			},
 			{
 				name: "10 ? 10",
@@ -901,73 +901,73 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(int64Getter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "int64",
-				expectedValues: []interface{}{int64(10)},
+				expectedValues: []any{int64(10)},
 			},
 		})
 	})
 
-	t.Run("interface{}", func(t *testing.T) {
+	t.Run("any", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
 				name: "42 = 42",
 				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: ifaceGetter,
-					Value:  []interface{}{42},
+					Value:  []any{42},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "iface",
-				expectedValues: []interface{}{42},
+				expectedValues: []any{42},
 			},
 			{
 				name: "42 = 10",
 				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.EQ,
 					Getter: ifaceGetter,
-					Value:  []interface{}{10},
+					Value:  []any{10},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "iface",
-				expectedValues: []interface{}{10},
+				expectedValues: []any{10},
 			},
 			{
 				name: "42 IN (10, 42)",
 				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.InArray,
 					Getter: ifaceGetter,
-					Value:  []interface{}{10, 42},
+					Value:  []any{10, 42},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "iface",
-				expectedValues: []interface{}{10, 42},
+				expectedValues: []any{10, 42},
 			},
 			{
 				name: "42 IN (10, 4)",
 				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    where.InArray,
 					Getter: ifaceGetter,
-					Value:  []interface{}{10, 4},
+					Value:  []any{10, 4},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "iface",
-				expectedValues: []interface{}{10, 4},
+				expectedValues: []any{10, 4},
 			},
 			{
 				name: "42 ? 2",
 				comparator: InterfaceFieldComparator[*user]{
 					Cmp:    0,
 					Getter: ifaceGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(ifaceGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "iface",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 		})
 	})
@@ -979,38 +979,38 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasKey,
 					Getter: mapGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: true,
 				expectedCmp:    where.MapHasKey,
 				expectedField:  "map",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 			{
 				name: "MapHasKey 4",
 				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasKey,
 					Getter: mapGetter,
-					Value:  []interface{}{4},
+					Value:  []any{4},
 				},
 				expectedResult: false,
 				expectedCmp:    where.MapHasKey,
 				expectedField:  "map",
-				expectedValues: []interface{}{4},
+				expectedValues: []any{4},
 			},
 			{
 				name: "MapHasValue 8",
 				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
-					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+					Value: []any{mapValueComparator(func(item any) (bool, error) {
 						return item.(int) == 8, nil
 					})},
 				},
 				expectedResult: true,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+				expectedValues: []any{mapValueComparator(func(item any) (bool, error) {
 					return item.(int) == 8, nil
 				})},
 			},
@@ -1019,14 +1019,14 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
-					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+					Value: []any{mapValueComparator(func(item any) (bool, error) {
 						return item.(int) == 10, nil
 					})},
 				},
 				expectedResult: false,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+				expectedValues: []any{mapValueComparator(func(item any) (bool, error) {
 					return item.(int) == 10, nil
 				})},
 			},
@@ -1035,20 +1035,20 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
-					Value:  []interface{}{42},
+					Value:  []any{42},
 				},
 				expectedResult: false,
 				expectedError:  NewFailCastTypeError(mapGetter.Field, where.MapHasValue, 42, "record.MapValueComparator"),
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []interface{}{42},
+				expectedValues: []any{42},
 			},
 			{
 				name: "MapHasValue error",
 				comparator: MapFieldComparator[*user]{
 					Cmp:    where.MapHasValue,
 					Getter: mapGetter,
-					Value: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+					Value: []any{mapValueComparator(func(item any) (bool, error) {
 						return false, errors.New("comparator error")
 					})},
 				},
@@ -1056,7 +1056,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  errors.New("comparator error"),
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []interface{}{mapValueComparator(func(item interface{}) (bool, error) {
+				expectedValues: []any{mapValueComparator(func(item any) (bool, error) {
 					return false, errors.New("comparator error")
 				})},
 			},
@@ -1065,13 +1065,13 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: MapFieldComparator[*user]{
 					Cmp:    0,
 					Getter: mapGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(mapGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "map",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 		})
 	})
@@ -1083,37 +1083,37 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: true,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 			{
 				name: "SetHas 3",
 				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
-					Value:  []interface{}{3},
+					Value:  []any{3},
 				},
 				expectedResult: false,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "? 2",
 				comparator: SetFieldComparator[*user]{
 					Cmp:    0,
 					Getter: setGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "set",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 		})
 	})
@@ -1125,37 +1125,37 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: true,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 			{
 				name: "SetHas 3",
 				comparator: SetFieldComparator[*user]{
 					Cmp:    where.SetHas,
 					Getter: setGetter,
-					Value:  []interface{}{3},
+					Value:  []any{3},
 				},
 				expectedResult: false,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
-				expectedValues: []interface{}{3},
+				expectedValues: []any{3},
 			},
 			{
 				name: "? 2",
 				comparator: SetFieldComparator[*user]{
 					Cmp:    0,
 					Getter: setGetter,
-					Value:  []interface{}{2},
+					Value:  []any{2},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "set",
-				expectedValues: []interface{}{2},
+				expectedValues: []any{2},
 			},
 		})
 	})
@@ -1165,207 +1165,241 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "foo = foo",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.EQ,
-					Getter: stringGetter,
-					Value:  []string{"foo"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.EQ,
+						Getter: stringGetter,
+						Value:  []string{"foo"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "string",
-				expectedValues: []interface{}{"foo"},
+				expectedValues: []any{"foo"},
 			},
 			{
 				name: "foo = bar",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.EQ,
-					Getter: stringGetter,
-					Value:  []string{"bar"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.EQ,
+						Getter: stringGetter,
+						Value:  []string{"bar"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar"},
+				expectedValues: []any{"bar"},
 			},
 			{
 				name: "foo > bar",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.GT,
-					Getter: stringGetter,
-					Value:  []string{"bar"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.GT,
+						Getter: stringGetter,
+						Value:  []string{"bar"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GT,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar"},
+				expectedValues: []any{"bar"},
 			},
 			{
 				name: "foo > zzz",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.GT,
-					Getter: stringGetter,
-					Value:  []string{"zzz"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.GT,
+						Getter: stringGetter,
+						Value:  []string{"zzz"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GT,
 				expectedField:  "string",
-				expectedValues: []interface{}{"zzz"},
+				expectedValues: []any{"zzz"},
 			},
 			{
 				name: "foo >= bar",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.GE,
-					Getter: stringGetter,
-					Value:  []string{"bar"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.GE,
+						Getter: stringGetter,
+						Value:  []string{"bar"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar"},
+				expectedValues: []any{"bar"},
 			},
 			{
 				name: "foo >= zzz",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.GE,
-					Getter: stringGetter,
-					Value:  []string{"zzz"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.GE,
+						Getter: stringGetter,
+						Value:  []string{"zzz"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GE,
 				expectedField:  "string",
-				expectedValues: []interface{}{"zzz"},
+				expectedValues: []any{"zzz"},
 			},
 			{
 				name: "foo >= foo",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.GE,
-					Getter: stringGetter,
-					Value:  []string{"foo"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.GE,
+						Getter: stringGetter,
+						Value:  []string{"foo"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "string",
-				expectedValues: []interface{}{"foo"},
+				expectedValues: []any{"foo"},
 			},
 			{
 				name: "foo < bar",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.LT,
-					Getter: stringGetter,
-					Value:  []string{"bar"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.LT,
+						Getter: stringGetter,
+						Value:  []string{"bar"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LT,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar"},
+				expectedValues: []any{"bar"},
 			},
 			{
 				name: "foo < zzz",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.LT,
-					Getter: stringGetter,
-					Value:  []string{"zzz"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.LT,
+						Getter: stringGetter,
+						Value:  []string{"zzz"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LT,
 				expectedField:  "string",
-				expectedValues: []interface{}{"zzz"},
+				expectedValues: []any{"zzz"},
 			},
 			{
 				name: "foo <= bar",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.LE,
-					Getter: stringGetter,
-					Value:  []string{"bar"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.LE,
+						Getter: stringGetter,
+						Value:  []string{"bar"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LE,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar"},
+				expectedValues: []any{"bar"},
 			},
 			{
 				name: "foo <= zzz",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.LE,
-					Getter: stringGetter,
-					Value:  []string{"zzz"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.LE,
+						Getter: stringGetter,
+						Value:  []string{"zzz"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "string",
-				expectedValues: []interface{}{"zzz"},
+				expectedValues: []any{"zzz"},
 			},
 			{
 				name: "foo <= foo",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.LE,
-					Getter: stringGetter,
-					Value:  []string{"foo"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.LE,
+						Getter: stringGetter,
+						Value:  []string{"foo"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "string",
-				expectedValues: []interface{}{"foo"},
+				expectedValues: []any{"foo"},
 			},
 			{
 				name: "foo IN (bar, foo)",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.InArray,
-					Getter: stringGetter,
-					Value:  []string{"bar", "foo"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.InArray,
+						Getter: stringGetter,
+						Value:  []string{"bar", "foo"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar", "foo"},
+				expectedValues: []any{"bar", "foo"},
 			},
 			{
 				name: "foo IN (bar, zzz)",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.InArray,
-					Getter: stringGetter,
-					Value:  []string{"bar", "zzz"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.InArray,
+						Getter: stringGetter,
+						Value:  []string{"bar", "zzz"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar", "zzz"},
+				expectedValues: []any{"bar", "zzz"},
 			},
 			{
 				name: "foo LIKE oo",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.Like,
-					Getter: stringGetter,
-					Value:  []string{"oo"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.Like,
+						Getter: stringGetter,
+						Value:  []string{"oo"},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.Like,
 				expectedField:  "string",
-				expectedValues: []interface{}{"oo"},
+				expectedValues: []any{"oo"},
 			},
 			{
 				name: "foo LIKE ff",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    where.Like,
-					Getter: stringGetter,
-					Value:  []string{"ff"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    where.Like,
+						Getter: stringGetter,
+						Value:  []string{"ff"},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.Like,
 				expectedField:  "string",
-				expectedValues: []interface{}{"ff"},
+				expectedValues: []any{"ff"},
 			},
 			{
 				name: "foo ? bar",
 				comparator: StringFieldComparator[*user]{
-					Cmp:    0,
-					Getter: stringGetter,
-					Value:  []string{"bar"},
+					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
+						Cmp:    0,
+						Getter: stringGetter,
+						Value:  []string{"bar"},
+					},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(stringGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "string",
-				expectedValues: []interface{}{"bar"},
+				expectedValues: []any{"bar"},
 			},
 		})
 	})
@@ -1382,7 +1416,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: true,
 				expectedCmp:    where.Regexp,
 				expectedField:  "string",
-				expectedValues: []interface{}{regexp.MustCompile(`fo+`)},
+				expectedValues: []any{regexp.MustCompile(`fo+`)},
 			},
 			{
 				name: "foo Regexp /\\d+/",
@@ -1394,7 +1428,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedResult: false,
 				expectedCmp:    where.Regexp,
 				expectedField:  "string",
-				expectedValues: []interface{}{regexp.MustCompile(`\d+`)},
+				expectedValues: []any{regexp.MustCompile(`\d+`)},
 			},
 			{
 				name: "foo ? fo+",
@@ -1407,7 +1441,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  NewNotImplementComparatorError(stringGetter.Field, 0),
 				expectedCmp:    0,
 				expectedField:  "string",
-				expectedValues: []interface{}{regexp.MustCompile("fo+")},
+				expectedValues: []any{regexp.MustCompile("fo+")},
 			},
 		})
 	})
