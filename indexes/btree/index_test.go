@@ -36,9 +36,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.LT,
-						Getter: _id,
-						Value:  []int64{5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.LT,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{5},
+						},
 					},
 				},
 				expectedCanApply: true,
@@ -47,9 +49,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.EQ,
-						Getter: _id,
-						Value:  []int64{1},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.EQ,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{1},
+						},
 					},
 				},
 				expectedCanApply: true,
@@ -58,9 +62,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.InArray,
-						Getter: _id,
-						Value:  []int64{1, 5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.InArray,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{1, 5},
+						},
 					},
 				},
 				expectedCanApply: true,
@@ -70,9 +76,11 @@ func TestIndex(t *testing.T) {
 				condition: where.Condition[record.Record]{
 					WithNot: true,
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.EQ,
-						Getter: _id,
-						Value:  []int64{1},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.EQ,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{1},
+						},
 					},
 				},
 				expectedCanApply: true,
@@ -99,9 +107,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.LT,
-						Getter: _id,
-						Value:  []int64{5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.LT,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{5},
+						},
 					},
 				},
 				expectedCount: 4,
@@ -110,9 +120,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.LE,
-						Getter: _id,
-						Value:  []int64{5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.LE,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{5},
+						},
 					},
 				},
 				expectedCount: 5,
@@ -121,9 +133,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.EQ,
-						Getter: _id,
-						Value:  []int64{1},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.EQ,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{1},
+						},
 					},
 				},
 				expectedCount: 1,
@@ -132,9 +146,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.GT,
-						Getter: _id,
-						Value:  []int64{5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.GT,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{5},
+						},
 					},
 				},
 				expectedCount: 5,
@@ -143,9 +159,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.GE,
-						Getter: _id,
-						Value:  []int64{5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.GE,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{5},
+						},
 					},
 				},
 				expectedCount: 6,
@@ -154,9 +172,11 @@ func TestIndex(t *testing.T) {
 			{
 				condition: where.Condition[record.Record]{
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.InArray,
-						Getter: _id,
-						Value:  []int64{1, 5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.InArray,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{1, 5},
+						},
 					},
 				},
 				expectedCount: 2,
@@ -166,9 +186,11 @@ func TestIndex(t *testing.T) {
 				condition: where.Condition[record.Record]{
 					WithNot: true,
 					Cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-						Cmp:    where.EQ,
-						Getter: _id,
-						Value:  []int64{5},
+						EqualComparator: comparators.EqualComparator[record.Record, int64]{
+							Cmp:    where.EQ,
+							Getter: record.Getter[record.Record, int64](_id),
+							Value:  []int64{5},
+						},
 					},
 				},
 				expectedCount: 9,

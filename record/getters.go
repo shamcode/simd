@@ -14,7 +14,6 @@ type Getter[R Record, T any] struct {
 
 type (
 	BoolGetter[R Record]                         Getter[R, bool]
-	InterfaceGetter[R Record]                    Getter[R, any]
 	ComparableGetter[R Record, T LessComparable] Getter[R, T]
 	EnumGetter[R Record, T LessComparable]       Getter[R, Enum[T]]
 	MapGetter[R Record]                          Getter[R, Map]

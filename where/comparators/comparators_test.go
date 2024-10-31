@@ -106,7 +106,7 @@ var int64Getter = record.ComparableGetter[*user, int64]{
 	Get:   func(item *user) int64 { return item.int64 },
 }
 
-var ifaceGetter = record.InterfaceGetter[*user]{
+var ifaceGetter = record.Getter[*user, any]{
 	Field: fields.New("iface"),
 	Get:   func(item *user) any { return item.iface },
 }
@@ -178,9 +178,9 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "true = true",
-				comparator: BoolFieldComparator[*user]{
+				comparator: EqualComparator[*user, bool]{
 					Cmp:    where.EQ,
-					Getter: boolGetter,
+					Getter: record.Getter[*user, bool](boolGetter),
 					Value:  []bool{true},
 				},
 				expectedResult: true,
@@ -190,9 +190,9 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "true = false",
-				comparator: BoolFieldComparator[*user]{
+				comparator: EqualComparator[*user, bool]{
 					Cmp:    where.EQ,
-					Getter: boolGetter,
+					Getter: record.Getter[*user, bool](boolGetter),
 					Value:  []bool{false},
 				},
 				expectedResult: false,
@@ -202,9 +202,9 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "true ? true",
-				comparator: BoolFieldComparator[*user]{
+				comparator: EqualComparator[*user, bool]{
 					Cmp:    0,
-					Getter: boolGetter,
+					Getter: record.Getter[*user, bool](boolGetter),
 					Value:  []bool{true},
 				},
 				expectedResult: false,
@@ -353,9 +353,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 = 10",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.EQ,
-					Getter: intGetter,
-					Value:  []int{10},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.EQ,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
@@ -365,9 +367,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 = 3",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.EQ,
-					Getter: intGetter,
-					Value:  []int{3},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.EQ,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
@@ -377,9 +381,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 > 3",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.GT,
-					Getter: intGetter,
-					Value:  []int{3},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.GT,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{3},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GT,
@@ -389,9 +395,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 > 30",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.GT,
-					Getter: intGetter,
-					Value:  []int{30},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.GT,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{30},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GT,
@@ -401,9 +409,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 3",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.GE,
-					Getter: intGetter,
-					Value:  []int{3},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{3},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
@@ -413,9 +423,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 30",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.GE,
-					Getter: intGetter,
-					Value:  []int{30},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{30},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GE,
@@ -425,9 +437,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 10",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.GE,
-					Getter: intGetter,
-					Value:  []int{10},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
@@ -437,9 +451,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 < 3",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.LT,
-					Getter: intGetter,
-					Value:  []int{3},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.LT,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LT,
@@ -449,9 +465,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 < 30",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.LT,
-					Getter: intGetter,
-					Value:  []int{30},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.LT,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{30},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LT,
@@ -461,9 +479,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 3",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.LE,
-					Getter: intGetter,
-					Value:  []int{3},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LE,
@@ -473,9 +493,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 30",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.LE,
-					Getter: intGetter,
-					Value:  []int{30},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{30},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
@@ -485,9 +507,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 10",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.LE,
-					Getter: intGetter,
-					Value:  []int{10},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
@@ -497,9 +521,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 IN (1, 2, 10)",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.InArray,
-					Getter: intGetter,
-					Value:  []int{1, 2, 10},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.InArray,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{1, 2, 10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
@@ -509,9 +535,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 IN (1, 3)",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    where.InArray,
-					Getter: intGetter,
-					Value:  []int{1, 3},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    where.InArray,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{1, 3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
@@ -521,9 +549,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 ? 10",
 				comparator: ComparableFieldComparator[*user, int]{
-					Cmp:    0,
-					Getter: intGetter,
-					Value:  []int{10},
+					EqualComparator: EqualComparator[*user, int]{
+						Cmp:    0,
+						Getter: record.Getter[*user, int](intGetter),
+						Value:  []int{10},
+					},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(intGetter.Field, 0),
@@ -539,9 +569,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 = 10",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.EQ,
-					Getter: int32Getter,
-					Value:  []int32{10},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.EQ,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
@@ -551,9 +583,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 = 3",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.EQ,
-					Getter: int32Getter,
-					Value:  []int32{3},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.EQ,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
@@ -563,9 +597,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 > 3",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.GT,
-					Getter: int32Getter,
-					Value:  []int32{3},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.GT,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{3},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GT,
@@ -575,9 +611,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 > 30",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.GT,
-					Getter: int32Getter,
-					Value:  []int32{30},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.GT,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{30},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GT,
@@ -587,9 +625,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 3",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.GE,
-					Getter: int32Getter,
-					Value:  []int32{3},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{3},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
@@ -599,9 +639,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 30",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.GE,
-					Getter: int32Getter,
-					Value:  []int32{30},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{30},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GE,
@@ -611,9 +653,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 10",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.GE,
-					Getter: int32Getter,
-					Value:  []int32{10},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
@@ -623,9 +667,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 < 3",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.LT,
-					Getter: int32Getter,
-					Value:  []int32{3},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.LT,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LT,
@@ -635,9 +681,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 < 30",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.LT,
-					Getter: int32Getter,
-					Value:  []int32{30},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.LT,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{30},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LT,
@@ -647,9 +695,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 3",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.LE,
-					Getter: int32Getter,
-					Value:  []int32{3},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LE,
@@ -659,9 +709,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 30",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.LE,
-					Getter: int32Getter,
-					Value:  []int32{30},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{30},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
@@ -671,9 +723,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 10",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.LE,
-					Getter: int32Getter,
-					Value:  []int32{10},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
@@ -683,9 +737,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 IN (1, 2, 10)",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.InArray,
-					Getter: int32Getter,
-					Value:  []int32{1, 2, 10},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.InArray,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{1, 2, 10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
@@ -695,9 +751,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 IN (1, 3)",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    where.InArray,
-					Getter: int32Getter,
-					Value:  []int32{1, 3},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    where.InArray,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{1, 3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
@@ -707,9 +765,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 ? 10",
 				comparator: ComparableFieldComparator[*user, int32]{
-					Cmp:    0,
-					Getter: int32Getter,
-					Value:  []int32{10},
+					EqualComparator: EqualComparator[*user, int32]{
+						Cmp:    0,
+						Getter: record.Getter[*user, int32](int32Getter),
+						Value:  []int32{10},
+					},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(int32Getter.Field, 0),
@@ -725,9 +785,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 = 10",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.EQ,
-					Getter: int64Getter,
-					Value:  []int64{10},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.EQ,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.EQ,
@@ -737,9 +799,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 = 3",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.EQ,
-					Getter: int64Getter,
-					Value:  []int64{3},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.EQ,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.EQ,
@@ -749,9 +813,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 > 3",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.GT,
-					Getter: int64Getter,
-					Value:  []int64{3},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.GT,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{3},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GT,
@@ -761,9 +827,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 > 30",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.GT,
-					Getter: int64Getter,
-					Value:  []int64{30},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.GT,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{30},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GT,
@@ -773,9 +841,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 3",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.GE,
-					Getter: int64Getter,
-					Value:  []int64{3},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{3},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
@@ -785,9 +855,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 30",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.GE,
-					Getter: int64Getter,
-					Value:  []int64{30},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{30},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.GE,
@@ -797,9 +869,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 >= 10",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.GE,
-					Getter: int64Getter,
-					Value:  []int64{10},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.GE,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.GE,
@@ -809,9 +883,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 < 3",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.LT,
-					Getter: int64Getter,
-					Value:  []int64{3},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.LT,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LT,
@@ -821,9 +897,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 < 30",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.LT,
-					Getter: int64Getter,
-					Value:  []int64{30},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.LT,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{30},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LT,
@@ -833,9 +911,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 3",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.LE,
-					Getter: int64Getter,
-					Value:  []int64{3},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.LE,
@@ -845,9 +925,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 30",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.LE,
-					Getter: int64Getter,
-					Value:  []int64{30},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{30},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
@@ -857,9 +939,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 <= 10",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.LE,
-					Getter: int64Getter,
-					Value:  []int64{10},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.LE,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.LE,
@@ -869,9 +953,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 IN (1, 2, 10)",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.InArray,
-					Getter: int64Getter,
-					Value:  []int64{1, 2, 10},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.InArray,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{1, 2, 10},
+					},
 				},
 				expectedResult: true,
 				expectedCmp:    where.InArray,
@@ -881,9 +967,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 IN (1, 3)",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    where.InArray,
-					Getter: int64Getter,
-					Value:  []int64{1, 3},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    where.InArray,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{1, 3},
+					},
 				},
 				expectedResult: false,
 				expectedCmp:    where.InArray,
@@ -893,9 +981,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			{
 				name: "10 ? 10",
 				comparator: ComparableFieldComparator[*user, int64]{
-					Cmp:    0,
-					Getter: int64Getter,
-					Value:  []int64{10},
+					EqualComparator: EqualComparator[*user, int64]{
+						Cmp:    0,
+						Getter: record.Getter[*user, int64](int64Getter),
+						Value:  []int64{10},
+					},
 				},
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(int64Getter.Field, 0),
@@ -910,7 +1000,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "42 = 42",
-				comparator: InterfaceFieldComparator[*user]{
+				comparator: EqualComparator[*user, any]{
 					Cmp:    where.EQ,
 					Getter: ifaceGetter,
 					Value:  []any{42},
@@ -922,7 +1012,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 = 10",
-				comparator: InterfaceFieldComparator[*user]{
+				comparator: EqualComparator[*user, any]{
 					Cmp:    where.EQ,
 					Getter: ifaceGetter,
 					Value:  []any{10},
@@ -934,7 +1024,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 IN (10, 42)",
-				comparator: InterfaceFieldComparator[*user]{
+				comparator: EqualComparator[*user, any]{
 					Cmp:    where.InArray,
 					Getter: ifaceGetter,
 					Value:  []any{10, 42},
@@ -946,7 +1036,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 IN (10, 4)",
-				comparator: InterfaceFieldComparator[*user]{
+				comparator: EqualComparator[*user, any]{
 					Cmp:    where.InArray,
 					Getter: ifaceGetter,
 					Value:  []any{10, 4},
@@ -958,7 +1048,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "42 ? 2",
-				comparator: InterfaceFieldComparator[*user]{
+				comparator: EqualComparator[*user, any]{
 					Cmp:    0,
 					Getter: ifaceGetter,
 					Value:  []any{2},
@@ -1166,9 +1256,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo = foo",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.EQ,
-						Getter: stringGetter,
-						Value:  []string{"foo"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.EQ,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"foo"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1180,9 +1272,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo = bar",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.EQ,
-						Getter: stringGetter,
-						Value:  []string{"bar"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.EQ,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1194,9 +1288,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo > bar",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.GT,
-						Getter: stringGetter,
-						Value:  []string{"bar"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.GT,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1208,9 +1304,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo > zzz",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.GT,
-						Getter: stringGetter,
-						Value:  []string{"zzz"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.GT,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"zzz"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1222,9 +1320,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo >= bar",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.GE,
-						Getter: stringGetter,
-						Value:  []string{"bar"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.GE,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1236,9 +1336,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo >= zzz",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.GE,
-						Getter: stringGetter,
-						Value:  []string{"zzz"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.GE,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"zzz"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1250,9 +1352,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo >= foo",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.GE,
-						Getter: stringGetter,
-						Value:  []string{"foo"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.GE,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"foo"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1264,9 +1368,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo < bar",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.LT,
-						Getter: stringGetter,
-						Value:  []string{"bar"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.LT,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1278,9 +1384,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo < zzz",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.LT,
-						Getter: stringGetter,
-						Value:  []string{"zzz"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.LT,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"zzz"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1292,9 +1400,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo <= bar",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.LE,
-						Getter: stringGetter,
-						Value:  []string{"bar"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.LE,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1306,9 +1416,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo <= zzz",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.LE,
-						Getter: stringGetter,
-						Value:  []string{"zzz"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.LE,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"zzz"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1320,9 +1432,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo <= foo",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.LE,
-						Getter: stringGetter,
-						Value:  []string{"foo"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.LE,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"foo"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1334,9 +1448,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo IN (bar, foo)",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.InArray,
-						Getter: stringGetter,
-						Value:  []string{"bar", "foo"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.InArray,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar", "foo"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1348,9 +1464,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo IN (bar, zzz)",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.InArray,
-						Getter: stringGetter,
-						Value:  []string{"bar", "zzz"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.InArray,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar", "zzz"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1362,9 +1480,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo LIKE oo",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.Like,
-						Getter: stringGetter,
-						Value:  []string{"oo"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.Like,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"oo"},
+						},
 					},
 				},
 				expectedResult: true,
@@ -1376,9 +1496,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo LIKE ff",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    where.Like,
-						Getter: stringGetter,
-						Value:  []string{"ff"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    where.Like,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"ff"},
+						},
 					},
 				},
 				expectedResult: false,
@@ -1390,9 +1512,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "foo ? bar",
 				comparator: StringFieldComparator[*user]{
 					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						Cmp:    0,
-						Getter: stringGetter,
-						Value:  []string{"bar"},
+						EqualComparator: EqualComparator[*user, string]{
+							Cmp:    0,
+							Getter: record.Getter[*user, string](stringGetter),
+							Value:  []string{"bar"},
+						},
 					},
 				},
 				expectedResult: false,

@@ -78,12 +78,12 @@ type AddWhereOption[R record.Record] struct {
 func (o AddWhereOption[R]) Apply(b any) { b.(BuilderGeneric[R]).AddWhere(o.Cmp) }
 
 func WhereAny[R record.Record](
-	getter record.InterfaceGetter[R],
+	getter record.Getter[R, any],
 	condition where.ComparatorType,
 	values ...interface{},
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.InterfaceFieldComparator[R]{
+		Cmp: comparators.EqualComparator[R, any]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  values,
@@ -106,9 +106,11 @@ func Where[R record.Record, T record.LessComparable](
 		return AddWhereOption[R]{
 			Cmp: comparators.StringFieldComparator[R]{
 				ComparableFieldComparator: comparators.ComparableFieldComparator[R, string]{
-					Cmp:    condition,
-					Getter: castedGetter,
-					Value:  castedValue,
+					EqualComparator: comparators.EqualComparator[R, string]{
+						Cmp:    condition,
+						Getter: record.Getter[R, string](castedGetter),
+						Value:  castedValue,
+					},
 				},
 			},
 		}
@@ -116,9 +118,11 @@ func Where[R record.Record, T record.LessComparable](
 	default:
 		return AddWhereOption[R]{
 			Cmp: comparators.ComparableFieldComparator[R, T]{
-				Cmp:    condition,
-				Getter: getter,
-				Value:  value,
+				EqualComparator: comparators.EqualComparator[R, T]{
+					Cmp:    condition,
+					Getter: record.Getter[R, T](getter),
+					Value:  value,
+				},
 			},
 		}
 	}
@@ -143,9 +147,9 @@ func WhereBool[R record.Record](
 	value ...bool,
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.BoolFieldComparator[R]{
+		Cmp: comparators.EqualComparator[R, bool]{
 			Cmp:    condition,
-			Getter: getter,
+			Getter: record.Getter[R, bool](getter),
 			Value:  value,
 		},
 	}

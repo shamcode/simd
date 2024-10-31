@@ -61,9 +61,11 @@ func (uq userQueryBuilder) CloseBracket() UserQueryBuilder {
 
 func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int64) UserQueryBuilder {
 	uq.builder.AddWhere(comparators.ComparableFieldComparator[*User, int64]{
-		Cmp:    condition,
-		Getter: id,
-		Value:  value,
+		EqualComparator: comparators.EqualComparator[*User, int64]{
+			Cmp:    condition,
+			Getter: record.Getter[*User, int64](id),
+			Value:  value,
+		},
 	})
 	return uq
 }
@@ -71,9 +73,11 @@ func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int6
 func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...string) UserQueryBuilder {
 	uq.builder.AddWhere(comparators.StringFieldComparator[*User]{
 		ComparableFieldComparator: comparators.ComparableFieldComparator[*User, string]{
-			Cmp:    condition,
-			Getter: name,
-			Value:  value,
+			EqualComparator: comparators.EqualComparator[*User, string]{
+				Cmp:    condition,
+				Getter: record.Getter[*User, string](name),
+				Value:  value,
+			},
 		},
 	})
 	return uq
