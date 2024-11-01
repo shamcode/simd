@@ -19,12 +19,12 @@ type lessComparableComparator[T record.LessComparable] interface {
 }
 
 type comparableIndexComputation[R record.Record, V record.LessComparable] struct {
-	getter record.ComparableGetter[R, V]
+	getter record.GetterInterface[R, V]
 }
 
 func (idx comparableIndexComputation[R, V]) ForRecord(item R) indexes.Key {
 	return ComparableKey[V]{
-		Value: idx.getter.Get(item),
+		Value: idx.getter.GetForRecord(item),
 	}
 }
 
@@ -44,6 +44,6 @@ func (idx comparableIndexComputation[R, V]) Check(
 func CreateIndexComputation[
 	R record.Record,
 	T record.LessComparable,
-](getter record.ComparableGetter[R, T]) indexes.IndexComputer[R] {
+](getter record.GetterInterface[R, T]) indexes.IndexComputer[R] {
 	return comparableIndexComputation[R, T]{getter: getter}
 }

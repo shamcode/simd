@@ -16,7 +16,7 @@ func (fc EnumFieldComparator[R, T]) GetType() where.ComparatorType {
 }
 
 func (fc EnumFieldComparator[R, T]) GetField() record.Field {
-	return fc.Getter.Field
+	return fc.Getter
 }
 
 func (fc EnumFieldComparator[R, T]) CompareValue(value T) (bool, error) {

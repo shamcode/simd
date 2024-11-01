@@ -20,12 +20,12 @@ func NewEnumBTreeIndex[R record.Record, V record.LessComparable](
 }
 
 func NewComparableBTreeIndex[R record.Record, V record.LessComparable](
-	getter record.ComparableGetter[R, V],
+	getter record.GetterInterface[R, V],
 	maxChildren int,
 	uniq bool,
 ) indexes.Index[R] {
 	return NewIndex[R](
-		getter.Field,
+		getter,
 		compute.CreateIndexComputation(getter),
 		NewTree(maxChildren, uniq),
 		uniq,

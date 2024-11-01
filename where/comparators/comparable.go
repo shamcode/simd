@@ -25,5 +25,5 @@ func (fc ComparableFieldComparator[R, T]) CompareValue(value T) (bool, error) {
 }
 
 func (fc ComparableFieldComparator[R, T]) Compare(item R) (bool, error) {
-	return fc.CompareValue(fc.Getter.Get(item))
+	return fc.CompareValue(fc.Getter.GetForRecord(item))
 }

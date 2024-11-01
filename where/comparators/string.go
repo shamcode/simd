@@ -22,7 +22,7 @@ func (fc StringFieldComparator[R]) CompareValue(value string) (bool, error) {
 }
 
 func (fc StringFieldComparator[R]) Compare(item R) (bool, error) {
-	return fc.CompareValue(fc.Getter.Get(item))
+	return fc.CompareValue(fc.Getter.GetForRecord(item))
 }
 
 // StringFieldRegexpComparator is a special comparator for handling Regexp.

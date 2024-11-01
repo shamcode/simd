@@ -31,11 +31,11 @@ func NewEnumHashIndex[R record.Record, T record.LessComparable](
 }
 
 func NewComparableHashIndex[R record.Record, T record.LessComparable](
-	getter record.ComparableGetter[R, T],
+	getter record.GetterInterface[R, T],
 	unique bool,
 ) indexes.Index[R] {
 	return NewIndex(
-		getter.Field,
+		getter,
 		compute.CreateIndexComputation(getter),
 		CreateHashTable(),
 		unique,

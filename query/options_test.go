@@ -33,7 +33,7 @@ func (w *whereStructHeap[R]) Apply(b any) {
 func Benchmark_OptionsStructAndFunction(b *testing.B) {
 	_id := record.NewIDGetter[record.Record]()
 	var whereInt64Fn = func(
-		getter record.ComparableGetter[record.Record, int64],
+		getter record.GetterInterface[record.Record, int64],
 		condition where.ComparatorType,
 		value ...int64,
 	) BuilderOption {
@@ -41,7 +41,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 			b.AddWhere(comparators.ComparableFieldComparator[record.Record, int64]{
 				EqualComparator: comparators.EqualComparator[record.Record, int64]{
 					Cmp:    condition,
-					Getter: record.Getter[record.Record, int64](getter),
+					Getter: getter,
 					Value:  value,
 				},
 			})
@@ -49,7 +49,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 	}
 
 	var whereInt64StructStack = func(
-		getter record.ComparableGetter[record.Record, int64],
+		getter record.GetterInterface[record.Record, int64],
 		condition where.ComparatorType,
 		value ...int64,
 	) BuilderOption {
@@ -57,7 +57,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 			cmp: comparators.ComparableFieldComparator[record.Record, int64]{
 				EqualComparator: comparators.EqualComparator[record.Record, int64]{
 					Cmp:    condition,
-					Getter: record.Getter[record.Record, int64](getter),
+					Getter: getter,
 					Value:  value,
 				},
 			},
@@ -65,7 +65,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 	}
 
 	var whereInt64StructHeap = func(
-		getter record.ComparableGetter[record.Record, int64],
+		getter record.GetterInterface[record.Record, int64],
 		condition where.ComparatorType,
 		value ...int64,
 	) BuilderOption {
@@ -73,7 +73,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 			cmp: comparators.ComparableFieldComparator[record.Record, int64]{
 				EqualComparator: comparators.EqualComparator[record.Record, int64]{
 					Cmp:    condition,
-					Getter: record.Getter[record.Record, int64](getter),
+					Getter: getter,
 					Value:  value,
 				},
 			},

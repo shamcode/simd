@@ -78,7 +78,7 @@ type AddWhereOption[R record.Record] struct {
 func (o AddWhereOption[R]) Apply(b any) { b.(BuilderGeneric[R]).AddWhere(o.Cmp) }
 
 func WhereAny[R record.Record](
-	getter record.Getter[R, any],
+	getter record.GetterInterface[R, any],
 	condition where.ComparatorType,
 	values ...interface{},
 ) BuilderOption {

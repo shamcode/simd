@@ -9,7 +9,7 @@ import (
 
 type EqualComparator[R record.Record, T comparable] struct {
 	Cmp    where.ComparatorType
-	Getter record.Getter[R, T]
+	Getter record.GetterInterface[R, T]
 	Value  []T
 }
 
@@ -18,7 +18,7 @@ func (fc EqualComparator[R, T]) GetType() where.ComparatorType {
 }
 
 func (fc EqualComparator[R, T]) GetField() record.Field {
-	return fc.Getter.Field
+	return fc.Getter
 }
 
 func (fc EqualComparator[R, T]) CompareValue(value T) (bool, error) {
@@ -33,7 +33,7 @@ func (fc EqualComparator[R, T]) CompareValue(value T) (bool, error) {
 }
 
 func (fc EqualComparator[R, T]) Compare(item R) (bool, error) {
-	return fc.CompareValue(fc.Getter.Get(item))
+	return fc.CompareValue(fc.Getter.GetForRecord(item))
 }
 
 func (fc EqualComparator[R, T]) ValuesCount() int {
