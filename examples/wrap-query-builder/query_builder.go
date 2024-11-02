@@ -71,15 +71,7 @@ func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int6
 }
 
 func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...string) UserQueryBuilder {
-	uq.builder.AddWhere(comparators.StringFieldComparator[*User]{
-		ComparableFieldComparator: comparators.ComparableFieldComparator[*User, string]{
-			EqualComparator: comparators.EqualComparator[*User, string]{
-				Cmp:    condition,
-				Getter: record.Getter[*User, string](name),
-				Value:  value,
-			},
-		},
-	})
+	uq.builder.AddWhere(comparators.NewStringFieldComparator[*User](condition, name, value...))
 	return uq
 }
 
@@ -88,11 +80,7 @@ func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...
 	for i, x := range value {
 		enums[i] = x
 	}
-	uq.builder.AddWhere(comparators.EnumFieldComparator[*User, uint8]{
-		Cmp:    condition,
-		Getter: status,
-		Value:  enums,
-	})
+	uq.builder.AddWhere(comparators.NewEnumFieldComparator[*User, uint8](condition, status, enums...))
 	return uq
 }
 

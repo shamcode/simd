@@ -8,9 +8,19 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-type StringFieldComparator[R record.Record] struct {
-	ComparableFieldComparator[R, string]
-}
+type (
+	// StringFieldComparator is a comparator for string field.
+	StringFieldComparator[R record.Record] struct {
+		ComparableFieldComparator[R, string]
+	}
+
+	// StringFieldRegexpComparator is a special comparator for handling Regexp.
+	StringFieldRegexpComparator[R record.Record] struct {
+		Cmp    where.ComparatorType
+		Getter record.ComparableGetter[R, string]
+		Value  *regexp.Regexp
+	}
+)
 
 func (fc StringFieldComparator[R]) CompareValue(value string) (bool, error) {
 	switch fc.Cmp { //nolint:exhaustive
@@ -23,13 +33,6 @@ func (fc StringFieldComparator[R]) CompareValue(value string) (bool, error) {
 
 func (fc StringFieldComparator[R]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.GetForRecord(item))
-}
-
-// StringFieldRegexpComparator is a special comparator for handling Regexp.
-type StringFieldRegexpComparator[R record.Record] struct {
-	Cmp    where.ComparatorType
-	Getter record.ComparableGetter[R, string]
-	Value  *regexp.Regexp
 }
 
 func (fc StringFieldRegexpComparator[R]) GetType() where.ComparatorType {
@@ -62,4 +65,32 @@ func (fc StringFieldRegexpComparator[R]) ValueAt(index int) interface{} {
 		return fc.Value
 	}
 	return nil
+}
+
+func NewStringFieldComparator[R record.Record](
+	cmp where.ComparatorType,
+	getter record.ComparableGetter[R, string],
+	values ...string,
+) StringFieldComparator[R] {
+	return StringFieldComparator[R]{
+		ComparableFieldComparator: ComparableFieldComparator[R, string]{
+			EqualComparator: EqualComparator[R, string]{
+				Cmp:    cmp,
+				Getter: getter,
+				Value:  values,
+			},
+		},
+	}
+}
+
+func NewStringFieldRegexpComparator[R record.Record](
+	cmp where.ComparatorType,
+	getter record.ComparableGetter[R, string],
+	value *regexp.Regexp,
+) StringFieldRegexpComparator[R] {
+	return StringFieldRegexpComparator[R]{
+		Cmp:    cmp,
+		Getter: getter,
+		Value:  value,
+	}
 }

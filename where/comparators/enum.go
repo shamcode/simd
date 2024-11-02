@@ -46,3 +46,15 @@ func (fc EnumFieldComparator[R, T]) ValuesCount() int {
 func (fc EnumFieldComparator[R, T]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }
+
+func NewEnumFieldComparator[R record.Record, T record.LessComparable](
+	cmp where.ComparatorType,
+	getter record.EnumGetter[R, T],
+	values ...record.Enum[T],
+) EnumFieldComparator[R, T] {
+	return EnumFieldComparator[R, T]{
+		Cmp:    cmp,
+		Getter: getter,
+		Value:  values,
+	}
+}

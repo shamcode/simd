@@ -43,3 +43,15 @@ func (fc EqualComparator[R, T]) ValuesCount() int {
 func (fc EqualComparator[R, T]) ValueAt(index int) interface{} {
 	return fc.Value[index]
 }
+
+func NewEqualComparator[R record.Record, T comparable](
+	cmp where.ComparatorType,
+	getter record.GetterInterface[R, T],
+	value ...T,
+) EqualComparator[R, T] {
+	return EqualComparator[R, T]{
+		Cmp:    cmp,
+		Getter: getter,
+		Value:  value,
+	}
+}

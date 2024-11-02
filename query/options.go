@@ -104,15 +104,11 @@ func Where[R record.Record, T record.LessComparable](
 		}
 
 		return AddWhereOption[R]{
-			Cmp: comparators.StringFieldComparator[R]{
-				ComparableFieldComparator: comparators.ComparableFieldComparator[R, string]{
-					EqualComparator: comparators.EqualComparator[R, string]{
-						Cmp:    condition,
-						Getter: record.Getter[R, string](castedGetter),
-						Value:  castedValue,
-					},
-				},
-			},
+			Cmp: comparators.NewStringFieldComparator[R](
+				condition,
+				castedGetter,
+				castedValue...,
+			),
 		}
 
 	default:
@@ -133,11 +129,7 @@ func WhereStringRegexp[R record.Record](
 	value *regexp.Regexp,
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.StringFieldRegexpComparator[R]{
-			Cmp:    where.Regexp,
-			Getter: getter,
-			Value:  value,
-		},
+		Cmp: comparators.NewStringFieldRegexpComparator[R](where.Regexp, getter, value),
 	}
 }
 
@@ -161,11 +153,7 @@ func WhereEnum[R record.Record, T record.LessComparable](
 	value ...record.Enum[T],
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.EnumFieldComparator[R, T]{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
+		Cmp: comparators.NewEnumFieldComparator[R, T](condition, getter, value...),
 	}
 }
 

@@ -219,60 +219,40 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("enum8", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "2 = 2",
-				comparator: EnumFieldComparator[*user, uint8]{
-					Cmp:    where.EQ,
-					Getter: enum8Getter,
-					Value:  []record.Enum[uint8]{enum8(2)},
-				},
+				name:           "2 = 2",
+				comparator:     NewEnumFieldComparator[*user, uint8](where.EQ, enum8Getter, enum8(2)),
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum8",
 				expectedValues: []any{enum8(2)},
 			},
 			{
-				name: "2 = 3",
-				comparator: EnumFieldComparator[*user, uint8]{
-					Cmp:    where.EQ,
-					Getter: enum8Getter,
-					Value:  []record.Enum[uint8]{enum8(3)},
-				},
+				name:           "2 = 3",
+				comparator:     NewEnumFieldComparator[*user, uint8](where.EQ, enum8Getter, enum8(3)),
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum8",
 				expectedValues: []any{enum8(3)},
 			},
 			{
-				name: "2 IN (1, 2)",
-				comparator: EnumFieldComparator[*user, uint8]{
-					Cmp:    where.InArray,
-					Getter: enum8Getter,
-					Value:  []record.Enum[uint8]{enum8(1), enum8(2)},
-				},
+				name:           "2 IN (1, 2)",
+				comparator:     NewEnumFieldComparator[*user, uint8](where.InArray, enum8Getter, enum8(1), enum8(2)),
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum8",
 				expectedValues: []any{enum8(1), enum8(2)},
 			},
 			{
-				name: "2 IN (1, 3)",
-				comparator: EnumFieldComparator[*user, uint8]{
-					Cmp:    where.InArray,
-					Getter: enum8Getter,
-					Value:  []record.Enum[uint8]{enum8(1), enum8(3)},
-				},
+				name:           "2 IN (1, 3)",
+				comparator:     NewEnumFieldComparator[*user, uint8](where.InArray, enum8Getter, enum8(1), enum8(3)),
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum8",
 				expectedValues: []any{enum8(1), enum8(3)},
 			},
 			{
-				name: "2 ? 2",
-				comparator: EnumFieldComparator[*user, uint8]{
-					Cmp:    0,
-					Getter: enum8Getter,
-					Value:  []record.Enum[uint8]{enum8(2)},
-				},
+				name:           "2 ? 2",
+				comparator:     NewEnumFieldComparator[*user, uint8](0, enum8Getter, enum8(2)),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(enum8Getter.Field, 0),
 				expectedCmp:    0,
@@ -285,60 +265,40 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("enum16", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "2 = 2",
-				comparator: EnumFieldComparator[*user, uint16]{
-					Cmp:    where.EQ,
-					Getter: enum16Getter,
-					Value:  []record.Enum[uint16]{enum16(2)},
-				},
+				name:           "2 = 2",
+				comparator:     NewEnumFieldComparator[*user, uint16](where.EQ, enum16Getter, enum16(2)),
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum16",
 				expectedValues: []any{enum16(2)},
 			},
 			{
-				name: "2 = 3",
-				comparator: EnumFieldComparator[*user, uint16]{
-					Cmp:    where.EQ,
-					Getter: enum16Getter,
-					Value:  []record.Enum[uint16]{enum16(3)},
-				},
+				name:           "2 = 3",
+				comparator:     NewEnumFieldComparator[*user, uint16](where.EQ, enum16Getter, enum16(3)),
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum16",
 				expectedValues: []any{enum16(3)},
 			},
 			{
-				name: "2 IN (1, 2)",
-				comparator: EnumFieldComparator[*user, uint16]{
-					Cmp:    where.InArray,
-					Getter: enum16Getter,
-					Value:  []record.Enum[uint16]{enum16(1), enum16(2)},
-				},
+				name:           "2 IN (1, 2)",
+				comparator:     NewEnumFieldComparator[*user, uint16](where.InArray, enum16Getter, enum16(1), enum16(2)),
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum16",
 				expectedValues: []any{enum16(1), enum16(2)},
 			},
 			{
-				name: "2 IN (1, 3)",
-				comparator: EnumFieldComparator[*user, uint16]{
-					Cmp:    where.InArray,
-					Getter: enum16Getter,
-					Value:  []record.Enum[uint16]{enum16(1), enum16(3)},
-				},
+				name:           "2 IN (1, 3)",
+				comparator:     NewEnumFieldComparator[*user, uint16](where.InArray, enum16Getter, enum16(1), enum16(3)),
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum16",
 				expectedValues: []any{enum16(1), enum16(3)},
 			},
 			{
-				name: "2 ? 2",
-				comparator: EnumFieldComparator[*user, uint16]{
-					Cmp:    0,
-					Getter: enum16Getter,
-					Value:  []record.Enum[uint16]{enum16(2)},
-				},
+				name:           "2 ? 2",
+				comparator:     NewEnumFieldComparator[*user, uint16](0, enum16Getter, enum16(2)),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(enum16Getter.Field, 0),
 				expectedCmp:    0,
@@ -1253,272 +1213,136 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("string", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "foo = foo",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.EQ,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"foo"},
-						},
-					},
-				},
+				name:           "foo = foo",
+				comparator:     NewStringFieldComparator[*user](where.EQ, stringGetter, "foo"),
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "string",
 				expectedValues: []any{"foo"},
 			},
 			{
-				name: "foo = bar",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.EQ,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar"},
-						},
-					},
-				},
+				name:           "foo = bar",
+				comparator:     NewStringFieldComparator[*user](where.EQ, stringGetter, "bar"),
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "string",
 				expectedValues: []any{"bar"},
 			},
 			{
-				name: "foo > bar",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.GT,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar"},
-						},
-					},
-				},
+				name:           "foo > bar",
+				comparator:     NewStringFieldComparator[*user](where.GT, stringGetter, "bar"),
 				expectedResult: true,
 				expectedCmp:    where.GT,
 				expectedField:  "string",
 				expectedValues: []any{"bar"},
 			},
 			{
-				name: "foo > zzz",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.GT,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"zzz"},
-						},
-					},
-				},
+				name:           "foo > zzz",
+				comparator:     NewStringFieldComparator[*user](where.GT, stringGetter, "zzz"),
 				expectedResult: false,
 				expectedCmp:    where.GT,
 				expectedField:  "string",
 				expectedValues: []any{"zzz"},
 			},
 			{
-				name: "foo >= bar",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.GE,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar"},
-						},
-					},
-				},
+				name:           "foo >= bar",
+				comparator:     NewStringFieldComparator[*user](where.GE, stringGetter, "bar"),
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "string",
 				expectedValues: []any{"bar"},
 			},
 			{
-				name: "foo >= zzz",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.GE,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"zzz"},
-						},
-					},
-				},
+				name:           "foo >= zzz",
+				comparator:     NewStringFieldComparator[*user](where.GE, stringGetter, "zzz"),
 				expectedResult: false,
 				expectedCmp:    where.GE,
 				expectedField:  "string",
 				expectedValues: []any{"zzz"},
 			},
 			{
-				name: "foo >= foo",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.GE,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"foo"},
-						},
-					},
-				},
+				name:           "foo >= foo",
+				comparator:     NewStringFieldComparator[*user](where.GE, stringGetter, "foo"),
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "string",
 				expectedValues: []any{"foo"},
 			},
 			{
-				name: "foo < bar",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.LT,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar"},
-						},
-					},
-				},
+				name:           "foo < bar",
+				comparator:     NewStringFieldComparator[*user](where.LT, stringGetter, "bar"),
 				expectedResult: false,
 				expectedCmp:    where.LT,
 				expectedField:  "string",
 				expectedValues: []any{"bar"},
 			},
 			{
-				name: "foo < zzz",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.LT,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"zzz"},
-						},
-					},
-				},
+				name:           "foo < zzz",
+				comparator:     NewStringFieldComparator[*user](where.LT, stringGetter, "zzz"),
 				expectedResult: true,
 				expectedCmp:    where.LT,
 				expectedField:  "string",
 				expectedValues: []any{"zzz"},
 			},
 			{
-				name: "foo <= bar",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.LE,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar"},
-						},
-					},
-				},
+				name:           "foo <= bar",
+				comparator:     NewStringFieldComparator[*user](where.LE, stringGetter, "bar"),
 				expectedResult: false,
 				expectedCmp:    where.LE,
 				expectedField:  "string",
 				expectedValues: []any{"bar"},
 			},
 			{
-				name: "foo <= zzz",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.LE,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"zzz"},
-						},
-					},
-				},
+				name:           "foo <= zzz",
+				comparator:     NewStringFieldComparator[*user](where.LE, stringGetter, "zzz"),
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "string",
 				expectedValues: []any{"zzz"},
 			},
 			{
-				name: "foo <= foo",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.LE,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"foo"},
-						},
-					},
-				},
+				name:           "foo <= foo",
+				comparator:     NewStringFieldComparator[*user](where.LE, stringGetter, "foo"),
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "string",
 				expectedValues: []any{"foo"},
 			},
 			{
-				name: "foo IN (bar, foo)",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.InArray,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar", "foo"},
-						},
-					},
-				},
+				name:           "foo IN (bar, foo)",
+				comparator:     NewStringFieldComparator[*user](where.InArray, stringGetter, "bar", "foo"),
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "string",
 				expectedValues: []any{"bar", "foo"},
 			},
 			{
-				name: "foo IN (bar, zzz)",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.InArray,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar", "zzz"},
-						},
-					},
-				},
+				name:           "foo IN (bar, zzz)",
+				comparator:     NewStringFieldComparator[*user](where.InArray, stringGetter, "bar", "zzz"),
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "string",
 				expectedValues: []any{"bar", "zzz"},
 			},
 			{
-				name: "foo LIKE oo",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.Like,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"oo"},
-						},
-					},
-				},
+				name:           "foo LIKE oo",
+				comparator:     NewStringFieldComparator[*user](where.Like, stringGetter, "oo"),
 				expectedResult: true,
 				expectedCmp:    where.Like,
 				expectedField:  "string",
 				expectedValues: []any{"oo"},
 			},
 			{
-				name: "foo LIKE ff",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    where.Like,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"ff"},
-						},
-					},
-				},
+				name:           "foo LIKE ff",
+				comparator:     NewStringFieldComparator[*user](where.Like, stringGetter, "ff"),
 				expectedResult: false,
 				expectedCmp:    where.Like,
 				expectedField:  "string",
 				expectedValues: []any{"ff"},
 			},
 			{
-				name: "foo ? bar",
-				comparator: StringFieldComparator[*user]{
-					ComparableFieldComparator: ComparableFieldComparator[*user, string]{
-						EqualComparator: EqualComparator[*user, string]{
-							Cmp:    0,
-							Getter: record.Getter[*user, string](stringGetter),
-							Value:  []string{"bar"},
-						},
-					},
-				},
+				name:           "foo ? bar",
+				comparator:     NewStringFieldComparator[*user](0, stringGetter, "bar"),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(stringGetter.Field, 0),
 				expectedCmp:    0,
@@ -1532,11 +1356,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name: "foo Regexp /fo+/",
-				comparator: StringFieldRegexpComparator[*user]{
-					Cmp:    where.Regexp,
-					Getter: stringGetter,
-					Value:  regexp.MustCompile(`fo+`),
-				},
+				comparator: NewStringFieldRegexpComparator[*user](
+					where.Regexp,
+					stringGetter,
+					regexp.MustCompile(`fo+`),
+				),
 				expectedResult: true,
 				expectedCmp:    where.Regexp,
 				expectedField:  "string",
@@ -1544,11 +1368,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo Regexp /\\d+/",
-				comparator: StringFieldRegexpComparator[*user]{
-					Cmp:    where.Regexp,
-					Getter: stringGetter,
-					Value:  regexp.MustCompile(`\d+`),
-				},
+				comparator: NewStringFieldRegexpComparator[*user](
+					where.Regexp,
+					stringGetter,
+					regexp.MustCompile(`\d+`),
+				),
 				expectedResult: false,
 				expectedCmp:    where.Regexp,
 				expectedField:  "string",
@@ -1556,11 +1380,11 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "foo ? fo+",
-				comparator: StringFieldRegexpComparator[*user]{
-					Cmp:    0,
-					Getter: stringGetter,
-					Value:  regexp.MustCompile("fo+"),
-				},
+				comparator: NewStringFieldRegexpComparator[*user](
+					0,
+					stringGetter,
+					regexp.MustCompile("fo+"),
+				),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(stringGetter.Field, 0),
 				expectedCmp:    0,
