@@ -1129,36 +1129,24 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("set", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "SetHas 2",
-				comparator: SetFieldComparator[*user]{
-					Cmp:    where.SetHas,
-					Getter: setGetter,
-					Value:  []any{2},
-				},
+				name:           "SetHas 2",
+				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 2),
 				expectedResult: true,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
 				expectedValues: []any{2},
 			},
 			{
-				name: "SetHas 3",
-				comparator: SetFieldComparator[*user]{
-					Cmp:    where.SetHas,
-					Getter: setGetter,
-					Value:  []any{3},
-				},
+				name:           "SetHas 3",
+				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 3),
 				expectedResult: false,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
 				expectedValues: []any{3},
 			},
 			{
-				name: "? 2",
-				comparator: SetFieldComparator[*user]{
-					Cmp:    0,
-					Getter: setGetter,
-					Value:  []any{2},
-				},
+				name:           "? 2",
+				comparator:     NewSetFieldComparator[*user](0, setGetter, 2),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
 				expectedCmp:    0,
@@ -1171,36 +1159,24 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("set", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "SetHas 2",
-				comparator: SetFieldComparator[*user]{
-					Cmp:    where.SetHas,
-					Getter: setGetter,
-					Value:  []any{2},
-				},
+				name:           "SetHas 2",
+				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 2),
 				expectedResult: true,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
 				expectedValues: []any{2},
 			},
 			{
-				name: "SetHas 3",
-				comparator: SetFieldComparator[*user]{
-					Cmp:    where.SetHas,
-					Getter: setGetter,
-					Value:  []any{3},
-				},
+				name:           "SetHas 3",
+				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 3),
 				expectedResult: false,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
 				expectedValues: []any{3},
 			},
 			{
-				name: "? 2",
-				comparator: SetFieldComparator[*user]{
-					Cmp:    0,
-					Getter: setGetter,
-					Value:  []any{2},
-				},
+				name:           "? 2",
+				comparator:     NewSetFieldComparator[*user](0, setGetter, 2),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
 				expectedCmp:    0,

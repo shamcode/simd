@@ -8,7 +8,7 @@ import (
 type SetFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
 	Getter record.SetGetter[R]
-	Value  []interface{}
+	Value  []any
 }
 
 func (fc SetFieldComparator[R]) GetType() where.ComparatorType {
@@ -38,4 +38,16 @@ func (fc SetFieldComparator[R]) ValuesCount() int {
 
 func (fc SetFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
+}
+
+func NewSetFieldComparator[R record.Record](
+	cmp where.ComparatorType,
+	getter record.SetGetter[R],
+	value ...any,
+) SetFieldComparator[R] {
+	return SetFieldComparator[R]{
+		Cmp:    cmp,
+		Getter: getter,
+		Value:  value,
+	}
 }

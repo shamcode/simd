@@ -177,11 +177,7 @@ func WhereSet[R record.Record](
 	value ...interface{},
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.SetFieldComparator[R]{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
+		Cmp: comparators.NewSetFieldComparator[R](condition, getter, value...),
 	}
 }
 
