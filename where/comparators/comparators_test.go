@@ -1025,24 +1025,16 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("map", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "MapHasKey 2",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    where.MapHasKey,
-					Getter: mapGetter,
-					Value:  []any{2},
-				},
+				name:           "MapHasKey 2",
+				comparator:     NewMapFieldComparator[*user](where.MapHasKey, mapGetter, 2),
 				expectedResult: true,
 				expectedCmp:    where.MapHasKey,
 				expectedField:  "map",
 				expectedValues: []any{2},
 			},
 			{
-				name: "MapHasKey 4",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    where.MapHasKey,
-					Getter: mapGetter,
-					Value:  []any{4},
-				},
+				name:           "MapHasKey 4",
+				comparator:     NewMapFieldComparator[*user](where.MapHasKey, mapGetter, 4),
 				expectedResult: false,
 				expectedCmp:    where.MapHasKey,
 				expectedField:  "map",
@@ -1050,13 +1042,13 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue 8",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    where.MapHasValue,
-					Getter: mapGetter,
-					Value: []any{mapValueComparator(func(item any) (bool, error) {
+				comparator: NewMapFieldComparator[*user](
+					where.MapHasValue,
+					mapGetter,
+					mapValueComparator(func(item any) (bool, error) {
 						return item.(int) == 8, nil
-					})},
-				},
+					}),
+				),
 				expectedResult: true,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
@@ -1066,13 +1058,13 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue 10",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    where.MapHasValue,
-					Getter: mapGetter,
-					Value: []any{mapValueComparator(func(item any) (bool, error) {
+				comparator: NewMapFieldComparator[*user](
+					where.MapHasValue,
+					mapGetter,
+					mapValueComparator(func(item any) (bool, error) {
 						return item.(int) == 10, nil
-					})},
-				},
+					}),
+				),
 				expectedResult: false,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
@@ -1081,12 +1073,8 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				})},
 			},
 			{
-				name: "MapHasValue cast error",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    where.MapHasValue,
-					Getter: mapGetter,
-					Value:  []any{42},
-				},
+				name:           "MapHasValue cast error",
+				comparator:     NewMapFieldComparator[*user](where.MapHasValue, mapGetter, 42),
 				expectedResult: false,
 				expectedError:  NewFailCastTypeError(mapGetter.Field, where.MapHasValue, 42, "record.MapValueComparator"),
 				expectedCmp:    where.MapHasValue,
@@ -1095,13 +1083,12 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name: "MapHasValue error",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    where.MapHasValue,
-					Getter: mapGetter,
-					Value: []any{mapValueComparator(func(item any) (bool, error) {
+				comparator: NewMapFieldComparator[*user](
+					where.MapHasValue, mapGetter,
+					mapValueComparator(func(item any) (bool, error) {
 						return false, errors.New("comparator error")
-					})},
-				},
+					}),
+				),
 				expectedResult: false,
 				expectedError:  errors.New("comparator error"),
 				expectedCmp:    where.MapHasValue,
@@ -1111,12 +1098,8 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				})},
 			},
 			{
-				name: "? 2",
-				comparator: MapFieldComparator[*user]{
-					Cmp:    0,
-					Getter: mapGetter,
-					Value:  []any{2},
-				},
+				name:           "? 2",
+				comparator:     NewMapFieldComparator[*user](0, mapGetter, 2),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(mapGetter.Field, 0),
 				expectedCmp:    0,

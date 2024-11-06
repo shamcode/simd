@@ -163,11 +163,7 @@ func WhereMap[R record.Record](
 	value ...interface{},
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.MapFieldComparator[R]{
-			Cmp:    condition,
-			Getter: getter,
-			Value:  value,
-		},
+		Cmp: comparators.NewMapFieldComparator[R](condition, getter, value...),
 	}
 }
 

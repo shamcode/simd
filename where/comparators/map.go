@@ -8,7 +8,7 @@ import (
 type MapFieldComparator[R record.Record] struct {
 	Cmp    where.ComparatorType
 	Getter record.MapGetter[R]
-	Value  []interface{}
+	Value  []any
 }
 
 func (fc MapFieldComparator[R]) GetType() where.ComparatorType {
@@ -44,4 +44,16 @@ func (fc MapFieldComparator[R]) ValuesCount() int {
 
 func (fc MapFieldComparator[R]) ValueAt(index int) interface{} {
 	return fc.Value[index]
+}
+
+func NewMapFieldComparator[R record.Record](
+	cmp where.ComparatorType,
+	getter record.MapGetter[R],
+	value ...any,
+) MapFieldComparator[R] {
+	return MapFieldComparator[R]{
+		Cmp:    cmp,
+		Getter: getter,
+		Value:  value,
+	}
 }
