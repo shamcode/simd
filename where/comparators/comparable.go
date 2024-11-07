@@ -27,3 +27,13 @@ func (fc ComparableFieldComparator[R, T]) CompareValue(value T) (bool, error) {
 func (fc ComparableFieldComparator[R, T]) Compare(item R) (bool, error) {
 	return fc.CompareValue(fc.Getter.GetForRecord(item))
 }
+
+func NewComparableFieldComparator[R record.Record, T record.LessComparable](
+	cmp where.ComparatorType,
+	getter record.GetterInterface[R, T],
+	value ...T,
+) ComparableFieldComparator[R, T] {
+	return ComparableFieldComparator[R, T]{
+		EqualComparator: NewEqualComparator(cmp, getter, value...),
+	}
+}

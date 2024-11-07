@@ -113,13 +113,7 @@ func Where[R record.Record, T record.LessComparable](
 
 	default:
 		return AddWhereOption[R]{
-			Cmp: comparators.ComparableFieldComparator[R, T]{
-				EqualComparator: comparators.EqualComparator[R, T]{
-					Cmp:    condition,
-					Getter: record.Getter[R, T](getter),
-					Value:  value,
-				},
-			},
+			Cmp: comparators.NewComparableFieldComparator[R, T](condition, getter, value...),
 		}
 	}
 }

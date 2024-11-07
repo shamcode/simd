@@ -38,13 +38,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 		value ...int64,
 	) BuilderOption {
 		return builderOptionFunction[record.Record](func(b BuilderGeneric[record.Record]) {
-			b.AddWhere(comparators.ComparableFieldComparator[record.Record, int64]{
-				EqualComparator: comparators.EqualComparator[record.Record, int64]{
-					Cmp:    condition,
-					Getter: getter,
-					Value:  value,
-				},
-			})
+			b.AddWhere(comparators.NewComparableFieldComparator[record.Record, int64](condition, getter, value...))
 		})
 	}
 
@@ -54,13 +48,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 		value ...int64,
 	) BuilderOption {
 		return whereStructStack[record.Record]{
-			cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-				EqualComparator: comparators.EqualComparator[record.Record, int64]{
-					Cmp:    condition,
-					Getter: getter,
-					Value:  value,
-				},
-			},
+			cmp: comparators.NewComparableFieldComparator[record.Record, int64](condition, getter, value...),
 		}
 	}
 
@@ -70,13 +58,7 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 		value ...int64,
 	) BuilderOption {
 		return &whereStructHeap[record.Record]{
-			cmp: comparators.ComparableFieldComparator[record.Record, int64]{
-				EqualComparator: comparators.EqualComparator[record.Record, int64]{
-					Cmp:    condition,
-					Getter: getter,
-					Value:  value,
-				},
-			},
+			cmp: comparators.NewComparableFieldComparator[record.Record, int64](condition, getter, value...),
 		}
 	}
 

@@ -60,13 +60,7 @@ func (uq userQueryBuilder) CloseBracket() UserQueryBuilder {
 }
 
 func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int64) UserQueryBuilder {
-	uq.builder.AddWhere(comparators.ComparableFieldComparator[*User, int64]{
-		EqualComparator: comparators.EqualComparator[*User, int64]{
-			Cmp:    condition,
-			Getter: record.Getter[*User, int64](id),
-			Value:  value,
-		},
-	})
+	uq.builder.AddWhere(comparators.NewComparableFieldComparator[*User, int64](condition, id, value...))
 	return uq
 }
 
