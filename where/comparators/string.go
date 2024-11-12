@@ -73,13 +73,7 @@ func NewStringFieldComparator[R record.Record](
 	values ...string,
 ) StringFieldComparator[R] {
 	return StringFieldComparator[R]{
-		ComparableFieldComparator: ComparableFieldComparator[R, string]{
-			EqualComparator: EqualComparator[R, string]{
-				Cmp:    cmp,
-				Getter: getter,
-				Value:  values,
-			},
-		},
+		ComparableFieldComparator: NewComparableFieldComparator[R, string](cmp, getter, values...),
 	}
 }
 
