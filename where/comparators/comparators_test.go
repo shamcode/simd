@@ -437,210 +437,120 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 	t.Run("int32", func(t *testing.T) {
 		checkTestCases(t, []testCase{
 			{
-				name: "10 = 10",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.EQ,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{10},
-					},
-				},
+				name:           "10 = 10",
+				comparator:     NewComparableFieldComparator[*user, int32](where.EQ, int32Getter, 10),
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "int32",
 				expectedValues: []any{int32(10)},
 			},
 			{
-				name: "10 = 3",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.EQ,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{3},
-					},
-				},
+				name:           "10 = 3",
+				comparator:     NewComparableFieldComparator[*user, int32](where.EQ, int32Getter, 3),
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "int32",
 				expectedValues: []any{int32(3)},
 			},
 			{
-				name: "10 > 3",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.GT,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{3},
-					},
-				},
+				name:           "10 > 3",
+				comparator:     NewComparableFieldComparator[*user, int32](where.GT, int32Getter, 3),
 				expectedResult: true,
 				expectedCmp:    where.GT,
 				expectedField:  "int32",
 				expectedValues: []any{int32(3)},
 			},
 			{
-				name: "10 > 30",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.GT,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{30},
-					},
-				},
+				name:           "10 > 30",
+				comparator:     NewComparableFieldComparator[*user, int32](where.GT, int32Getter, 30),
 				expectedResult: false,
 				expectedCmp:    where.GT,
 				expectedField:  "int32",
 				expectedValues: []any{int32(30)},
 			},
 			{
-				name: "10 >= 3",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.GE,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{3},
-					},
-				},
+				name:           "10 >= 3",
+				comparator:     NewComparableFieldComparator[*user, int32](where.GE, int32Getter, 3),
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int32",
 				expectedValues: []any{int32(3)},
 			},
 			{
-				name: "10 >= 30",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.GE,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{30},
-					},
-				},
+				name:           "10 >= 30",
+				comparator:     NewComparableFieldComparator[*user, int32](where.GE, int32Getter, 30),
 				expectedResult: false,
 				expectedCmp:    where.GE,
 				expectedField:  "int32",
 				expectedValues: []any{int32(30)},
 			},
 			{
-				name: "10 >= 10",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.GE,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{10},
-					},
-				},
+				name:           "10 >= 10",
+				comparator:     NewComparableFieldComparator[*user, int32](where.GE, int32Getter, 10),
 				expectedResult: true,
 				expectedCmp:    where.GE,
 				expectedField:  "int32",
 				expectedValues: []any{int32(10)},
 			},
 			{
-				name: "10 < 3",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.LT,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{3},
-					},
-				},
+				name:           "10 < 3",
+				comparator:     NewComparableFieldComparator[*user, int32](where.LT, int32Getter, 3),
 				expectedResult: false,
 				expectedCmp:    where.LT,
 				expectedField:  "int32",
 				expectedValues: []any{int32(3)},
 			},
 			{
-				name: "10 < 30",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.LT,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{30},
-					},
-				},
+				name:           "10 < 30",
+				comparator:     NewComparableFieldComparator[*user, int32](where.LT, int32Getter, 30),
 				expectedResult: true,
 				expectedCmp:    where.LT,
 				expectedField:  "int32",
 				expectedValues: []any{int32(30)},
 			},
 			{
-				name: "10 <= 3",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.LE,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{3},
-					},
-				},
+				name:           "10 <= 3",
+				comparator:     NewComparableFieldComparator[*user, int32](where.LE, int32Getter, 3),
 				expectedResult: false,
 				expectedCmp:    where.LE,
 				expectedField:  "int32",
 				expectedValues: []any{int32(3)},
 			},
 			{
-				name: "10 <= 30",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.LE,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{30},
-					},
-				},
+				name:           "10 <= 30",
+				comparator:     NewComparableFieldComparator[*user, int32](where.LE, int32Getter, 30),
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int32",
 				expectedValues: []any{int32(30)},
 			},
 			{
-				name: "10 <= 10",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.LE,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{10},
-					},
-				},
+				name:           "10 <= 10",
+				comparator:     NewComparableFieldComparator[*user, int32](where.LE, int32Getter, 10),
 				expectedResult: true,
 				expectedCmp:    where.LE,
 				expectedField:  "int32",
 				expectedValues: []any{int32(10)},
 			},
 			{
-				name: "10 IN (1, 2, 10)",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.InArray,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{1, 2, 10},
-					},
-				},
+				name:           "10 IN (1, 2, 10)",
+				comparator:     NewComparableFieldComparator[*user, int32](where.InArray, int32Getter, 1, 2, 10),
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "int32",
 				expectedValues: []any{int32(1), int32(2), int32(10)},
 			},
 			{
-				name: "10 IN (1, 3)",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    where.InArray,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{1, 3},
-					},
-				},
+				name:           "10 IN (1, 3)",
+				comparator:     NewComparableFieldComparator[*user, int32](where.InArray, int32Getter, 1, 3),
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "int32",
 				expectedValues: []any{int32(1), int32(3)},
 			},
 			{
-				name: "10 ? 10",
-				comparator: ComparableFieldComparator[*user, int32]{
-					EqualComparator: EqualComparator[*user, int32]{
-						Cmp:    0,
-						Getter: record.Getter[*user, int32](int32Getter),
-						Value:  []int32{10},
-					},
-				},
+				name:           "10 ? 10",
+				comparator:     NewComparableFieldComparator[*user, int32](0, int32Getter, 10),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(int32Getter.Field, 0),
 				expectedCmp:    0,
