@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/shamcode/simd/query"
-	"github.com/shamcode/simd/record"
 	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
@@ -70,11 +69,7 @@ func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...st
 }
 
 func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...Status) UserQueryBuilder {
-	enums := make([]record.Enum[uint8], len(value))
-	for i, x := range value {
-		enums[i] = x
-	}
-	uq.builder.AddWhere(comparators.NewEnumFieldComparator[*User, uint8](condition, status, enums...))
+	uq.builder.AddWhere(comparators.NewComparableFieldComparator[*User, Status](condition, status, value...))
 	return uq
 }
 

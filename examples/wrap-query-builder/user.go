@@ -8,8 +8,6 @@ import (
 
 type Status uint8
 
-func (s Status) Value() uint8 { return uint8(s) }
-
 const (
 	StatusActive Status = iota + 1
 	StatusDisabled
@@ -43,7 +41,7 @@ var name = record.ComparableGetter[*User, string]{
 	Get:   func(item *User) string { return item.Name },
 }
 
-var status = record.EnumGetter[*User, uint8]{
+var status = record.ComparableGetter[*User, Status]{
 	Field: userFields.New("status"),
-	Get:   func(item *User) record.Enum[uint8] { return item.Status },
+	Get:   func(item *User) Status { return item.Status },
 }

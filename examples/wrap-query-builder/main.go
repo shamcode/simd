@@ -28,7 +28,7 @@ func main() {
 		})
 	}
 
-	store.AddIndex(hash.NewEnumHashIndex(status, false))
+	store.AddIndex(hash.NewComparableHashIndex(status, false))
 
 	for _, user := range []*User{
 		{
