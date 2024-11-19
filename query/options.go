@@ -141,16 +141,6 @@ func WhereBool[R record.Record](
 	}
 }
 
-func WhereEnum[R record.Record, T record.LessComparable](
-	getter record.EnumGetter[R, T],
-	condition where.ComparatorType,
-	value ...record.Enum[T],
-) BuilderOption {
-	return AddWhereOption[R]{
-		Cmp: comparators.NewEnumFieldComparator[R, T](condition, getter, value...),
-	}
-}
-
 func WhereMap[R record.Record](
 	getter record.MapGetter[R],
 	condition where.ComparatorType,

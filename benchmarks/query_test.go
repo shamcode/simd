@@ -20,7 +20,7 @@ func Benchmark_Query(b *testing.B) {
 	store.AddIndex(hash.NewComparableHashIndex(userID, true))
 	store.AddIndex(btree.NewComparableBTreeIndex(userID, 8, true))
 	store.AddIndex(hash.NewComparableHashIndex(userName, false))
-	store.AddIndex(hash.NewEnumHashIndex(userStatus, false))
+	store.AddIndex(hash.NewComparableHashIndex(userStatus, false))
 	store.AddIndex(hash.NewBoolHashIndex(userIsOnline, false))
 
 	for i := 1; i < 10_000; i++ {
@@ -82,7 +82,7 @@ func Benchmark_Query(b *testing.B) {
 				Query: query.NewBuilder[*User](
 					query.Where(userID, where.GT, 1000),
 					query.WhereBool(userIsOnline, where.EQ, true),
-					query.WhereEnum(userStatus, where.EQ, StatusActive),
+					query.Where(userStatus, where.EQ, StatusActive),
 				).Query(),
 			},
 			{
@@ -90,7 +90,7 @@ func Benchmark_Query(b *testing.B) {
 				Query: query.NewBuilder[*User](
 					query.Where(userID, where.GT, 1000),
 					query.WhereBool(userIsOnline, where.EQ, true),
-					query.WhereEnum(userStatus, where.EQ, StatusActive),
+					query.Where(userStatus, where.EQ, StatusActive),
 					query.Sort(sort.Asc[*User](userID)),
 					query.Limit(100),
 				).Query(),

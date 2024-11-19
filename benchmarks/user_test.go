@@ -43,9 +43,9 @@ var userName = record.ComparableGetter[*User, string]{
 	Get:   func(item *User) string { return item.Name },
 }
 
-var userStatus = record.EnumGetter[*User, uint8]{
+var userStatus = record.ComparableGetter[*User, StatusEnum]{
 	Field: userFields.New("status"),
-	Get:   func(item *User) record.Enum[uint8] { return item.Status },
+	Get:   func(item *User) StatusEnum { return item.Status },
 }
 
 var userAge = record.ComparableGetter[*User, int64]{
