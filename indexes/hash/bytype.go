@@ -18,18 +18,6 @@ func NewBoolHashIndex[R record.Record](
 	)
 }
 
-func NewEnumHashIndex[R record.Record, T record.LessComparable](
-	getter record.EnumGetter[R, T],
-	unique bool,
-) indexes.Index[R] {
-	return NewIndex(
-		getter.Field,
-		compute.CreateEnum8IndexComputation(getter),
-		CreateHashTable(),
-		unique,
-	)
-}
-
 func NewComparableHashIndex[R record.Record, T record.LessComparable](
 	getter record.GetterInterface[R, T],
 	unique bool,
