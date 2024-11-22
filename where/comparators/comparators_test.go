@@ -86,9 +86,9 @@ var enum8Getter = record.ComparableGetter[*user, enum8]{
 	Get:   func(item *user) enum8 { return item.enum8 },
 }
 
-var enum16Getter = record.EnumGetter[*user, uint16]{
+var enum16Getter = record.ComparableGetter[*user, enum16]{
 	Field: fields.New("enum16"),
-	Get:   func(item *user) record.Enum[uint16] { return item.enum16 },
+	Get:   func(item *user) enum16 { return item.enum16 },
 }
 
 var intGetter = record.ComparableGetter[*user, int]{
@@ -266,7 +266,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name:           "2 = 2",
-				comparator:     NewEnumFieldComparator[*user, uint16](where.EQ, enum16Getter, enum16(2)),
+				comparator:     NewComparableFieldComparator[*user, enum16](where.EQ, enum16Getter, enum16(2)),
 				expectedResult: true,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum16",
@@ -274,7 +274,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "2 = 3",
-				comparator:     NewEnumFieldComparator[*user, uint16](where.EQ, enum16Getter, enum16(3)),
+				comparator:     NewComparableFieldComparator[*user, enum16](where.EQ, enum16Getter, enum16(3)),
 				expectedResult: false,
 				expectedCmp:    where.EQ,
 				expectedField:  "enum16",
@@ -282,7 +282,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "2 IN (1, 2)",
-				comparator:     NewEnumFieldComparator[*user, uint16](where.InArray, enum16Getter, enum16(1), enum16(2)),
+				comparator:     NewComparableFieldComparator[*user, enum16](where.InArray, enum16Getter, enum16(1), enum16(2)),
 				expectedResult: true,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum16",
@@ -290,7 +290,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "2 IN (1, 3)",
-				comparator:     NewEnumFieldComparator[*user, uint16](where.InArray, enum16Getter, enum16(1), enum16(3)),
+				comparator:     NewComparableFieldComparator[*user, enum16](where.InArray, enum16Getter, enum16(1), enum16(3)),
 				expectedResult: false,
 				expectedCmp:    where.InArray,
 				expectedField:  "enum16",
@@ -298,7 +298,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "2 ? 2",
-				comparator:     NewEnumFieldComparator[*user, uint16](0, enum16Getter, enum16(2)),
+				comparator:     NewComparableFieldComparator[*user, enum16](0, enum16Getter, enum16(2)),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(enum16Getter.Field, 0),
 				expectedCmp:    0,
