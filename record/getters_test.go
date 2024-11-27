@@ -87,20 +87,6 @@ func TestGetters(t *testing.T) {
 				expectedOrder: []int64{3, 2, 1},
 			},
 			{
-				getter: EnumGetter[user, uint8]{
-					Field: fields.New("enum8"),
-					Get:   func(item user) Enum[uint8] { return item.enum8 },
-				},
-				expectedOrder: []int64{1, 3, 2},
-			},
-			{
-				getter: EnumGetter[user, uint16]{
-					Field: fields.New("enum16"),
-					Get:   func(item user) Enum[uint16] { return item.enum16 },
-				},
-				expectedOrder: []int64{2, 3, 1},
-			},
-			{
 				getter: ComparableGetter[user, int32]{
 					Field: fields.New("int32"),
 					Get:   func(item user) int32 { return item.int32 },

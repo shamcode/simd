@@ -19,7 +19,6 @@ type (
 	}
 	BoolGetter[R Record]                         Getter[R, bool]
 	ComparableGetter[R Record, T LessComparable] Getter[R, T]
-	EnumGetter[R Record, T LessComparable]       Getter[R, Enum[T]]
 	MapGetter[R Record]                          Getter[R, Map]
 	SetGetter[R Record]                          Getter[R, Set]
 )
@@ -27,12 +26,8 @@ type (
 func (getter Getter[R, T]) GetForRecord(item R) T           { return getter.Get(item) }
 func (getter BoolGetter[R]) GetForRecord(item R) bool       { return getter.Get(item) }
 func (getter ComparableGetter[R, T]) GetForRecord(item R) T { return getter.Get(item) }
-func (getter EnumGetter[R, T]) GetForRecord(item R) T       { return getter.Get(item).Value() }
 func (getter MapGetter[R]) GetForRecord(item R) Map         { return getter.Get(item) }
 func (getter SetGetter[R]) GetForRecord(item R) Set         { return getter.Get(item) }
 
 func (getter BoolGetter[R]) Less(a, b R) bool          { return !getter.Get(a) && getter.Get(b) }
 func (getter ComparableGetter[R, T]) Less(a, b R) bool { return getter.Get(a) < getter.Get(b) }
-func (getter EnumGetter[R, T]) Less(a, b R) bool {
-	return getter.Get(a).Value() < getter.Get(b).Value()
-}
