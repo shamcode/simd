@@ -26,7 +26,6 @@ const (
 	StatusDisabled
 )
 
-func (s StatusEnum) Value() uint8 { return uint8(s) }
 func (s StatusEnum) String() string {
 	switch s {
 	case StatusActive:
