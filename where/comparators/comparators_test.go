@@ -28,11 +28,7 @@ func (u *user) GetID() int64 { return u.int64 }
 
 type enum8 uint8
 
-func (e enum8) Value() uint8 { return uint8(e) }
-
 type enum16 uint16
-
-func (e enum16) Value() uint16 { return uint16(e) }
 
 type mp map[int]int
 
