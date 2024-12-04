@@ -7,25 +7,21 @@ import (
 	asserts "github.com/shamcode/assert"
 )
 
-type user struct {
-	id     int64
-	bool   bool
-	int    int
-	enum8  enum8
-	enum16 enum16
-	int32  int32
-	string string
-}
+type (
+	enum8  uint8
+	enum16 uint16
+	user   struct {
+		id     int64
+		bool   bool
+		int    int
+		enum8  enum8
+		enum16 enum16
+		int32  int32
+		string string
+	}
+)
 
 func (u user) GetID() int64 { return u.id }
-
-type enum8 uint8
-
-func (e enum8) Value() uint8 { return uint8(e) }
-
-type enum16 uint16
-
-func (e enum16) Value() uint16 { return uint16(e) }
 
 func TestGetters(t *testing.T) {
 	fields := NewFields()
