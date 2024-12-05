@@ -60,7 +60,7 @@ func (t Tag) String() string {
 
 type Tags map[Tag]struct{}
 
-func (t Tags) Has(item interface{}) bool {
+func (t Tags) Has(item any) bool {
 	value, ok := item.(Tag)
 	if !ok {
 		return false
@@ -78,7 +78,7 @@ const (
 
 type Counters map[CounterKey]uint32
 
-func (c Counters) HasKey(key interface{}) bool {
+func (c Counters) HasKey(key any) bool {
 	counterKey, ok := key.(CounterKey)
 	if !ok {
 		return false
@@ -101,7 +101,7 @@ func (c Counters) HasValue(check record.MapValueComparator) (bool, error) {
 
 type HasCounterValueEqual uint32
 
-func (c HasCounterValueEqual) Compare(item interface{}) (bool, error) {
+func (c HasCounterValueEqual) Compare(item any) (bool, error) {
 	return item.(uint32) == uint32(c), nil
 }
 

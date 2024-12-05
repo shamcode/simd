@@ -22,7 +22,7 @@ func (idx boolIndexComputation[R]) ForRecord(item R) indexes.Key {
 	return BoolKey(idx.getter.Get(item))
 }
 
-func (idx boolIndexComputation[R]) ForValue(value interface{}) indexes.Key {
+func (idx boolIndexComputation[R]) ForValue(value any) indexes.Key {
 	return BoolKey(value.(bool))
 }
 

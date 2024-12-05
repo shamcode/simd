@@ -25,7 +25,7 @@ func (idx timeIndexComputation[R]) ForRecord(item R) indexes.Key {
 	}
 }
 
-func (idx timeIndexComputation[R]) ForValue(item interface{}) indexes.Key {
+func (idx timeIndexComputation[R]) ForValue(item any) indexes.Key {
 	return compute.ComparableKey[int64]{
 		Value: item.(time.Time).UnixNano(),
 	}

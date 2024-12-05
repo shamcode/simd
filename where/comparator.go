@@ -23,5 +23,5 @@ type FieldComparator[R record.Record] interface {
 	GetType() ComparatorType
 	Compare(item R) (bool, error)
 	ValuesCount() int
-	ValueAt(index int) interface{}
+	ValueAt(index int) any
 }

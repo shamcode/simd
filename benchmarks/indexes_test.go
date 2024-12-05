@@ -16,7 +16,7 @@ import (
 
 type discardLogger struct{}
 
-func (discardLogger) Println(...interface{}) {}
+func (discardLogger) Println(...any) {}
 
 func Benchmark_Indexes(b *testing.B) {
 	storeWithoutIndexes := namespace.CreateNamespace[*User]()

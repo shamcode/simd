@@ -28,7 +28,7 @@ func (idx comparableIndexComputation[R, V]) ForRecord(item R) indexes.Key {
 	}
 }
 
-func (idx comparableIndexComputation[R, V]) ForValue(value interface{}) indexes.Key {
+func (idx comparableIndexComputation[R, V]) ForValue(value any) indexes.Key {
 	return ComparableKey[V]{
 		Value: value.(V),
 	}

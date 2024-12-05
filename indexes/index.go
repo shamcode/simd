@@ -12,7 +12,7 @@ type Key interface {
 
 type IndexComputer[R record.Record] interface {
 	ForRecord(item R) Key
-	ForValue(value interface{}) Key
+	ForValue(value any) Key
 	Check(indexKey Key, comparator where.FieldComparator[R]) (bool, error)
 }
 
