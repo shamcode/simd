@@ -80,7 +80,7 @@ func (o AddWhereOption[R]) Apply(b any) { b.(BuilderGeneric[R]).AddWhere(o.Cmp) 
 func WhereAny[R record.Record](
 	getter record.GetterInterface[R, any],
 	condition where.ComparatorType,
-	values ...interface{},
+	values ...any,
 ) BuilderOption {
 	return AddWhereOption[R]{
 		Cmp: comparators.EqualComparator[R, any]{
@@ -144,7 +144,7 @@ func WhereBool[R record.Record](
 func WhereMap[R record.Record](
 	getter record.MapGetter[R],
 	condition where.ComparatorType,
-	value ...interface{},
+	value ...any,
 ) BuilderOption {
 	return AddWhereOption[R]{
 		Cmp: comparators.NewMapFieldComparator[R](condition, getter, value...),
@@ -154,7 +154,7 @@ func WhereMap[R record.Record](
 func WhereSet[R record.Record](
 	getter record.SetGetter[R],
 	condition where.ComparatorType,
-	value ...interface{},
+	value ...any,
 ) BuilderOption {
 	return AddWhereOption[R]{
 		Cmp: comparators.NewSetFieldComparator[R](condition, getter, value...),
