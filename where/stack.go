@@ -21,7 +21,7 @@ func returnToPool(a *result) {
 }
 
 var bracketLevelResultPool = &sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return &result{} //nolint:exhaustruct
 	},
 }

@@ -60,7 +60,7 @@ func (fc StringFieldRegexpComparator[R]) ValuesCount() int {
 	return 1
 }
 
-func (fc StringFieldRegexpComparator[R]) ValueAt(index int) interface{} {
+func (fc StringFieldRegexpComparator[R]) ValueAt(index int) any {
 	if index == 0 {
 		return fc.Value
 	}

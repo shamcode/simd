@@ -36,7 +36,7 @@ func (fc SetFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc SetFieldComparator[R]) ValueAt(index int) interface{} {
+func (fc SetFieldComparator[R]) ValueAt(index int) any {
 	return fc.Value[index]
 }
 

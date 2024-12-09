@@ -16,7 +16,7 @@ type (
 		Field        record.Field
 		Cmp          where.ComparatorType
 		ExpectedType string
-		ReceivedType interface{}
+		ReceivedType any
 	}
 )
 
@@ -54,7 +54,7 @@ func (e FailCastTypeError) Is(err error) bool {
 func NewFailCastTypeError(
 	field record.Field,
 	cmp where.ComparatorType,
-	receivedType interface{},
+	receivedType any,
 	expectedType string,
 ) error {
 	return FailCastTypeError{

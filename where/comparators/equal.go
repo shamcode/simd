@@ -40,7 +40,7 @@ func (fc EqualComparator[R, T]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc EqualComparator[R, T]) ValueAt(index int) interface{} {
+func (fc EqualComparator[R, T]) ValueAt(index int) any {
 	return fc.Value[index]
 }
 

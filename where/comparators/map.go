@@ -42,7 +42,7 @@ func (fc MapFieldComparator[R]) ValuesCount() int {
 	return len(fc.Value)
 }
 
-func (fc MapFieldComparator[R]) ValueAt(index int) interface{} {
+func (fc MapFieldComparator[R]) ValueAt(index int) any {
 	return fc.Value[index]
 }
 
