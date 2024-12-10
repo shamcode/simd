@@ -1,5 +1,5 @@
 package record
 
-type Set interface {
-	Has(item interface{}) bool
+type Set[T comparable] interface {
+	Has(item T) bool
 }

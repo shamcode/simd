@@ -60,12 +60,8 @@ func (t Tag) String() string {
 
 type Tags map[Tag]struct{}
 
-func (t Tags) Has(item any) bool {
-	value, ok := item.(Tag)
-	if !ok {
-		return false
-	}
-	_, ok = t[value]
+func (t Tags) Has(item Tag) bool {
+	_, ok := t[item]
 	return ok
 }
 
@@ -141,9 +137,9 @@ var userIsOnline = record.BoolGetter[*User]{
 	Get:   func(item *User) bool { return item.IsOnline },
 }
 
-var userTags = record.SetGetter[*User]{
+var userTags = record.SetGetter[*User, Tag]{
 	Field: userFields.New("tags"),
-	Get:   func(item *User) record.Set { return item.Tags },
+	Get:   func(item *User) record.Set[Tag] { return item.Tags },
 }
 
 var userCounters = record.MapGetter[*User]{

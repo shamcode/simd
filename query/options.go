@@ -151,13 +151,13 @@ func WhereMap[R record.Record](
 	}
 }
 
-func WhereSet[R record.Record](
-	getter record.SetGetter[R],
+func WhereSet[R record.Record, T comparable](
+	getter record.SetGetter[R, T],
 	condition where.ComparatorType,
-	value ...any,
+	value ...T,
 ) BuilderOption {
 	return AddWhereOption[R]{
-		Cmp: comparators.NewSetFieldComparator[R](condition, getter, value...),
+		Cmp: comparators.NewSetFieldComparator[R, T](condition, getter, value...),
 	}
 }
 

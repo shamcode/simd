@@ -61,12 +61,8 @@ func (e mapValueComparator) Compare(item any) (bool, error) {
 
 type set map[int]struct{}
 
-func (s set) Has(item any) bool {
-	intValue, ok := item.(int)
-	if !ok {
-		return false
-	}
-	_, ok = s[intValue]
+func (s set) Has(item int) bool {
+	_, ok := s[item]
 	return ok
 }
 
@@ -112,9 +108,9 @@ var mapGetter = record.MapGetter[*user]{
 	Get:   func(item *user) record.Map { return item.mp },
 }
 
-var setGetter = record.SetGetter[*user]{
+var setGetter = record.SetGetter[*user, int]{
 	Field: fields.New("set"),
-	Get:   func(item *user) record.Set { return item.set },
+	Get:   func(item *user) record.Set[int] { return item.set },
 }
 
 var stringGetter = record.ComparableGetter[*user, string]{
@@ -839,7 +835,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name:           "SetHas 2",
-				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 2),
+				comparator:     NewSetFieldComparator[*user, int](where.SetHas, setGetter, 2),
 				expectedResult: true,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
@@ -847,7 +843,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "SetHas 3",
-				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 3),
+				comparator:     NewSetFieldComparator[*user, int](where.SetHas, setGetter, 3),
 				expectedResult: false,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
@@ -855,7 +851,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "? 2",
-				comparator:     NewSetFieldComparator[*user](0, setGetter, 2),
+				comparator:     NewSetFieldComparator[*user, int](0, setGetter, 2),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
 				expectedCmp:    0,
@@ -869,7 +865,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 		checkTestCases(t, []testCase{
 			{
 				name:           "SetHas 2",
-				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 2),
+				comparator:     NewSetFieldComparator[*user, int](where.SetHas, setGetter, 2),
 				expectedResult: true,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
@@ -877,7 +873,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "SetHas 3",
-				comparator:     NewSetFieldComparator[*user](where.SetHas, setGetter, 3),
+				comparator:     NewSetFieldComparator[*user, int](where.SetHas, setGetter, 3),
 				expectedResult: false,
 				expectedCmp:    where.SetHas,
 				expectedField:  "set",
@@ -885,7 +881,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 			},
 			{
 				name:           "? 2",
-				comparator:     NewSetFieldComparator[*user](0, setGetter, 2),
+				comparator:     NewSetFieldComparator[*user, int](0, setGetter, 2),
 				expectedResult: false,
 				expectedError:  NewNotImplementComparatorError(setGetter.Field, 0),
 				expectedCmp:    0,
