@@ -19,15 +19,15 @@ type (
 	}
 	BoolGetter[R Record]                         Getter[R, bool]
 	ComparableGetter[R Record, T LessComparable] Getter[R, T]
-	MapGetter[R Record]                          Getter[R, Map]
+	MapGetter[R Record, K comparable, V any]     Getter[R, Map[K, V]]
 	SetGetter[R Record, T comparable]            Getter[R, Set[T]]
 )
 
-func (getter Getter[R, T]) GetForRecord(item R) T           { return getter.Get(item) }
-func (getter BoolGetter[R]) GetForRecord(item R) bool       { return getter.Get(item) }
-func (getter ComparableGetter[R, T]) GetForRecord(item R) T { return getter.Get(item) }
-func (getter MapGetter[R]) GetForRecord(item R) Map         { return getter.Get(item) }
-func (getter SetGetter[R, T]) GetForRecord(item R) Set[T]   { return getter.Get(item) }
+func (getter Getter[R, T]) GetForRecord(item R) T               { return getter.Get(item) }
+func (getter BoolGetter[R]) GetForRecord(item R) bool           { return getter.Get(item) }
+func (getter ComparableGetter[R, T]) GetForRecord(item R) T     { return getter.Get(item) }
+func (getter MapGetter[R, K, V]) GetForRecord(item R) Map[K, V] { return getter.Get(item) }
+func (getter SetGetter[R, T]) GetForRecord(item R) Set[T]       { return getter.Get(item) }
 
 func (getter BoolGetter[R]) Less(a, b R) bool          { return !getter.Get(a) && getter.Get(b) }
 func (getter ComparableGetter[R, T]) Less(a, b R) bool { return getter.Get(a) < getter.Get(b) }

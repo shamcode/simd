@@ -32,15 +32,11 @@ type enum16 uint16
 
 type mp map[int]int
 
-func (m mp) HasKey(key any) bool {
-	intKey, ok := key.(int)
-	if !ok {
-		return false
-	}
-	_, ok = m[intKey]
+func (m mp) HasKey(key int) bool {
+	_, ok := m[key]
 	return ok
 }
-func (m mp) HasValue(check record.MapValueComparator) (bool, error) {
+func (m mp) HasValue(check record.MapValueComparator[int]) (bool, error) {
 	for _, value := range m {
 		res, err := check.Compare(value)
 		if nil != err {
@@ -53,9 +49,9 @@ func (m mp) HasValue(check record.MapValueComparator) (bool, error) {
 	return false, nil
 }
 
-type mapValueComparator func(item any) (bool, error)
+type mapValueComparator func(item int) (bool, error)
 
-func (e mapValueComparator) Compare(item any) (bool, error) {
+func (e mapValueComparator) Compare(item int) (bool, error) {
 	return e(item)
 }
 
@@ -103,9 +99,9 @@ var ifaceGetter = record.Getter[*user, any]{
 	Get:   func(item *user) any { return item.iface },
 }
 
-var mapGetter = record.MapGetter[*user]{
+var mapGetter = record.MapGetter[*user, int, int]{
 	Field: fields.New("map"),
-	Get:   func(item *user) record.Map { return item.mp },
+	Get:   func(item *user) record.Map[int, int] { return item.mp },
 }
 
 var setGetter = record.SetGetter[*user, int]{
@@ -767,15 +763,15 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: NewMapFieldComparator[*user](
 					where.MapHasValue,
 					mapGetter,
-					mapValueComparator(func(item any) (bool, error) {
-						return item.(int) == 8, nil
+					mapValueComparator(func(item int) (bool, error) {
+						return item == 8, nil
 					}),
 				),
 				expectedResult: true,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []any{mapValueComparator(func(item any) (bool, error) {
-					return item.(int) == 8, nil
+				expectedValues: []any{mapValueComparator(func(item int) (bool, error) {
+					return item == 8, nil
 				})},
 			},
 			{
@@ -783,15 +779,15 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				comparator: NewMapFieldComparator[*user](
 					where.MapHasValue,
 					mapGetter,
-					mapValueComparator(func(item any) (bool, error) {
-						return item.(int) == 10, nil
+					mapValueComparator(func(item int) (bool, error) {
+						return item == 10, nil
 					}),
 				),
 				expectedResult: false,
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []any{mapValueComparator(func(item any) (bool, error) {
-					return item.(int) == 10, nil
+				expectedValues: []any{mapValueComparator(func(item int) (bool, error) {
+					return item == 10, nil
 				})},
 			},
 			{
@@ -807,7 +803,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				name: "MapHasValue error",
 				comparator: NewMapFieldComparator[*user](
 					where.MapHasValue, mapGetter,
-					mapValueComparator(func(item any) (bool, error) {
+					mapValueComparator(func(item int) (bool, error) {
 						return false, errors.New("comparator error")
 					}),
 				),
@@ -815,7 +811,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				expectedError:  errors.New("comparator error"),
 				expectedCmp:    where.MapHasValue,
 				expectedField:  "map",
-				expectedValues: []any{mapValueComparator(func(item any) (bool, error) {
+				expectedValues: []any{mapValueComparator(func(item int) (bool, error) {
 					return false, errors.New("comparator error")
 				})},
 			},

@@ -74,15 +74,11 @@ const (
 
 type Counters map[CounterKey]uint32
 
-func (c Counters) HasKey(key any) bool {
-	counterKey, ok := key.(CounterKey)
-	if !ok {
-		return false
-	}
-	_, ok = c[counterKey]
+func (c Counters) HasKey(key CounterKey) bool {
+	_, ok := c[key]
 	return ok
 }
-func (c Counters) HasValue(check record.MapValueComparator) (bool, error) {
+func (c Counters) HasValue(check record.MapValueComparator[uint32]) (bool, error) {
 	for _, item := range c {
 		res, err := check.Compare(item)
 		if nil != err {
@@ -97,8 +93,8 @@ func (c Counters) HasValue(check record.MapValueComparator) (bool, error) {
 
 type HasCounterValueEqual uint32
 
-func (c HasCounterValueEqual) Compare(item any) (bool, error) {
-	return item.(uint32) == uint32(c), nil
+func (c HasCounterValueEqual) Compare(item uint32) (bool, error) {
+	return item == uint32(c), nil
 }
 
 type User struct {
@@ -142,9 +138,9 @@ var userTags = record.SetGetter[*User, Tag]{
 	Get:   func(item *User) record.Set[Tag] { return item.Tags },
 }
 
-var userCounters = record.MapGetter[*User]{
+var userCounters = record.MapGetter[*User, CounterKey, uint32]{
 	Field: userFields.New("counters"),
-	Get:   func(item *User) record.Map { return item.Counters },
+	Get:   func(item *User) record.Map[CounterKey, uint32] { return item.Counters },
 }
 
 type byOnline struct {

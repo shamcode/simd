@@ -1,10 +1,10 @@
 package record
 
-type MapValueComparator interface {
-	Compare(value interface{}) (bool, error)
+type MapValueComparator[V any] interface {
+	Compare(value V) (bool, error)
 }
 
-type Map interface {
-	HasKey(key interface{}) bool
-	HasValue(check MapValueComparator) (bool, error)
+type Map[K comparable, V any] interface {
+	HasKey(key K) bool
+	HasValue(check MapValueComparator[V]) (bool, error)
 }
