@@ -317,8 +317,8 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			iter, err := CreateQueryExecutor[*user](ns).FetchAll(ctx, test.query)
 			asserts.Success(t, err)
 			res := make([]int64, 0, iter.Size())
-			for iter.Next(ctx) {
-				res = append(res, iter.Item().ID)
+			for item := range iter.Seq(ctx) {
+				res = append(res, item.ID)
 			}
 			asserts.Equals(t, test.expected, res, "ids")
 		})
