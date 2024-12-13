@@ -70,6 +70,8 @@ linters:
     - mnd
     - depguard
     - nakedret
+    - execinquery
+    - exportloopref
 
 issues:
   exclude-rules:
