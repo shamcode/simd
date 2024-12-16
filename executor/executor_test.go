@@ -287,6 +287,18 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			expected: []int64{1, 2},
 		},
 		{
+			name: "where ((id = 1) or (id = 2)) # brackets",
+			query: query.NewBuilder[*user](
+				query.Brackets(
+					query.Brackets(query.Where(id, where.EQ, 1)),
+					query.Or(),
+					query.Brackets(query.Where(id, where.EQ, 2)),
+				),
+				query.Sort(sort.Asc[*user](id)),
+			).Query(),
+			expected: []int64{1, 2},
+		},
+		{
 			name: "where (((id = 1) or (id = 2)) or id = 3) or id = 4",
 			query: query.NewBuilder[*user](
 				query.OpenBracket(),
@@ -302,6 +314,24 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 				query.Or(),
 				query.Where(id, where.EQ, 3),
 				query.CloseBracket(),
+				query.Or(),
+				query.Where(id, where.EQ, 4),
+				query.Sort(sort.Asc[*user](id)),
+			).Query(),
+			expected: []int64{1, 2, 3, 4},
+		},
+		{
+			name: "where (((id = 1) or (id = 2)) or id = 3) or id = 4 #brackets",
+			query: query.NewBuilder[*user](
+				query.Brackets(
+					query.Brackets(
+						query.Brackets(query.Where(id, where.EQ, 1)),
+						query.Or(),
+						query.Brackets(query.Where(id, where.EQ, 2)),
+					),
+					query.Or(),
+					query.Where(id, where.EQ, 3),
+				),
 				query.Or(),
 				query.Where(id, where.EQ, 4),
 				query.Sort(sort.Asc[*user](id)),

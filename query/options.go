@@ -52,6 +52,18 @@ func CloseBracket() BuilderOption {
 	return CloseBracketOption{}
 }
 
+type BracketsOption []BuilderOption
+
+func (o BracketsOption) Apply(b any) {
+	bld := b.(Builder)
+	bld.OpenBracket()
+	bld.Append(o...)
+	bld.CloseBracket()
+}
+func Brackets(opts ...BuilderOption) BuilderOption {
+	return BracketsOption(opts)
+}
+
 type ErrorOption struct {
 	err error
 }

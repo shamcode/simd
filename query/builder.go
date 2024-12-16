@@ -16,6 +16,9 @@ type Builder interface {
 	OpenBracket()
 	CloseBracket()
 
+	// Append apply new options to builder
+	Append(options ...BuilderOption)
+
 	// Error save error to builder
 	Error(err error)
 }
@@ -29,9 +32,6 @@ type BuilderGeneric[R record.Record] interface {
 	// OnIteration registers a callback to be called for each record before sorting and applying offset/limits
 	// but after applying WHERE conditions
 	OnIteration(cb func(item R))
-
-	// Append apply new options to builder
-	Append(options ...BuilderOption)
 
 	MakeCopy() BuilderGeneric[R]
 
