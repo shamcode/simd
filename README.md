@@ -29,23 +29,23 @@ Usage
 
 Benchmarks
 ------
-```go
+```text
 goos: linux
 goarch: amd64
 pkg: github.com/shamcode/simd/benchmarks
 cpu: 11th Gen Intel(R) Core(TM) i7-11700K @ 3.60GHz
-Benchmark_SIMDVsSQLite/10_simd-16         	10204716	       586.0 ns/op	     520 B/op	      12 allocs/op
-Benchmark_SIMDVsSQLite/10_sqlite-16       	 3068528	      1961 ns/op	     576 B/op	      25 allocs/op
-Benchmark_SIMDVsSQLite/100_simd-16        	  413877	     14695 ns/op	   12486 B/op	     288 allocs/op
-Benchmark_SIMDVsSQLite/100_sqlite-16      	  119881	     47732 ns/op	   13824 B/op	     600 allocs/op
-Benchmark_SIMDVsSQLite/1000_simd-16       	   38463	    153534 ns/op	  129554 B/op	    2988 allocs/op
-Benchmark_SIMDVsSQLite/1000_sqlite-16     	   10000	    519068 ns/op	  143424 B/op	    6225 allocs/op
-Benchmark_SIMDVsSQLite/5000_simd-16       	    6925	    886589 ns/op	  665895 B/op	   16977 allocs/op
-Benchmark_SIMDVsSQLite/5000_sqlite-16     	    2367	   2592095 ns/op	  735330 B/op	   33213 allocs/op
-Benchmark_SIMDVsSQLite/10000_simd-16      	    3182	   1896206 ns/op	 1336413 B/op	   34478 allocs/op
-Benchmark_SIMDVsSQLite/10000_sqlite-16    	    1190	   5174001 ns/op	 1475333 B/op	   66963 allocs/op
-Benchmark_SIMDVsSQLite/50000_simd-16      	     614	  10125915 ns/op	 6696705 B/op	  174480 allocs/op
-Benchmark_SIMDVsSQLite/50000_sqlite-16    	     226	  26049774 ns/op	 7395355 B/op	  336963 allocs/op
+Benchmark_SIMDVsSQLite/10_simd-16         	 7684887	      1003 ns/op	     528 B/op	      13 allocs/op
+Benchmark_SIMDVsSQLite/10_sqlite-16       	 3042801	      1951 ns/op	     528 B/op	      16 allocs/op
+Benchmark_SIMDVsSQLite/100_simd-16        	  287352	     24983 ns/op	   12680 B/op	     312 allocs/op
+Benchmark_SIMDVsSQLite/100_sqlite-16      	  128025	     47585 ns/op	   12672 B/op	     384 allocs/op
+Benchmark_SIMDVsSQLite/1000_simd-16       	   23180	    269121 ns/op	  131564 B/op	    3237 allocs/op
+Benchmark_SIMDVsSQLite/1000_sqlite-16     	   10000	    503999 ns/op	  131472 B/op	    3984 allocs/op
+Benchmark_SIMDVsSQLite/5000_simd-16       	    4161	   1710954 ns/op	  676039 B/op	   18226 allocs/op
+Benchmark_SIMDVsSQLite/5000_sqlite-16     	    2257	   2581590 ns/op	  675379 B/op	   21972 allocs/op
+Benchmark_SIMDVsSQLite/10000_simd-16      	    2406	   3341910 ns/op	 1356782 B/op	   36977 allocs/op
+Benchmark_SIMDVsSQLite/10000_sqlite-16    	    1135	   5211279 ns/op	 1355384 B/op	   44472 allocs/op
+Benchmark_SIMDVsSQLite/50000_simd-16      	     567	  10497232 ns/op	 6797117 B/op	  186979 allocs/op
+Benchmark_SIMDVsSQLite/50000_sqlite-16    	     224	  26435995 ns/op	 6795416 B/op	  224472 allocs/op
 
 ```
 
