@@ -20,11 +20,11 @@ Use go get.
 Usage
 ------
 
-##### Examples:
+##### Examples
 
-- [Simple](https://github.com/shamcode/simd/blob/master/_examples/common/main.go)
-- [Custom Field Type](https://github.com/shamcode/simd/blob/master/_examples/custom-field-time)
-- [Wrap QueryBuilder](https://github.com/shamcode/simd/blob/master/_examples/wrap-query-builder)
+- [Simple](https://github.com/shamcode/simd/blob/master/examples/common/main.go)
+- [Custom Field Type](https://github.com/shamcode/simd/blob/master/examples/custom-field-time)
+- [Wrap QueryBuilder](https://github.com/shamcode/simd/blob/master/examples/wrap-query-builder)
 
 
 Benchmarks
