@@ -54,8 +54,7 @@ type queryBuilder[R record.Record] struct {
 	where        where.Conditions[R]
 	sortBy       []sort.ByWithOrder[R]
 	onIteration  *func(item R)
-	// TODO: wait go1.20 https://go-review.googlesource.com/c/go/+/432898/11/src/errors/join.go
-	errors []error
+	errors       []error
 }
 
 func (qb *queryBuilder[R]) Limit(limitItems int) {
