@@ -11,8 +11,6 @@ func NewIDGetter[R Record]() ComparableGetter[R, int64] {
 			index: 0,
 			name:  "ID",
 		},
-		Get: func(item R) int64 {
-			return item.GetID()
-		},
+		Get: R.GetID,
 	}
 }
