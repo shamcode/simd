@@ -13,6 +13,8 @@ const (
 	StatusDisabled
 )
 
+func (s Status) GoString() string { return s.String() }
+
 func (s Status) String() string {
 	switch s {
 	case StatusActive:
