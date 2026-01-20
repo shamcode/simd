@@ -12,6 +12,7 @@ type QueryWithDumper[R record.Record] interface {
 
 type debugQuery[R record.Record] struct {
 	query.Query[R]
+
 	queryDump string
 }
 

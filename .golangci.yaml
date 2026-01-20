@@ -1,88 +1,100 @@
-run:
-  timeout: 15m
-
-linters-settings:
-  dupl:
-    threshold: 100
-  wrapcheck:
-    ignoreSigs:
-      - (context.Context).Err()
-      - fmt.Errorf(
-    ignoreSigRegexps:
-      - \.New.*Error\(
-    ignorePackageGlobs:
-      - encoding/*
-      - time
-      - io/fs
-  revive:
-    rules:
-      - name: unexported-return
-        disabled: true
-  varnamelen:
-    ignore-names:
-      - err
-      - id
-      - t
-    ignore-decls:
-      - r *http.Request
-      - rw http.ResponseWriter
-  exhaustruct:
-    exclude:
-      - http.Cookie
-      - http.Server
-      - '.+Error$'
-      - http.Client
-      - cors.Cors
-      - cors.Options
-      - go2node.NodeMessage
-  stylecheck:
-    checks: ["*", "-ST1003"]
-  ireturn:
-    allow:
-      - anon
-      - error
-      - empty
-      - stdlib
-      - trace
-      - logr
-
+version: "2"
 linters:
-  enable-all: true
+  default: all
   disable:
-    - paralleltest
-    - tagliatelle
-    - testpackage
-    - rowserrcheck
-    - sqlclosecheck
-    - wastedassign
+    - depguard
     - dupl
-    - wsl
-    - nlreturn
-    - gci
-    - gofumpt
-    - gomnd
-    - wrapcheck
-    - tparallel
-    - godox
     - forcetypeassert
     - gochecknoglobals
+    - godox
     - ireturn
     - mnd
-    - depguard
     - nakedret
-    - execinquery
-    - exportloopref
-
-issues:
-  exclude-rules:
-    - path: _test.go
-      linters:
-        - funlen
-        - wrapcheck
-        - nosnakecase
-        - goerr113
-        - forcetypeassert
-        - lll
-        - varnamelen
-        - gochecknoglobals
-        - typecheck
+    - nlreturn
+    - paralleltest
+    - rowserrcheck
+    - sqlclosecheck
+    - tagliatelle
+    - testpackage
+    - tparallel
+    - wastedassign
+    - wrapcheck
+    - wsl
+  settings:
+    dupl:
+      threshold: 100
+    exhaustruct:
+      exclude:
+        - http.Cookie
+        - http.Server
+        - .+Error$
+        - http.Client
+        - cors.Cors
+        - cors.Options
+        - go2node.NodeMessage
+    ireturn:
+      allow:
+        - anon
+        - error
+        - empty
+        - stdlib
+        - trace
+        - logr
+    revive:
+      rules:
+        - name: unexported-return
+          disabled: true
+    staticcheck:
+      checks:
+        - all
+        - -ST1003
+    varnamelen:
+      ignore-names:
+        - err
+        - id
+        - t
+      ignore-decls:
+        - r *http.Request
+        - rw http.ResponseWriter
+    wrapcheck:
+      ignore-sigs:
+        - (context.Context).Err()
+        - fmt.Errorf(
+      ignore-sig-regexps:
+        - \.New.*Error\(
+      ignore-package-globs:
+        - encoding/*
+        - time
+        - io/fs
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - err113
+          - forcetypeassert
+          - funlen
+          - gochecknoglobals
+          - lll
+          - nosnakecase
+          - varnamelen
+          - wrapcheck
+        path: _test.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

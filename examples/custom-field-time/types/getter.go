@@ -8,6 +8,7 @@ import (
 
 type TimeGetter[R record.Record] struct {
 	record.Field
+
 	Get func(item R) time.Time
 }
 

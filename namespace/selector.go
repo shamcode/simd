@@ -35,6 +35,7 @@ func (byLevel resultByBracketLevel) save(
 			operation:           operation,
 			operationRecognized: false,
 		}
+
 		return
 	}
 
@@ -53,11 +54,15 @@ func (byLevel resultByBracketLevel) save(
 }
 
 func (byLevel resultByBracketLevel) reduce(fromLevel int, toLevel int) ([]storage.IDIterator, int, bool, bool) {
-	var items []storage.IDIterator
-	var size int
-	var item *result
-	var idsUnique bool
+	var (
+		items     []storage.IDIterator
+		size      int
+		item      *result
+		idsUnique bool
+	)
+
 	isFirst := true
+
 	for fromLevel > toLevel {
 		item = byLevel[fromLevel]
 		if nil != item {
@@ -80,9 +85,12 @@ func (byLevel resultByBracketLevel) reduce(fromLevel int, toLevel int) ([]storag
 					}
 				}
 			}
+
 			delete(byLevel, fromLevel)
 		}
+
 		fromLevel -= 1
 	}
+
 	return items, size, idsUnique, !isFirst
 }

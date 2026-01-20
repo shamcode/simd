@@ -31,6 +31,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		if err != nil {
 			log.Fatal(err)
 		}
+
 		sqlStmt := `
 	CREATE TABLE IF NOT EXISTS user (
 		id INTEGER NOT NULL PRIMARY KEY, 
@@ -42,6 +43,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 	DELETE FROM user;
 	CREATE INDEX IF NOT EXISTS id_idx ON user(id);
 	`
+
 		_, err = db.Exec(sqlStmt)
 		if nil != err {
 			b.Fatal(err)
@@ -63,10 +65,12 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 				Score:    i % 150,
 				IsOnline: i%2 == 0,
 			}
+
 			err := simd.Upsert(user)
 			if nil != err {
 				b.Fatal(err)
 			}
+
 			_, err = stmt.Exec(user.ID, user.Name, user.Status, user.Score, user.IsOnline)
 			if nil != err {
 				b.Fatal(err)
@@ -76,6 +80,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		stmt.Close()
 
 		qe := executor.CreateQueryExecutor[*User](simd)
+
 		b.Run(strconv.Itoa(usersCount)+"_simd", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount/4; i++ {
@@ -88,6 +93,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 					if nil != err {
 						b.Fatalf("query: %s", err)
 					}
+
 					u := cur.Item()
 					if u.IsOnline != (i%2 == 0) {
 						b.Fatalf("wrong is_online: %d", i)
@@ -100,6 +106,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		if nil != err {
 			b.Fatal(err)
 		}
+
 		b.Run(strconv.Itoa(usersCount)+"_sqlite", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount/4; i++ {
@@ -111,14 +118,18 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 					if !rows.Next() {
 						b.Fatalf("not found user: %d", i)
 					}
+
 					var isOnline bool
+
 					err = rows.Scan(&isOnline)
 					if nil != err {
 						b.Fatal(err)
 					}
+
 					if isOnline != (i%2 == 0) {
 						b.Fatalf("wrong is_online: %d", i)
 					}
+
 					rows.Close()
 				}
 			}

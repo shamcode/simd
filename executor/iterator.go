@@ -34,6 +34,7 @@ func (i *heapIterator[R]) Next(ctx context.Context) bool {
 		if result {
 			i.index += 1
 		}
+
 		return result
 	}
 }

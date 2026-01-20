@@ -18,6 +18,7 @@ func (u *uniqID) Count() int {
 	if id := atomic.LoadInt64((*int64)(u)); id == 0 {
 		return 0
 	}
+
 	return 1
 }
 

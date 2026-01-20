@@ -33,6 +33,7 @@ var name = record.ComparableGetter[*User, string]{
 
 func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
+
 	flag.Parse()
 
 	store := namespace.CreateNamespace[*User]()
@@ -76,15 +77,19 @@ func main() {
 	).Query()
 
 	ctx := context.Background()
+
 	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
 	if nil != err {
 		log.Fatal(err)
 	}
+
 	for cur.Next(ctx) {
 		log.Printf("%#v", cur.Item())
 	}
+
 	if err := cur.Err(); nil != err {
 		log.Fatal(err)
 	}
+
 	log.Printf("total: %d", total)
 }

@@ -192,7 +192,7 @@ func Benchmark_Indexes(b *testing.B) {
 		b.Run(bench.Name, func(b *testing.B) {
 			for _, exec := range executors {
 				b.Run(exec.name, func(b *testing.B) {
-					for i := 0; i < b.N; i++ {
+					for range b.N {
 						_, _, err := exec.qe.FetchAllAndTotal(context.Background(), bench.Query)
 						if nil != err {
 							b.Fatal(err)
@@ -206,6 +206,7 @@ func Benchmark_Indexes(b *testing.B) {
 
 func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 	maxChildren := 64
+
 	stores := make([]*namespace.WithIndexes[*User], 0, maxChildren)
 	for i := 1; i <= maxChildren; i++ {
 		store := namespace.CreateNamespace[*User]()
@@ -233,8 +234,9 @@ func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 
 	for i, store := range stores {
 		exec := executor.CreateQueryExecutor[*User](store)
+
 		b.Run(strconv.Itoa(i+1), func(b *testing.B) {
-			for i := 0; i < b.N; i++ {
+			for range b.N {
 				_, _, err := exec.FetchAllAndTotal(context.Background(), q)
 				if nil != err {
 					b.Fatal(err)

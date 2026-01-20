@@ -20,7 +20,7 @@ func (c Condition[R]) String() string {
 type Conditions[R record.Record] []Condition[R]
 
 // Check checks that the record satisfies all the conditions.
-func (w Conditions[R]) Check(item R) (bool, error) { //nolint:funlen,cyclop
+func (w Conditions[R]) Check(item R) (bool, error) { //nolint:cyclop
 	stack := make(resultsByBracketLevel)
 	lastBracketLevel := 0
 
@@ -38,6 +38,7 @@ func (w Conditions[R]) Check(item R) (bool, error) { //nolint:funlen,cyclop
 					last.isAnd = isAnd
 					last.opRecognized = true
 				}
+
 				if last.isAnd != last.value && last.isAnd == isAnd {
 					// lazy or/and
 					// skip Condition

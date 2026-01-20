@@ -64,6 +64,7 @@ func (fc StringFieldRegexpComparator[R]) ValueAt(index int) any {
 	if index == 0 {
 		return fc.Value
 	}
+
 	return nil
 }
 

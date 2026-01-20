@@ -15,6 +15,7 @@ type GetterInterface[R Record, T any] interface {
 type (
 	Getter[R Record, T any] struct {
 		Field
+
 		Get func(item R) T
 	}
 	BoolGetter[R Record]                         Getter[R, bool]

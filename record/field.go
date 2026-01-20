@@ -18,6 +18,7 @@ type FieldsConstructor uint8
 func (fc *FieldsConstructor) New(name string) Field {
 	index := uint8(*fc)
 	*fc++
+
 	return field{
 		index: index,
 		name:  name,

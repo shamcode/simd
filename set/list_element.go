@@ -17,6 +17,7 @@ func (e *ListElement) Next() *ListElement {
 		if atomic.LoadInt64(&next.deleted) == 0 {
 			return next
 		}
+
 		following := next.Next()
 		if atomic.CompareAndSwapPointer(&e.next, unsafe.Pointer(next), unsafe.Pointer(following)) {
 			next = following
@@ -24,5 +25,6 @@ func (e *ListElement) Next() *ListElement {
 			next = next.Next()
 		}
 	}
+
 	return nil
 }

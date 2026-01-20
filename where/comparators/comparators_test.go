@@ -42,10 +42,12 @@ func (m mp) HasValue(check record.MapValueComparator[int]) (bool, error) {
 		if nil != err {
 			return false, err
 		}
+
 		if res {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
@@ -153,10 +155,12 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				asserts.Equals(t, test.expectedError, err, "error")
 				asserts.Equals(t, test.comparator.GetType(), test.expectedCmp, "comparator type")
 				asserts.Equals(t, test.comparator.GetField().String(), test.expectedField, "field")
+
 				var values []any
 				for i := range test.comparator.ValuesCount() {
 					values = append(values, test.comparator.ValueAt(i))
 				}
+
 				asserts.Equals(t, values, test.expectedValues, "values")
 			})
 		}

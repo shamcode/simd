@@ -8,6 +8,7 @@ import (
 
 type concurrentStorage struct {
 	sync.RWMutex
+
 	original Storage
 	uniq     bool
 }
@@ -15,6 +16,7 @@ type concurrentStorage struct {
 func (idx *concurrentStorage) Get(key Key) storage.IDStorage {
 	idx.RLock()
 	defer idx.RUnlock()
+
 	return idx.original.Get(key)
 }
 
@@ -22,10 +24,13 @@ func (idx *concurrentStorage) GetOrCreate(key Key) storage.IDStorage {
 	idx.RLock()
 	idStorage := idx.original.Get(key)
 	idx.RUnlock()
+
 	if nil != idStorage {
 		return idStorage
 	}
+
 	idx.Lock()
+
 	idStorage = idx.original.Get(key)
 	if nil == idStorage { // Prevent override in race
 		if idx.uniq {
@@ -33,9 +38,12 @@ func (idx *concurrentStorage) GetOrCreate(key Key) storage.IDStorage {
 		} else {
 			idStorage = storage.CreateSetIDStorage()
 		}
+
 		idx.original.Set(key, idStorage)
 	}
+
 	idx.Unlock()
+
 	return idStorage
 }
 

@@ -21,6 +21,7 @@ func (s _int64) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 func TestIndex(t *testing.T) {
 	_id := record.NewIDGetter[record.Record]()
 	index := NewComparableHashIndex(_id, true)
+
 	var id int64
 	for id = 1; id <= 10; id++ {
 		key := index.Compute().ForValue(id)
@@ -83,6 +84,7 @@ func TestIndex(t *testing.T) {
 		for _, test := range testCases {
 			t.Run(test.condition.String(), func(t *testing.T) {
 				t.Parallel()
+
 				canApply, weight := index.Weight(test.condition)
 				asserts.Equals(t, test.expectedCanApply, canApply, "can apply")
 				asserts.Equals(t, test.expectedWeight, weight, "weight")
@@ -179,14 +181,18 @@ func TestIndex(t *testing.T) {
 		for _, test := range testCases {
 			t.Run(test.condition.String(), func(t *testing.T) {
 				t.Parallel()
+
 				count, idsStorage, err := index.Select(test.condition)
 				asserts.Success(t, err)
+
 				var ids []int64
+
 				for _, store := range idsStorage {
 					store.Iterate(func(id int64) {
 						ids = append(ids, id)
 					})
 				}
+
 				sort.Sort(_int64(ids))
 				asserts.Equals(t, test.expectedIDs, ids, "ids")
 				asserts.Equals(t, test.expectedCount, count, "count")

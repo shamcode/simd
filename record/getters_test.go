@@ -103,10 +103,12 @@ func TestGetters(t *testing.T) {
 				sort.SliceStable(users, func(i, j int) bool {
 					return tc.getter.Less(users[i], users[j])
 				})
+
 				ids := make([]int64, len(users))
 				for i := range users {
 					ids[i] = users[i].GetID()
 				}
+
 				asserts.Equals(t, tc.expectedOrder, ids, tc.getter.String())
 			})
 		}

@@ -67,7 +67,9 @@ func (q *debugQueryBuilder[R]) OpenBracket() {
 			chunk.WriteString(" AND ")
 		}
 	}
+
 	chunk.WriteString("(")
+
 	q.requireOp = false
 }
 
@@ -90,6 +92,7 @@ func (q *debugQueryBuilder[R]) Sort(sortBy sort.ByWithOrder[R]) {
 	if chunk.Len() > 0 {
 		chunk.WriteString(", ")
 	}
+
 	chunk.WriteString(sortBy.String())
 }
 
@@ -108,6 +111,7 @@ func (q *debugQueryBuilder[R]) MakeCopy() query.BuilderGeneric[R] {
 		chunks[key] = &strings.Builder{}
 		chunks[key].WriteString(q.chunks[key].String())
 	}
+
 	return &debugQueryBuilder[R]{
 		chunks:                chunks,
 		requireOp:             q.requireOp,
@@ -130,61 +134,71 @@ func (q *debugQueryBuilder[R]) saveFieldComparatorForDump(cmp where.FieldCompara
 			chunk.WriteString(" AND ")
 		}
 	}
+
 	if q.withNot {
 		chunk.WriteString("NOT ")
 	}
+
 	chunk.WriteString(cmp.GetField().String())
+
 	switch cmp.GetType() {
 	case where.EQ:
 		chunk.WriteString(" = ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.GT:
 		chunk.WriteString(" > ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.GE:
 		chunk.WriteString(" >= ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.LT:
 		chunk.WriteString(" < ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.LE:
 		chunk.WriteString(" <= ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.InArray:
 		chunk.WriteString(" IN (")
+
 		for i := range cmp.ValuesCount() {
 			if i != 0 {
 				chunk.WriteString(", ")
 			}
-			chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(i)))
+
+			fmt.Fprintf(chunk, "%v", cmp.ValueAt(i))
 		}
+
 		chunk.WriteString(")")
 	case where.Like:
 		chunk.WriteString(" LIKE ")
-		chunk.WriteString(fmt.Sprintf("\"%v\"", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "\"%v\"", cmp.ValueAt(0))
 	case where.Regexp:
 		chunk.WriteString(" REGEXP ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.SetHas:
 		chunk.WriteString(" SET_HAS ")
-		chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "%v", cmp.ValueAt(0))
 	case where.MapHasValue:
 		chunk.WriteString(" MAP_HAS_VALUE FIELD ")
+
 		mapCmp := cmp.ValueAt(0).(where.FieldComparator[R])
 		chunk.WriteString(mapCmp.GetField().String())
-		chunk.WriteString(fmt.Sprintf(" COMPARE %v", mapCmp))
+		fmt.Fprintf(chunk, " COMPARE %v", mapCmp)
 	case where.MapHasKey:
 		chunk.WriteString(" MAP_HAS_KEY ")
-		chunk.WriteString(fmt.Sprintf("\"%v\"", cmp.ValueAt(0)))
+		fmt.Fprintf(chunk, "\"%v\"", cmp.ValueAt(0))
 	default:
 		if nil == q.fieldComparatorDumper {
-			chunk.WriteString(fmt.Sprintf(" (ComparatorType(%d) ", cmp.GetType()))
+			fmt.Fprintf(chunk, " (ComparatorType(%d) ", cmp.GetType())
+
 			for i := range cmp.ValuesCount() {
 				if i != 0 {
 					chunk.WriteString(" ")
 				}
-				chunk.WriteString(fmt.Sprintf("%v", cmp.ValueAt(i)))
+
+				fmt.Fprintf(chunk, "%v", cmp.ValueAt(i))
 			}
+
 			chunk.WriteString(")")
 		} else {
 			(*q.fieldComparatorDumper)(chunk, cmp)
@@ -198,18 +212,22 @@ func (q *debugQueryBuilder[R]) Dump() string {
 		result.WriteString(" WHERE ")
 		result.WriteString(q.chunks[chunkWhere].String())
 	}
+
 	if q.chunks[chunkSort].Len() > 0 {
 		result.WriteString(" ORDER BY ")
 		result.WriteString(q.chunks[chunkSort].String())
 	}
+
 	if q.chunks[chunkOffset].Len() > 0 {
 		result.WriteString(" ")
 		result.WriteString(q.chunks[chunkOffset].String())
 	}
+
 	if q.chunks[chunkLimit].Len() > 0 {
 		result.WriteString(" ")
 		result.WriteString(q.chunks[chunkLimit].String())
 	}
+
 	return result.String()
 }
 
@@ -229,5 +247,6 @@ func CreateDebugQueryBuilder[R record.Record](options ...query.BuilderOption) Qu
 	for _, opt := range options {
 		opt.Apply(debugQB)
 	}
+
 	return debugQB
 }

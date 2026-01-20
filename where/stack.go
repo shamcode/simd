@@ -51,6 +51,7 @@ func (stack resultsByBracketLevel) reduce(fromLevel int, toLevel int) bool {
 	result := stackItem.value
 	returnToPool(stackItem)
 	delete(stack, fromLevel)
+
 	fromLevel -= 1
 	for fromLevel > toLevel {
 		stackItem := stack[fromLevel]
@@ -62,11 +63,14 @@ func (stack resultsByBracketLevel) reduce(fromLevel int, toLevel int) bool {
 				// (...) OR A
 				result = result || stackItem.value
 			}
+
 			returnToPool(stackItem)
 			delete(stack, fromLevel)
 		}
+
 		fromLevel -= 1
 	}
+
 	return result
 }
 
@@ -77,6 +81,7 @@ func (stack resultsByBracketLevel) pop(fromLevel int, toLevel int) {
 			returnToPool(stackItem)
 			delete(stack, fromLevel)
 		}
+
 		fromLevel -= 1
 	}
 }

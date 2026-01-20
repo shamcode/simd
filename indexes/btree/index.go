@@ -44,7 +44,6 @@ func (idx index[R]) Compute() indexes.IndexComputer[R] {
 func (idx index[R]) Weight(condition where.Condition[R]) (canApplyIndex bool, weight indexes.IndexWeight) {
 	switch condition.Cmp.GetType() {
 	case where.LT, where.LE, where.GT, where.GE:
-
 		// B-tree optimal for <, <=, >, >=
 		return true, indexes.IndexWeightLow
 	case where.EQ, where.InArray:
@@ -55,7 +54,6 @@ func (idx index[R]) Weight(condition where.Condition[R]) (canApplyIndex bool, we
 			return true, indexes.IndexWeightMedium
 		}
 	default:
-
 		// For other condition index can apply, but not optimal
 		return true, indexes.IndexWeightHigh
 	}
@@ -79,68 +77,84 @@ func (idx index[R]) Select(condition where.Condition[R]) ( //nolint:cyclop
 			cmp = where.LT
 		}
 	}
+
 	switch cmp {
 	case where.LT:
 		idx.storage.RLock()
 		count, ids = idx.btree().LessThan(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
+
 		return
 	case where.LE:
 		idx.storage.RLock()
 		count, ids = idx.btree().LessOrEqual(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
+
 		return
 	case where.GT:
 		idx.storage.RLock()
 		count, ids = idx.btree().GreaterThan(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
+
 		return
 	case where.GE:
 		idx.storage.RLock()
 		count, ids = idx.btree().GreaterOrEqual(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 		idx.storage.RUnlock()
+
 		return
 	}
+
 	if !condition.WithNot {
 		switch cmp {
 		case where.EQ:
 			idx.storage.RLock()
 			countForKey, idsForKey := idx.btree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(0)))
 			idx.storage.RUnlock()
+
 			if countForKey > 0 {
 				count = countForKey
 				ids = []storage.IDIterator{idsForKey}
 			}
+
 			return
 		case where.InArray:
 			idx.storage.RLock()
+
 			for i := range condition.Cmp.ValuesCount() {
 				countForValue, idsForValue := idx.btree().ForKey(idx.compute.ForValue(condition.Cmp.ValueAt(i)))
 				if countForValue > 0 {
 					count += countForValue
+
 					ids = append(ids, idsForValue)
 				}
 			}
+
 			idx.storage.RUnlock()
+
 			return
 		}
 	}
+
 	idx.storage.RLock()
-	idx.btree().All(func(key indexes.Key, records storage.IDStorage) {
+	idx.btree().All(func(key indexes.Key, records storage.IDStorage) { //nolint:unqueryvet
 		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
 		if nil != errorForValue {
 			err = errorForValue
 			return
 		}
+
 		if condition.WithNot != resultForValue {
 			itemCount := records.Count()
 			if itemCount > 0 {
 				count += itemCount
+
 				ids = append(ids, records)
 			}
 		}
 	})
 	idx.storage.RLock()
+
 	return //nolint:nakedret
 }
 

@@ -10,6 +10,7 @@ import (
 
 func TestBuilderErrors(t *testing.T) {
 	_id := record.NewIDGetter[record.Record]()
+
 	testCases := []struct {
 		builderOptions []BuilderOption
 		expectedError  string

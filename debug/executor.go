@@ -47,15 +47,19 @@ func (e *debugExecutor[R]) FetchAllAndTotal(
 func (e *debugExecutor[R]) DumpQuery(query query.Query[R], onlyTotal bool) {
 	var result strings.Builder
 	result.WriteString("SELECT ")
+
 	if !onlyTotal {
 		result.WriteString("*, ")
 	}
+
 	result.WriteString("COUNT(*)")
+
 	if dq, ok := any(query).(QueryWithDumper[R]); ok {
 		result.WriteString(dq.String())
 	} else {
 		result.WriteString(" <Query dont implement QueryWithDumper interface, check QueryBuilder>")
 	}
+
 	e.dump(result.String())
 }
 

@@ -22,6 +22,7 @@ func (s Status) String() string {
 	case StatusDisabled:
 		return "disabled"
 	}
+
 	return strconv.Itoa(int(s))
 }
 

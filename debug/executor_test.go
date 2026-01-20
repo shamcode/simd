@@ -75,6 +75,7 @@ func (s *storage) PreselectForExecutor(where.Conditions[*user]) ([]*user, error)
 	for _, item := range s.data {
 		items = append(items, item)
 	}
+
 	return items, nil
 }
 
@@ -362,6 +363,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			if nil != err {
 				errMsg = err.Error()
 			}
+
 			asserts.Equals(t, test.expectedErrorMessage, errMsg, "error")
 		})
 	}
@@ -384,8 +386,8 @@ func TestFieldComparatorDumper(t *testing.T) {
 		func(w *strings.Builder, cmp where.FieldComparator[*user]) {
 			if InRange == cmp.GetType() {
 				w.WriteString(" IN RANGE (")
-				w.WriteString(fmt.Sprintf("%v; ", cmp.ValueAt(0)))
-				w.WriteString(fmt.Sprintf("%v", cmp.ValueAt(1)))
+				fmt.Fprintf(w, "%v; ", cmp.ValueAt(0))
+				fmt.Fprintf(w, "%v", cmp.ValueAt(1))
 				w.WriteString(")")
 			}
 		},
@@ -427,6 +429,7 @@ func TestFieldComparatorDumper(t *testing.T) {
 			if nil != err {
 				errMsg = err.Error()
 			}
+
 			asserts.Equals(t, test.expectedErrorMessage, errMsg, "error")
 		})
 	}

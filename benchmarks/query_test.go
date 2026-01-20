@@ -98,9 +98,10 @@ func Benchmark_Query(b *testing.B) {
 		}
 
 		qe := executor.CreateQueryExecutor[*User](store)
+
 		for _, bench := range benchmarks {
 			b.Run(bench.Name, func(b *testing.B) {
-				for i := 0; i < b.N; i++ {
+				for range b.N {
 					_, _, err := qe.FetchAllAndTotal(context.Background(), bench.Query)
 					if nil != err {
 						b.Fatal(err)

@@ -28,12 +28,14 @@ func (fc MapFieldComparator[R, K, V]) CompareValue(value record.Map[K, V]) (bool
 		if !ok {
 			return false, NewFailCastTypeError(fc.GetField(), fc.Cmp, fc.Value[0], "record.MapValueComparator")
 		}
+
 		return value.HasValue(cmp)
 	case where.MapHasKey:
 		val, ok := fc.Value[0].(K)
 		if !ok {
 			return false, NewFailCastTypeError(fc.GetField(), fc.Cmp, fc.Value[0], fmt.Sprintf("%T", val))
 		}
+
 		return value.HasKey(val), nil
 	default:
 		return false, NewNotImplementComparatorError(fc.GetField(), fc.Cmp)

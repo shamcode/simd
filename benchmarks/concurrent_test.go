@@ -100,22 +100,28 @@ func Benchmark_Concurrent(b *testing.B) {
 		}
 
 		qe := executor.CreateQueryExecutor[*User](store)
+
 		for _, bench := range benchmarks {
 			b.Run(bench.Name, func(b *testing.B) {
 				var wg sync.WaitGroup
 				wg.Add(b.N)
+
 				sem := make(chan struct{}, concurrent)
-				for i := 0; i < b.N; i++ {
+
+				for range b.N {
 					go func() {
 						sem <- struct{}{}
+
 						_, _, err := qe.FetchAllAndTotal(context.Background(), bench.Query)
 						if nil != err {
 							panic(err)
 						}
+
 						<-sem
 						wg.Done()
 					}()
 				}
+
 				wg.Wait()
 			})
 		}

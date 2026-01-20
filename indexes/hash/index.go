@@ -58,6 +58,7 @@ func (idx index[R]) Select(condition where.Condition[R]) (count int, ids []stora
 			return
 		}
 	}
+
 	return idx.selectForOther(condition)
 }
 
@@ -67,6 +68,7 @@ func (idx index[R]) selectForEqual(condition where.Condition[R]) (count int, ids
 		count = itemsByValue.Count()
 		ids = []storage.IDIterator{itemsByValue}
 	}
+
 	return
 }
 
@@ -77,10 +79,12 @@ func (idx index[R]) selectForInArray(condition where.Condition[R]) (count int, i
 			countForValue := itemsByValue.Count()
 			if countForValue > 0 {
 				count += countForValue
+
 				ids = append(ids, itemsByValue)
 			}
 		}
 	}
+
 	return
 }
 
@@ -88,18 +92,21 @@ func (idx index[R]) selectForOther(condition where.Condition[R]) (count int, ids
 	idx.storage.RLock()
 	keys := idx.hashTable().Keys()
 	idx.storage.RUnlock()
+
 	for _, key := range keys {
 		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
 		if nil != errorForValue {
 			err = errorForValue
 			return
 		}
+
 		if condition.WithNot != resultForValue {
 			idsForKey := idx.storage.Get(key)
 			count += idsForKey.Count()
 			ids = append(ids, idsForKey)
 		}
 	}
+
 	return
 }
 

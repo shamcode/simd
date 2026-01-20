@@ -13,17 +13,21 @@ import (
 
 func concatIDs(ids []storage.IDIterator) []int {
 	var result []int
+
 	for _, idsStorage := range ids {
 		idsStorage.Iterate(func(id int64) {
 			result = append(result, int(id))
 		})
 	}
+
 	sort.Ints(result)
+
 	return result
 }
 
 func TestBTree(t *testing.T) {
 	tree := NewTree(3, true)
+
 	n := 10
 	for i := 1; i <= n; i++ {
 		idStorage := storage.CreateUniqueIDStorage()

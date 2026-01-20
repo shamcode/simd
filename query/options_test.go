@@ -32,6 +32,7 @@ func (w *whereStructHeap[R]) Apply(b any) {
 
 func Benchmark_OptionsStructAndFunction(b *testing.B) {
 	_id := record.NewIDGetter[record.Record]()
+
 	var whereInt64Fn = func(
 		getter record.GetterInterface[record.Record, int64],
 		condition where.ComparatorType,
@@ -64,21 +65,21 @@ func Benchmark_OptionsStructAndFunction(b *testing.B) {
 
 	b.Run("struct stack", func(b *testing.B) {
 		qb := NewBuilder[record.Record]()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			qb.Append(whereInt64StructStack(_id, where.EQ, 1))
 		}
 	})
 
 	b.Run("struct heap", func(b *testing.B) {
 		qb := NewBuilder[record.Record]()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			qb.Append(whereInt64StructHeap(_id, where.EQ, 1))
 		}
 	})
 
 	b.Run("func", func(b *testing.B) {
 		qb := NewBuilder[record.Record]()
-		for i := 0; i < b.N; i++ {
+		for range b.N {
 			qb.Append(whereInt64Fn(_id, where.EQ, 1))
 		}
 	})

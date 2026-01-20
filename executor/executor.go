@@ -46,10 +46,12 @@ func (e *executor[R]) exec( //nolint:cyclop
 	items := newHeap(q.Sorting())
 	callback := q.OnIterationCallback()
 	conditions := q.Conditions()
+
 	itemsForCheck, err := e.selector.PreselectForExecutor(conditions)
 	if nil != err {
 		return nil, 0, NewExecuteQueryError(err)
 	}
+
 	for _, item := range itemsForCheck {
 		select {
 		case <-ctx.Done():
@@ -59,13 +61,17 @@ func (e *executor[R]) exec( //nolint:cyclop
 			if nil != err {
 				return nil, 0, NewExecuteQueryError(err)
 			}
+
 			if !res {
 				continue
 			}
+
 			if nil != callback {
 				(*callback)(item)
 			}
+
 			total += 1
+
 			if !onlyTotal {
 				items.Push(item)
 			}
@@ -76,18 +82,17 @@ func (e *executor[R]) exec( //nolint:cyclop
 		return nil, total, nil
 	}
 
-	var last int
-	var size int
+	var (
+		last int
+		size int
+	)
+
 	itemsCount := total
+
 	if limit, withLimit := q.Limit(); withLimit {
-		last = q.Offset() + limit
-		if last > itemsCount {
-			last = itemsCount
-		}
-		size = limit
-		if size > itemsCount {
-			size = itemsCount
-		}
+		last = min(q.Offset()+limit, itemsCount)
+
+		size = min(limit, itemsCount)
 	} else {
 		last = itemsCount
 		size = itemsCount

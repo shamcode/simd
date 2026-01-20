@@ -110,6 +110,7 @@ func WrapCreateQueryBuilderWithDumper[R record.Record](
 		debug := CreateDebugQueryBuilder[R]()
 		debug.SetFieldComparatorDumper(dumper) // setup dumper before apply options
 		debug.Append(options...)
+
 		return &combineBuilder[R]{
 			debug: debug,
 			base:  constructor(options...),

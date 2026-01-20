@@ -14,6 +14,7 @@ type binaryHeap[R record.Record] struct {
 
 func (h *binaryHeap[R]) less(i, j int) int8 {
 	a := h.records[i]
+
 	b := h.records[j]
 	for _, by := range h.sorting {
 		if by.Less(a, b) {
@@ -22,6 +23,7 @@ func (h *binaryHeap[R]) less(i, j int) int8 {
 			return 1
 		}
 	}
+
 	return 0
 }
 func (h *binaryHeap[R]) swap(i, j int) { h.records[i], h.records[j] = h.records[j], h.records[i] }
@@ -37,13 +39,16 @@ func (h *binaryHeap[R]) Remove(i int) R {
 	n := len(h.records) - 1
 	if n != i {
 		h.swap(i, n)
+
 		if !h.down(i, n) {
 			h.up(i)
 		}
 	}
+
 	old := h.records
 	x := old[n]
 	h.records = old[0:n]
+
 	return x
 }
 
@@ -53,6 +58,7 @@ func (h *binaryHeap[R]) up(j int) {
 		if i == j || h.less(j, i) > 0 {
 			break
 		}
+
 		h.swap(i, j)
 		j = i
 	}
@@ -65,16 +71,20 @@ func (h *binaryHeap[R]) down(i0, n int) bool {
 		if j1 >= n || j1 < 0 { // j1 < 0 after int overflow
 			break
 		}
+
 		j := j1 // left child
 		if j2 := j1 + 1; j2 < n && h.less(j1, j2) > 0 {
 			j = j2 // = 2*i + 2  // right child
 		}
+
 		if h.less(i, j) < 0 {
 			break
 		}
+
 		h.swap(i, j)
 		i = j
 	}
+
 	return i > i0
 }
 

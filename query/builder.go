@@ -81,6 +81,7 @@ func (qb *queryBuilder[R]) OpenBracket() {
 	if qb.withNot {
 		qb.errors = append(qb.errors, ErrNotOpenBracket)
 	}
+
 	qb.conditionSet = false
 	qb.bracketLevel += 1
 }
@@ -90,6 +91,7 @@ func (qb *queryBuilder[R]) CloseBracket() {
 	if qb.bracketLevel == -1 {
 		qb.errors = append(qb.errors, ErrCloseBracketWithoutOpen)
 	}
+
 	qb.conditionSet = true
 }
 
@@ -142,6 +144,7 @@ func (qb *queryBuilder[R]) MakeCopy() BuilderGeneric[R] {
 	copy(cpy.where, qb.where)
 	copy(cpy.sortBy, qb.sortBy)
 	copy(cpy.errors, qb.errors)
+
 	return cpy
 }
 
@@ -149,6 +152,7 @@ func (qb *queryBuilder[R]) Query() Query[R] {
 	if qb.bracketLevel > 0 {
 		qb.errors = append(qb.errors, ErrInvalidBracketBalance)
 	}
+
 	return query[R]{
 		offset:              qb.startOffset,
 		limit:               qb.limitItems,
@@ -165,5 +169,6 @@ func NewBuilder[R record.Record](options ...BuilderOption) BuilderGeneric[R] {
 	for _, opt := range options {
 		opt.Apply(b)
 	}
+
 	return b
 }

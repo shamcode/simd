@@ -41,7 +41,7 @@ bench_indexes_btree:
 make bench: bench_set bench_query_builder bench_query bench_indexes bench_indexes_btree bench_concurrent bench_comparing_sqlite
 
 lint:
-	docker run --rm -t -v ./:/app -v ~/.cache/golangci-lint/v1.61.0:/root/.cache -w /app golangci/golangci-lint:v1.61.0 golangci-lint run
+	docker run --rm -t -v ./:/app -v ~/.cache/golangci-lint/v2.8.0:/root/.cache -w /app golangci/golangci-lint:v2.8.0 golangci-lint run
 
 lint_fix:
-	docker run --rm -t -v ./:/app -v ~/.cache/golangci-lint/v1.61.0:/root/.cache -w /app golangci/golangci-lint:v1.61.0 golangci-lint run --fix
+	docker run --rm -t -v ./:/app -v ~/.cache/golangci-lint/v2.8.0:/root/.cache -w /app golangci/golangci-lint:v2.8.0 golangci-lint run --fix

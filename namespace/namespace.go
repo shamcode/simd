@@ -38,7 +38,9 @@ func (ns *WithIndexes[R]) Insert(item R) error {
 	if _, exists := ns.Get(item.GetID()); exists {
 		return NewRecordAlreadyExists(item.GetID())
 	}
+
 	ns.insert(item)
+
 	return nil
 }
 
@@ -46,6 +48,7 @@ func (ns *WithIndexes[R]) insert(item R) {
 	if item, ok := any(item).(fieldsComputer); ok {
 		item.ComputeFields()
 	}
+
 	ns.indexes.Insert(item)
 	ns.storage.Set(item.GetID(), item)
 }
@@ -55,8 +58,10 @@ func (ns *WithIndexes[R]) Delete(id int64) error {
 	if !exists {
 		return nil
 	}
+
 	ns.indexes.Delete(item)
 	ns.storage.Delete(id)
+
 	return nil
 }
 
@@ -74,8 +79,10 @@ func (ns *WithIndexes[R]) Upsert(item R) error {
 	if item, ok := any(item).(fieldsComputer); ok {
 		item.ComputeFields()
 	}
+
 	ns.indexes.Update(oldItem, item)
 	ns.storage.Set(id, item)
+
 	return nil
 }
 
@@ -110,6 +117,7 @@ func (ns *WithIndexes[R]) PreselectForExecutor(conditions where.Conditions[R]) (
 		if nil != err {
 			return nil, err
 		}
+
 		if !indexExists {
 			all := ns.storage.GetIDStorage()
 			ids = append(ids, all)
@@ -149,6 +157,7 @@ func (ns *WithIndexes[R]) PreselectForExecutor(conditions where.Conditions[R]) (
 		ns.logger.Println("index not applied (large select)", conditions)
 		return ns.storage.GetAllData(), nil
 	}
+
 	return ns.storage.GetData(items, size, idsUnique), nil
 }
 

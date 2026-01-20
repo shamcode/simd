@@ -81,30 +81,39 @@ func (ibf byField[R]) SelectForCondition(condition where.Condition[R]) ( //nolin
 	err error,
 ) {
 	var indexes []Index[R]
+
 	indexes, indexExists = ibf[condition.Cmp.GetField().Index()]
 	if !indexExists || len(indexes) == 0 {
 		return
 	}
+
 	first := true
-	var minWeight IndexWeight
-	var indexForApply Index[R]
+
+	var (
+		minWeight     IndexWeight
+		indexForApply Index[R]
+	)
+
 	for _, index := range indexes {
 		canApplyIndex, weight := index.Weight(condition)
 		if !canApplyIndex {
 			continue
 		}
+
 		if first || weight < minWeight {
 			first = false
 			minWeight = weight
 			indexForApply = index
 		}
 	}
+
 	if first {
 		indexExists = false
 	} else {
 		count, ids, err = indexForApply.Select(condition)
 		idsUnique = indexForApply.Unique()
 	}
+
 	return //nolint:nakedret
 }
 

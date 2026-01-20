@@ -17,11 +17,13 @@ func (idx hashTable) Set(key indexes.Key, records storage.IDStorage) {
 
 func (idx hashTable) Keys() []indexes.Key {
 	i := 0
+
 	keys := make([]indexes.Key, len(idx))
 	for key := range idx {
 		keys[i] = key
 		i += 1
 	}
+
 	return keys
 }
 

@@ -1,8 +1,9 @@
 package querybuilder
 
 import (
-	"github.com/shamcode/simd/record"
 	"time"
+
+	"github.com/shamcode/simd/record"
 
 	"github.com/shamcode/simd/examples/custom-field-time/types"
 	"github.com/shamcode/simd/examples/custom-field-time/types/comparators"

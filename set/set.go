@@ -27,6 +27,7 @@ func NewSet() *Set {
 func NewSetSized(size uintptr) *Set {
 	m := &Set{} //nolint:exhaustruct
 	m.allocate(size)
+
 	return m
 }
 
@@ -36,6 +37,7 @@ func (m *Set) Count() int {
 
 func (m *Set) Add(key int64) {
 	hash := xxHashQword(key)
+
 	var (
 		existed, inserted bool
 		element           *ListElement
@@ -50,12 +52,14 @@ func (m *Set) Add(key int64) {
 			if existed {
 				return
 			}
+
 			if !inserted {
 				continue // a concurrent add did interfere, try again
 			}
 		}
 
 		count := store.addItem(element)
+
 		currentStore := (*indexStore)(atomic.LoadPointer(&m.store))
 		if store != currentStore { // retry insert in case of insert during grow
 			continue
@@ -64,6 +68,7 @@ func (m *Set) Add(key int64) {
 		if m.isResizeNeeded(store, count) && atomic.CompareAndSwapInt64(&m.resizing, 0, 1) {
 			go m.grow(0, true)
 		}
+
 		return
 	}
 }
@@ -71,11 +76,13 @@ func (m *Set) Add(key int64) {
 func (m *Set) Delete(key int64) {
 	hash := xxHashQword(key)
 	store := (*indexStore)(atomic.LoadPointer(&m.store))
+
 	element := store.item(hash)
 	for ; element != nil; element = element.Next() {
 		if element.keyHash == hash && element.key == key {
 			m.deleteElement(element)
 			m.linkedList.Delete(element)
+
 			return
 		}
 
@@ -101,6 +108,7 @@ func (m *Set) allocate(newSize uintptr) {
 func (m *Set) isResizeNeeded(store *indexStore, count uintptr) bool {
 	l := uintptr(len(store.index)) // l can't be 0 as it gets initialized in New()
 	fillRate := (count * 100) / l
+
 	return fillRate > maxFillRate
 }
 
@@ -108,12 +116,13 @@ func (m *Set) deleteElement(element *ListElement) {
 	for {
 		store := (*indexStore)(atomic.LoadPointer(&m.store))
 		index := element.keyHash >> store.keyShifts
-		ptr := (*unsafe.Pointer)(unsafe.Pointer(uintptr(store.array) + index*intSizeBytes))
+		ptr := (*unsafe.Pointer)(unsafe.Add(store.array, index*intSizeBytes))
 
 		next := element.Next()
 		if next != nil && element.keyHash>>store.keyShifts != index {
 			next = nil // do not Set index to next item if it's not the same slice index
 		}
+
 		atomic.CompareAndSwapPointer(ptr, unsafe.Pointer(element), unsafe.Pointer(next))
 
 		currentStore := (*indexStore)(atomic.LoadPointer(&m.store))
@@ -157,6 +166,7 @@ func (m *Set) grow(newSize uintptr, loop bool) {
 		if !m.isResizeNeeded(newStore, count) {
 			return
 		}
+
 		newSize = 0 // 0 means double the current size
 	}
 }
@@ -170,8 +180,10 @@ func (m *Set) fillIndexItems(store *indexStore) {
 		index := item.keyHash >> store.keyShifts
 		if item == first || index != lastIndex { // store item with smallest hash key for every index
 			store.addItem(item)
+
 			lastIndex = index
 		}
+
 		item = item.Next()
 	}
 }
@@ -186,6 +198,7 @@ func roundUpPower2(num uintptr) uintptr {
 	num |= num >> 16
 	num |= num >> 32
 	num++
+
 	return num
 }
 
@@ -195,5 +208,6 @@ func log2(num uintptr) uintptr {
 	for p = 1; p < num; p += p {
 		n++
 	}
+
 	return n
 }

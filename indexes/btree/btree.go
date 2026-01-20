@@ -23,9 +23,11 @@ type node struct {
 
 func (node *node) search(key indexes.Key) (index int, found bool) { //nolint:nonamedreturns
 	low, high := 0, len(node.entries)-1
+
 	var mid int
 	for low <= high {
 		mid = int(uint(high+low) >> 1) //nolint:gosec
+
 		itemKey := node.entries[mid].key
 		switch {
 		case key.Less(itemKey):
@@ -36,6 +38,7 @@ func (node *node) search(key indexes.Key) (index int, found bool) { //nolint:non
 			return mid, true
 		}
 	}
+
 	return low, false
 }
 
@@ -45,32 +48,41 @@ func (node *node) iterateAscend(
 	hit bool,
 	iter func(e *entry),
 ) (bool, bool) {
-	var ok bool
-	var index int
+	var (
+		ok    bool
+		index int
+	)
+
 	if nil != start {
 		index, _ = node.search(start)
 	}
+
 	for i := index; i < len(node.entries); i++ {
 		if len(node.children) > 0 {
 			if hit, ok = node.children[i].iterateAscend(start, stop, includeStart, hit, iter); !ok {
 				return hit, false
 			}
 		}
+
 		if !includeStart && !hit && start != nil && !start.Less(node.entries[i].key) {
 			hit = true
 			continue
 		}
+
 		hit = true
 		if stop != nil && !node.entries[i].key.Less(stop) {
 			return hit, false
 		}
+
 		iter(node.entries[i])
 	}
+
 	if len(node.children) > 0 {
 		if hit, ok = node.children[len(node.children)-1].iterateAscend(start, stop, includeStart, hit, iter); !ok {
 			return hit, false
 		}
 	}
+
 	return hit, true
 }
 
@@ -80,8 +92,11 @@ func (node *node) iterateDescend(
 	hit bool,
 	iter func(e *entry),
 ) (bool, bool) {
-	var ok, found bool
-	var index int
+	var (
+		ok, found bool
+		index     int
+	)
+
 	if start != nil {
 		index, found = node.search(start)
 		if !found {
@@ -90,28 +105,35 @@ func (node *node) iterateDescend(
 	} else {
 		index = len(node.entries) - 1
 	}
+
 	for i := index; i >= 0; i-- {
 		if start != nil && !node.entries[i].key.Less(start) {
 			if !includeStart || hit || start.Less(node.entries[i].key) {
 				continue
 			}
 		}
+
 		if len(node.children) > 0 {
 			if hit, ok = node.children[i+1].iterateDescend(start, stop, includeStart, hit, iter); !ok {
 				return hit, false
 			}
 		}
+
 		if stop != nil && !stop.Less(node.entries[i].key) {
 			return hit, false
 		}
+
 		hit = true
+
 		iter(node.entries[i])
 	}
+
 	if len(node.children) > 0 {
 		if hit, ok = node.children[0].iterateDescend(start, stop, includeStart, hit, iter); !ok {
 			return hit, false
 		}
 	}
+
 	return hit, true
 }
 
@@ -127,6 +149,7 @@ func (tree *btree) Get(indexKey indexes.Key) storage.IDStorage {
 	if found {
 		return node.entries[index].records
 	}
+
 	return nil
 }
 
@@ -161,15 +184,18 @@ func (tree *btree) searchRecursively(
 	if nil == tree.root {
 		return nil, -1, false
 	}
+
 	node = startNode
 	for {
 		index, found = node.search(key)
 		if found {
 			return node, index, true
 		}
+
 		if tree.isLeaf(node) {
 			return nil, -1, false
 		}
+
 		node = node.children[index]
 	}
 }
@@ -204,6 +230,7 @@ func (tree *btree) split(node *node) {
 	if len(node.entries) <= tree.maxEntries() {
 		return
 	}
+
 	if node == tree.root {
 		tree.splitRoot()
 	} else {
@@ -262,6 +289,7 @@ func (tree *btree) splitRoot() {
 		setParent(left.children, left)
 		setParent(right.children, right)
 	}
+
 	newRoot := &node{ //nolint:exhaustruct
 		entries:  []*entry{tree.root.entries[middle]},
 		children: []*node{left, right},
@@ -287,21 +315,28 @@ func (tree *btree) collect(
 	if nil == tree.root {
 		return 0, nil
 	}
-	var count int
-	var ids []storage.IDIterator
+
+	var (
+		count int
+		ids   []storage.IDIterator
+	)
+
 	iter := func(e *entry) {
 		itemCount := e.records.Count()
 		if itemCount > 0 {
 			count += itemCount
+
 			ids = append(ids, e.records)
 		}
 	}
+
 	switch dir {
 	case ascend:
 		tree.root.iterateAscend(start, stop, includeStart, false, iter)
 	case descend:
 		tree.root.iterateDescend(start, stop, includeStart, false, iter)
 	}
+
 	return count, ids
 }
 
@@ -325,6 +360,7 @@ func (tree *btree) All(iter func(key indexes.Key, records storage.IDStorage)) {
 	if nil == tree.root {
 		return
 	}
+
 	tree.root.iterateAscend(nil, nil, false, false, func(e *entry) {
 		iter(e.key, e.records)
 	})
@@ -335,6 +371,7 @@ func (tree *btree) ForKey(key indexes.Key) (int, storage.IDIterator) {
 	if nil == idStorage {
 		return 0, nil
 	}
+
 	return idStorage.Count(), idStorage
 }
 

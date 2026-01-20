@@ -84,10 +84,12 @@ func (c Counters) HasValue(check record.MapValueComparator[uint32]) (bool, error
 		if nil != err {
 			return false, err
 		}
+
 		if res {
 			return true, nil
 		}
 	}
+
 	return false, nil
 }
 
@@ -151,6 +153,7 @@ func (sorting byOnline) Calc(item *User) int64 {
 	if sorting.onlineToUp == item.IsOnline {
 		return 0
 	}
+
 	return 1
 }
 
@@ -552,10 +555,12 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			ctx := context.Background()
 			cursor, count, err := qe.FetchAllAndTotal(ctx, testCase.Query)
 			asserts.Success(t, err)
+
 			ids := make([]int64, 0, cursor.Size())
 			for cursor.Next(ctx) {
 				ids = append(ids, cursor.Item().ID)
 			}
+
 			asserts.Success(t, cursor.Err())
 			asserts.Equals(t, testCase.ExpectedIDs, ids, "ids")
 			asserts.Equals(t, testCase.ExpectedCount, count, "total count")
@@ -572,6 +577,7 @@ func Test_Context(t *testing.T) {
 		Status: StatusActive,
 		Score:  10,
 	}))
+
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
 
@@ -597,8 +603,11 @@ func Test_CallbackOnIteration(t *testing.T) {
 		Status: StatusActive,
 	}))
 
-	var idsFromCallback []int
-	var idsFromCursor []int64
+	var (
+		idsFromCallback []int
+		idsFromCursor   []int64
+	)
+
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
 		context.Background(),
 		query.NewBuilder[*User](
@@ -611,9 +620,11 @@ func Test_CallbackOnIteration(t *testing.T) {
 		).Query(),
 	)
 	asserts.Success(t, err)
+
 	for cur.Next(context.Background()) {
 		idsFromCursor = append(idsFromCursor, cur.Item().GetID())
 	}
+
 	_sort.Ints(idsFromCallback)
 	asserts.Success(t, cur.Err())
 	asserts.Equals(t, []int{1, 3}, idsFromCallback, "ids from callback")
@@ -691,6 +702,7 @@ func Test_Delete(t *testing.T) {
 	asserts.Success(t, err)
 
 	var ids []int64
+
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
 		context.Background(),
 		query.NewBuilder[*User](
@@ -698,9 +710,11 @@ func Test_Delete(t *testing.T) {
 		).Query(),
 	)
 	asserts.Success(t, err)
+
 	for cur.Next(context.Background()) {
 		ids = append(ids, cur.Item().GetID())
 	}
+
 	asserts.Success(t, cur.Err())
 	asserts.Equals(t, []int64{1, 3}, ids, "ids from cursor")
 }

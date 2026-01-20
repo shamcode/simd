@@ -67,6 +67,7 @@ func (s *storage) PreselectForExecutor(_ where.Conditions[*user]) ([]*user, erro
 	for _, item := range s.data {
 		items = append(items, item)
 	}
+
 	return items, nil
 }
 
@@ -343,13 +344,16 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
+
 			ctx := context.Background()
 			iter, err := CreateQueryExecutor[*user](ns).FetchAll(ctx, test.query)
 			asserts.Success(t, err)
+
 			res := make([]int64, 0, iter.Size())
 			for item := range iter.Seq(ctx) {
 				res = append(res, item.ID)
 			}
+
 			asserts.Equals(t, test.expected, res, "ids")
 		})
 	}
