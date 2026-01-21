@@ -1,4 +1,4 @@
-//nolint:exhaustruct,err113
+//nolint:exhaustruct
 package comparators
 
 import (
@@ -156,7 +156,7 @@ func TestComparators(t *testing.T) { //nolint:maintidx
 				asserts.Equals(t, test.comparator.GetType(), test.expectedCmp, "comparator type")
 				asserts.Equals(t, test.comparator.GetField().String(), test.expectedField, "field")
 
-				var values []any
+				values := make([]any, 0, test.comparator.ValuesCount())
 				for i := range test.comparator.ValuesCount() {
 					values = append(values, test.comparator.ValueAt(i))
 				}
