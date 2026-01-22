@@ -20,6 +20,7 @@ linters:
     - wastedassign
     - wrapcheck
     - wsl
+    - noinlineerr
   settings:
     dupl:
       threshold: 100

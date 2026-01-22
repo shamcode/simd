@@ -102,7 +102,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 			}
 		})
 
-		stmt, err = db.Prepare("SELECT is_online FROM user WHERE id = ?")
+		stmt, err = db.Prepare("SELECT is_online FROM user WHERE id = ?") //nolint:noctx
 		if nil != err {
 			b.Fatal(err)
 		}

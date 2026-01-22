@@ -74,7 +74,7 @@ func main() {
 		log.Printf("%#v", cur.Item())
 	}
 
-	if err := cur.Err(); nil != err {
+	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
 
