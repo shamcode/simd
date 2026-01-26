@@ -41,40 +41,29 @@ func Benchmark_GoMapSet(b *testing.B) {
 
 		b.ResetTimer()
 
-		wg.Add(1)
-
-		go func() {
+		wg.Go(func() {
 			for i := 1; i < records; i++ {
 				store.Lock()
 				store.data[int64(i)] = struct{}{}
 				store.Unlock()
 			}
+		})
 
-			wg.Done()
-		}()
-
-		wg.Add(1)
-
-		go func() {
+		wg.Go(func() {
 			for i := 1; i < records; i++ {
 				store.Lock()
 				delete(store.data, int64(i))
 				store.Unlock()
 			}
-
-			wg.Done()
-		}()
-
-		wg.Add(b.N)
+		})
 
 		for range b.N {
-			go func() {
+			wg.Go(func() {
 				sem <- struct{}{}
 
 				store.Iterate(func(_ int64) {})
 				<-sem
-				wg.Done()
-			}()
+			})
 		}
 
 		wg.Wait()
@@ -92,36 +81,25 @@ func Benchmark_GoMapSet(b *testing.B) {
 
 		b.ResetTimer()
 
-		wg.Add(1)
-
-		go func() {
+		wg.Go(func() {
 			for i := 1; i < records; i++ {
 				store.Add(int64(i))
 			}
+		})
 
-			wg.Done()
-		}()
-
-		wg.Add(1)
-
-		go func() {
+		wg.Go(func() {
 			for i := 1; i < records; i++ {
 				store.Delete(int64(i))
 			}
-
-			wg.Done()
-		}()
-
-		wg.Add(b.N)
+		})
 
 		for range b.N {
-			go func() {
+			wg.Go(func() {
 				sem <- struct{}{}
 
 				store.Iterate(func(_ int64) {})
 				<-sem
-				wg.Done()
-			}()
+			})
 		}
 
 		wg.Wait()
