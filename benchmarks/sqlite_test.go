@@ -44,7 +44,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 	CREATE INDEX IF NOT EXISTS id_idx ON user(id);
 	`
 
-		_, err = db.Exec(sqlStmt)
+		_, err = db.Exec(sqlStmt) //nolint:noctx
 		if nil != err {
 			b.Fatal(err)
 		}
@@ -52,7 +52,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		simd := namespace.CreateNamespace[*User]()
 		simd.AddIndex(hash.NewComparableHashIndex(userID, true))
 
-		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)")
+		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)") //nolint:noctx
 		if nil != err {
 			b.Fatal(err)
 		}
@@ -71,7 +71,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 				b.Fatal(err)
 			}
 
-			_, err = stmt.Exec(user.ID, user.Name, user.Status, user.Score, user.IsOnline)
+			_, err = stmt.Exec(user.ID, user.Name, user.Status, user.Score, user.IsOnline) //nolint:noctx
 			if nil != err {
 				b.Fatal(err)
 			}
