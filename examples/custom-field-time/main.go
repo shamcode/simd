@@ -58,15 +58,15 @@ func main() {
 	for _, user := range []*Item{
 		{
 			ID:       1,
-			CreateAt: time.Date(2022, time.December, 28, 22, 58, 0, 0, time.Local),
+			CreateAt: time.Date(2022, time.December, 28, 22, 58, 0, 0, time.UTC),
 		},
 		{
 			ID:       2,
-			CreateAt: time.Date(2021, time.December, 28, 22, 58, 0, 0, time.Local),
+			CreateAt: time.Date(2021, time.December, 28, 22, 58, 0, 0, time.UTC),
 		},
 		{
 			ID:       3,
-			CreateAt: time.Date(2020, time.December, 28, 22, 58, 0, 0, time.Local),
+			CreateAt: time.Date(2020, time.December, 28, 22, 58, 0, 0, time.UTC),
 		},
 	} {
 		err := store.Insert(user)
@@ -76,7 +76,7 @@ func main() {
 	}
 
 	query := queryBuilder(
-		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.Local)),
+		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)),
 		query.Sort(sort.Asc(id)),
 	).Query()
 
