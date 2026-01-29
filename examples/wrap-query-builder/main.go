@@ -13,7 +13,7 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-func main() {
+func main() { //nolint:funlen
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 
 	flag.Parse()
