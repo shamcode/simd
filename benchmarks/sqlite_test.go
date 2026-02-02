@@ -110,7 +110,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		b.Run(strconv.Itoa(usersCount)+"_sqlite", func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount/4; i++ {
-					rows, err := stmt.QueryContext(context.Background(), i) //nolint:execinquery
+					rows, err := stmt.QueryContext(context.Background(), i)
 					if nil != err {
 						b.Fatal(err)
 					}
