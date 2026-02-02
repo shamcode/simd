@@ -33,7 +33,7 @@ func (e *executor[R]) FetchAllAndTotal(ctx context.Context, q query.Query[R]) (I
 	return e.exec(ctx, q, false)
 }
 
-func (e *executor[R]) exec( //nolint:cyclop
+func (e *executor[R]) exec( //nolint:cyclop,funlen
 	ctx context.Context,
 	q query.Query[R],
 	onlyTotal bool,
