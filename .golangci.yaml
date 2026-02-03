@@ -21,6 +21,7 @@ linters:
     - wrapcheck
     - wsl
     - noinlineerr
+    - funcorder
   settings:
     dupl:
       threshold: 100
