@@ -1,5 +1,5 @@
 //nolint:exhaustruct
-package simd
+package tests
 
 import (
 	"context"
