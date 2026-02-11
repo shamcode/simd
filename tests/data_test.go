@@ -64,11 +64,11 @@ func (c Counters) HasKey(key CounterKey) bool {
 func (c Counters) HasValue(check record.MapValueComparator[uint32]) (bool, error) {
 	for _, item := range c {
 		res, err := check.Compare(item)
-		if nil != err {
-			return false, err
-		}
 
-		if res {
+		switch {
+		case err != nil:
+			return false, err
+		case res:
 			return true, nil
 		}
 	}

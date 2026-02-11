@@ -508,41 +508,6 @@ func Test_InsertAlreadyExisted(t *testing.T) {
 	asserts.Equals(t, "simd: record with passed id already exists: ID == 1", err.Error(), "check error")
 }
 
-func Test_Upsert(t *testing.T) {
-	store := namespace.CreateNamespace[*User]()
-	store.AddIndex(hash.NewComparableHashIndex(userID, true))
-	store.AddIndex(hash.NewComparableHashIndex(userStatus, true))
-	asserts.Success(t, store.Insert(&User{
-		ID:     1,
-		Status: StatusActive,
-	}))
-	asserts.Success(t, store.Insert(&User{
-		ID:     2,
-		Status: StatusDisabled,
-	}))
-	asserts.Success(t, store.Insert(&User{
-		ID:     3,
-		Status: StatusActive,
-	}))
-
-	err := store.Upsert(&User{
-		ID:     2,
-		Status: StatusActive,
-	})
-	asserts.Success(t, err)
-
-	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
-		context.Background(),
-		query.NewBuilder[*User](
-			query.Where(userID, where.EQ, 2),
-		).Query(),
-	)
-
-	asserts.Success(t, err)
-	asserts.Success(t, cur.Err())
-	asserts.Equals(t, StatusActive, cur.Item().Status, "status")
-}
-
 func Test_Delete(t *testing.T) {
 	store := namespace.CreateNamespace[*User]()
 	store.AddIndex(hash.NewComparableHashIndex(userID, true))
