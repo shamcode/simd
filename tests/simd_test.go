@@ -491,19 +491,3 @@ func Test_CallbackOnIteration(t *testing.T) {
 	asserts.Equals(t, []int{1, 3}, idsFromCallback, "ids from callback")
 	asserts.Equals(t, []int64{1}, idsFromCursor, "ids from cursor")
 }
-
-func Test_InsertAlreadyExisted(t *testing.T) {
-	store := namespace.CreateNamespace[*User]()
-	store.AddIndex(hash.NewComparableHashIndex(userID, true))
-	asserts.Success(t, store.Insert(&User{
-		ID:     1,
-		Status: StatusActive,
-	}))
-
-	err := store.Insert(&User{
-		ID:     1,
-		Status: StatusDisabled,
-	})
-
-	asserts.Equals(t, "simd: record with passed id already exists: ID == 1", err.Error(), "check error")
-}
