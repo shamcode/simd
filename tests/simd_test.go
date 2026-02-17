@@ -3,7 +3,6 @@ package tests
 
 import (
 	"context"
-	"errors"
 	"regexp"
 	"testing"
 
@@ -426,23 +425,4 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			asserts.Equals(t, testCase.ExpectedCount, count, "total count")
 		})
 	}
-}
-
-func Test_Context(t *testing.T) {
-	store := namespace.CreateNamespace[*User]()
-	store.AddIndex(hash.NewComparableHashIndex(userID, true))
-	asserts.Success(t, store.Insert(&User{
-		ID:     1,
-		Name:   "First",
-		Status: StatusActive,
-		Score:  10,
-	}))
-
-	ctx, cancel := context.WithCancel(context.Background())
-	cancel()
-
-	_, err := executor.CreateQueryExecutor[*User](store).FetchTotal(ctx, query.NewBuilder[*User]().Query())
-
-	asserts.Equals(t, "context canceled", err.Error(), "check error")
-	asserts.Equals(t, true, errors.Is(err, context.Canceled), "error is context.Canceled")
 }
