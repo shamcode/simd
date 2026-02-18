@@ -17,6 +17,7 @@ import (
 )
 
 func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
+	// Arrange
 	store := namespace.CreateNamespace[*User]()
 	store.AddIndex(hash.NewComparableHashIndex(userID, true))
 	store.AddIndex(hash.NewComparableHashIndex(userName, false))
@@ -412,7 +413,11 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 			t.Parallel()
 
 			ctx := context.Background()
+
+			// Act
 			cursor, count, err := qe.FetchAllAndTotal(ctx, testCase.Query)
+
+			// Assert
 			asserts.Success(t, err)
 
 			ids := make([]int64, 0, cursor.Size())
