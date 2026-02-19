@@ -162,7 +162,7 @@ func (m *Set) grow(newSize uintptr, loop bool) {
 		}
 
 		// check if a new resize needs to be done already
-		count := uintptr(m.Count())
+		count := uintptr(m.Count()) //nolint:gosec
 		if !m.isResizeNeeded(newStore, count) {
 			return
 		}
