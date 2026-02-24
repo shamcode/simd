@@ -14,7 +14,7 @@ type UserQueryBuilder interface {
 }
 
 type userQueryBuilder struct {
-	*query.BaseChainBuilder[*User, UserQueryBuilder]
+	query.ChainBuilder[*User, UserQueryBuilder]
 }
 
 func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int64) UserQueryBuilder {
@@ -36,12 +36,12 @@ func NewUserQueryBuilder(b query.BuilderGeneric[*User]) UserQueryBuilder {
 	var queryBuilder UserQueryBuilder
 
 	queryBuilder = userQueryBuilder{
-		BaseChainBuilder: query.NewCustomChainBuilder(
+		ChainBuilder: query.NewCustomChainBuilder(
 			b,
 			func() UserQueryBuilder { return queryBuilder },
 			func(bcb *query.BaseChainBuilder[*User, UserQueryBuilder]) UserQueryBuilder {
 				return userQueryBuilder{
-					BaseChainBuilder: bcb,
+					ChainBuilder: bcb,
 				}
 			},
 		),

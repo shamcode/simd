@@ -88,255 +88,265 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 	}{
 		{
 			name:     "order by id asc",
-			query:    query.NewBuilder[*user](query.Sort(sort.Asc[*user](id))).Query(),
+			query:    query.NewChainBuilder(query.NewBuilder[*user]()).Sort(sort.Asc[*user](id)).Query(),
 			expected: []int64{1, 2, 3, 4, 5},
 		},
 		{
 			name:     "order by id desc",
-			query:    query.NewBuilder[*user](query.Sort(sort.Desc[*user](id))).Query(),
+			query:    query.NewChainBuilder(query.NewBuilder[*user]()).Sort(sort.Desc[*user](id)).Query(),
 			expected: []int64{5, 4, 3, 2, 1},
 		},
 		{
-			name:     "where id = int64(3)",
-			query:    query.NewBuilder[*user](query.Where(id, where.EQ, 3)).Query(),
+			name: "where id = int64(3)",
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(id, where.EQ, 3)).
+				Query(),
 			expected: []int64{3},
 		},
 		{
 			name: "where id = int64(3) and age == int(20)",
-			query: query.NewBuilder[*user](
-				query.Where(id, where.EQ, 3),
-				query.Where(age, where.EQ, 20),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(id, where.EQ, 3)).
+				AddWhere(query.Where(age, where.EQ, 20)).
+				Query(),
 			expected: []int64{3},
 		},
 		{
 			name: "where id = int64(3) and age == int(18)",
-			query: query.NewBuilder[*user](
-				query.Where(id, where.EQ, 3),
-				query.Where(age, where.EQ, 18),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(id, where.EQ, 3)).
+				AddWhere(query.Where(age, where.EQ, 18)).
+				Query(),
 			expected: []int64{},
 		},
 		{
 			name: "where age > 18 and age < 22",
-			query: query.NewBuilder[*user](
-				query.Where(age, where.GT, 18),
-				query.Where(age, where.LT, 22),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(age, where.GT, 18)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{2, 3, 4},
 		},
 		{
 			name: "where age >= 18 and age <= 22",
-			query: query.NewBuilder[*user](
-				query.Where(age, where.GE, 18),
-				query.Where(age, where.LE, 22),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(age, where.GE, 18)).
+				AddWhere(query.Where(age, where.LE, 22)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 2, 3, 4, 5},
 		},
 		{
 			name: "where id = 2 or id = 5",
-			query: query.NewBuilder[*user](
-				query.Where(id, where.EQ, 2),
-				query.Or(),
-				query.Where(id, where.EQ, 5),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(id, where.EQ, 2)).
+				Or().
+				AddWhere(query.Where(id, where.EQ, 5)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{2, 5},
 		},
 		{
 			name: "where id = 2 or age > 20",
-			query: query.NewBuilder[*user](
-				query.Where(id, where.EQ, 2),
-				query.Or(),
-				query.Where(age, where.GT, 20),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(id, where.EQ, 2)).
+				Or().
+				AddWhere(query.Where(age, where.GT, 20)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{2, 4, 5},
 		},
 		{
 			name: "where id = 1 or ( age > 20 and age < 22)",
-			query: query.NewBuilder[*user](
-				query.Where(id, where.EQ, 1),
-				query.Or(),
-				query.OpenBracket(),
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.CloseBracket(),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(id, where.EQ, 1)).
+				Or().
+				OpenBracket().
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				CloseBracket().
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where ( age > 20 and age < 22) or id = 1",
-			query: query.NewBuilder[*user](
-				query.OpenBracket(),
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.CloseBracket(),
-				query.Or(),
-				query.Where(id, where.EQ, 1),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				CloseBracket().
+				Or().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where age > 20 and age < 22 or id = 1",
-			query: query.NewBuilder[*user](
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.Or(),
-				query.Where(id, where.EQ, 1),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				Or().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where (age > 20 and age < 22) or id = 1",
-			query: query.NewBuilder[*user](
-				query.OpenBracket(),
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.CloseBracket(),
-				query.Or(),
-				query.Where(id, where.EQ, 1),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				CloseBracket().
+				Or().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 4},
 		},
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2)",
-			query: query.NewBuilder[*user](
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.OpenBracket(),
-				query.Where(id, where.EQ, 1),
-				query.Or(),
-				query.Where(id, where.EQ, 2),
-				query.CloseBracket(),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				Or().
+				AddWhere(query.Where(id, where.EQ, 2)).
+				CloseBracket().
+				Query(),
 			expected: []int64{},
 		},
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2 or id = 4)",
-			query: query.NewBuilder[*user](
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.OpenBracket(),
-				query.Where(id, where.EQ, 1),
-				query.Or(),
-				query.Where(id, where.EQ, 2),
-				query.Or(),
-				query.Where(id, where.EQ, 4),
-				query.CloseBracket(),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				Or().
+				AddWhere(query.Where(id, where.EQ, 2)).
+				Or().
+				AddWhere(query.Where(id, where.EQ, 4)).
+				CloseBracket().
+				Query(),
 			expected: []int64{4},
 		},
 		{
 			name: "where (age > 20 and age < 22) and id = 4",
-			query: query.NewBuilder[*user](
-				query.OpenBracket(),
-				query.Where(age, where.GT, 20),
-				query.Where(age, where.LT, 22),
-				query.CloseBracket(),
-				query.Where(id, where.EQ, 4),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				AddWhere(query.Where(age, where.GT, 20)).
+				AddWhere(query.Where(age, where.LT, 22)).
+				CloseBracket().
+				AddWhere(query.Where(id, where.EQ, 4)).
+				Query(),
 			expected: []int64{4},
 		},
 		{
 			name: "where age in {20, 21, 22} and id > 3",
-			query: query.NewBuilder[*user](
-				query.Where(age, where.InArray, 20, 21, 22),
-				query.Where(id, where.GT, 3),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(age, where.InArray, 20, 21, 22)).
+				AddWhere(query.Where(id, where.GT, 3)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{4, 5},
 		},
 		{
 			name: "where name like \"th\"",
-			query: query.NewBuilder[*user](
-				query.Where(name, where.Like, "th"),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(name, where.Like, "th")).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{3, 4, 5},
 		},
 		{
 			name: "where name like \"th\" or name like \"first\"",
-			query: query.NewBuilder[*user](
-				query.Where(name, where.Like, "th"),
-				query.Or(),
-				query.Where(name, where.Like, "first"),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				AddWhere(query.Where(name, where.Like, "th")).
+				Or().
+				AddWhere(query.Where(name, where.Like, "first")).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 3, 4, 5},
 		},
 		{
 			name: "where ((id = 1) or (id = 2))",
-			query: query.NewBuilder[*user](
-				query.OpenBracket(),
-				query.OpenBracket(),
-				query.Where(id, where.EQ, 1),
-				query.CloseBracket(),
-				query.Or(),
-				query.OpenBracket(),
-				query.Where(id, where.EQ, 2),
-				query.CloseBracket(),
-				query.CloseBracket(),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				CloseBracket().
+				Or().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 2)).
+				CloseBracket().
+				CloseBracket().
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 2},
 		},
 		{
 			name: "where ((id = 1) or (id = 2)) # brackets",
-			query: query.NewBuilder[*user](
-				query.Brackets(
-					query.Brackets(query.Where(id, where.EQ, 1)),
-					query.Or(),
-					query.Brackets(query.Where(id, where.EQ, 2)),
-				),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				CloseBracket().
+				Or().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 2)).
+				CloseBracket().
+				CloseBracket().
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 2},
 		},
 		{
 			name: "where (((id = 1) or (id = 2)) or id = 3) or id = 4",
-			query: query.NewBuilder[*user](
-				query.OpenBracket(),
-				query.OpenBracket(),
-				query.OpenBracket(),
-				query.Where(id, where.EQ, 1),
-				query.CloseBracket(),
-				query.Or(),
-				query.OpenBracket(),
-				query.Where(id, where.EQ, 2),
-				query.CloseBracket(),
-				query.CloseBracket(),
-				query.Or(),
-				query.Where(id, where.EQ, 3),
-				query.CloseBracket(),
-				query.Or(),
-				query.Where(id, where.EQ, 4),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				OpenBracket().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				CloseBracket().
+				Or().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 2)).
+				CloseBracket().
+				CloseBracket().
+				Or().
+				AddWhere(query.Where(id, where.EQ, 3)).
+				CloseBracket().
+				Or().
+				AddWhere(query.Where(id, where.EQ, 4)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 2, 3, 4},
 		},
 		{
 			name: "where (((id = 1) or (id = 2)) or id = 3) or id = 4 #brackets",
-			query: query.NewBuilder[*user](
-				query.Brackets(
-					query.Brackets(
-						query.Brackets(query.Where(id, where.EQ, 1)),
-						query.Or(),
-						query.Brackets(query.Where(id, where.EQ, 2)),
-					),
-					query.Or(),
-					query.Where(id, where.EQ, 3),
-				),
-				query.Or(),
-				query.Where(id, where.EQ, 4),
-				query.Sort(sort.Asc[*user](id)),
-			).Query(),
+			query: query.NewChainBuilder(query.NewBuilder[*user]()).
+				OpenBracket().
+				OpenBracket().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 1)).
+				CloseBracket().
+				Or().
+				OpenBracket().
+				AddWhere(query.Where(id, where.EQ, 2)).
+				CloseBracket().
+				CloseBracket().
+				Or().
+				AddWhere(query.Where(id, where.EQ, 3)).
+				CloseBracket().
+				Or().
+				AddWhere(query.Where(id, where.EQ, 4)).
+				Sort(sort.Asc[*user](id)).
+				Query(),
 			expected: []int64{1, 2, 3, 4},
 		},
 	}

@@ -52,18 +52,6 @@ func CloseBracket() BuilderOption {
 	return CloseBracketOption{}
 }
 
-type BracketsOption []BuilderOption
-
-func (o BracketsOption) Apply(b any) {
-	bld := b.(Builder)
-	bld.OpenBracket()
-	bld.Append(o...)
-	bld.CloseBracket()
-}
-func Brackets(opts ...BuilderOption) BuilderOption {
-	return BracketsOption(opts)
-}
-
 type ErrorOption struct {
 	err error
 }
@@ -171,12 +159,4 @@ func WhereSet[R record.Record, T comparable](
 	return AddWhereOption[R]{
 		Cmp: comparators.NewSetFieldComparator[R, T](condition, getter, value...),
 	}
-}
-
-type OnIterationOption[R record.Record] func(item R)
-
-func (o OnIterationOption[R]) Apply(b any) { b.(BuilderGeneric[R]).OnIteration(o) }
-
-func OnIteration[R record.Record](cb func(item R)) OnIterationOption[R] {
-	return cb
 }

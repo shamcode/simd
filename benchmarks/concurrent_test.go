@@ -44,58 +44,64 @@ func Benchmark_Concurrent(b *testing.B) {
 			Query query.Query[*User]
 		}{
 			{
-				Name:  "is_online = true",
-				Query: query.NewBuilder[*User](query.WhereBool(userIsOnline, where.EQ, true)).Query(),
+				Name: "is_online = true",
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
+					Query(),
 			},
 			{
 				Name: "is_online = true offset 1000 limit 100",
-				Query: query.NewBuilder[*User](
-					query.WhereBool(userIsOnline, where.EQ, true),
-					query.Offset(1000),
-					query.Limit(100),
-				).Query(),
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
+					Offset(1000).
+					Limit(100).
+					Query(),
 			},
 			{
-				Name:  "id <= 5000",
-				Query: query.NewBuilder[*User](query.Where(userID, where.LE, 5000)).Query(),
+				Name: "id <= 5000",
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.Where(userID, where.LE, 5000)).
+					Query(),
 			},
 			{
-				Name:  "id > 1000",
-				Query: query.NewBuilder[*User](query.Where(userID, where.GT, 1000)).Query(),
+				Name: "id > 1000",
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.Where(userID, where.GT, 1000)).
+					Query(),
 			},
 			{
 				Name: "id > 1000 limit 100 asc",
-				Query: query.NewBuilder[*User](
-					query.Where(userID, where.GT, 1000),
-					query.Limit(100),
-					query.Sort(sort.Asc[*User](userID)),
-				).Query(),
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.Where(userID, where.GT, 1000)).
+					Limit(100).
+					Sort(sort.Asc[*User](userID)).
+					Query(),
 			},
 			{
 				Name: "id > 1000 limit 100 desc",
-				Query: query.NewBuilder[*User](
-					query.Where(userID, where.GT, 1000),
-					query.Limit(100),
-					query.Sort(sort.Desc[*User](userID)),
-				).Query(),
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.Where(userID, where.GT, 1000)).
+					Limit(100).
+					Sort(sort.Desc[*User](userID)).
+					Query(),
 			},
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE",
-				Query: query.NewBuilder[*User](
-					query.Where(userID, where.GT, 1000),
-					query.WhereBool(userIsOnline, where.EQ, true),
-					query.Where(userStatus, where.EQ, StatusActive),
-				).Query(),
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.Where(userID, where.GT, 1000)).
+					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
+					AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
+					Query(),
 			},
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE limit 100 desc",
-				Query: query.NewBuilder[*User](
-					query.Where(userID, where.GT, 1000),
-					query.WhereBool(userIsOnline, where.EQ, true),
-					query.Where(userStatus, where.EQ, StatusActive),
-					query.Sort(sort.Asc[*User](userID)),
-					query.Limit(100),
-				).Query(),
+				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+					AddWhere(query.Where(userID, where.GT, 1000)).
+					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
+					AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
+					Sort(sort.Asc[*User](userID)).
+					Limit(100).
+					Query(),
 			},
 		}
 

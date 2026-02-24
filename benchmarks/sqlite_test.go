@@ -85,9 +85,9 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 				for i := 1; i < usersCount/4; i++ {
 					cur, err := qe.FetchAll(
 						context.Background(),
-						query.NewBuilder[*User](
-							query.Where(userID, where.EQ, int64(i)),
-						).Query(),
+						query.NewChainBuilder(query.NewBuilder[*User]()).
+							AddWhere(query.Where(userID, where.EQ, int64(i))).
+							Query(),
 					)
 					if nil != err {
 						b.Fatalf("query: %s", err)

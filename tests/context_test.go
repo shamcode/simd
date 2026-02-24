@@ -27,7 +27,9 @@ func Test_Context(t *testing.T) {
 	cancel()
 
 	// Act
-	_, err := executor.CreateQueryExecutor[*User](store).FetchTotal(ctx, query.NewBuilder[*User]().Query())
+	_, err := executor.CreateQueryExecutor[*User](store).FetchTotal(ctx,
+		query.NewChainBuilder(query.NewBuilder[*User]()).Query(),
+	)
 
 	// Assert
 	asserts.Equals(t, "context canceled", err.Error(), "check error")
