@@ -71,10 +71,10 @@ func main() {
 		}
 	}
 
-	query := queryBuilder(
-		query.Where(id, where.GT, 1),
-		query.Sort(sort.Asc(name)),
-	).Query()
+	query := query.NewChainBuilder(queryBuilder()).
+		AddWhere(query.Where(id, where.GT, 1)).
+		Sort(sort.Asc(name)).
+		Query()
 
 	ctx := context.Background()
 

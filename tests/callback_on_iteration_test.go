@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	_sort "sort"
 	"testing"
 
@@ -38,19 +37,19 @@ func Test_CallbackOnIteration(t *testing.T) {
 
 	// Act
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
-		context.Background(),
-		query.NewBuilder[*User](
-			query.Where(userStatus, where.EQ, StatusActive),
-			query.Limit(1),
-			query.Sort(sort.Asc(userID)),
-			query.OnIteration(func(item *User) {
+		t.Context(),
+		query.NewChainBuilder(query.NewBuilder[*User]()).
+			AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
+			Limit(1).
+			Sort(sort.Asc(userID)).
+			OnIteration(func(item *User) {
 				idsFromCallback = append(idsFromCallback, int(item.GetID()))
-			}),
-		).Query(),
+			}).
+			Query(),
 	)
 	asserts.Success(t, err)
 
-	for cur.Next(context.Background()) {
+	for cur.Next(t.Context()) {
 		idsFromCursor = append(idsFromCursor, cur.Item().GetID())
 	}
 

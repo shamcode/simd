@@ -23,7 +23,7 @@ func Test_Context(t *testing.T) {
 		Score:  10,
 	}))
 
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 	cancel()
 
 	// Act

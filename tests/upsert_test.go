@@ -38,9 +38,9 @@ func Test_Upsert(t *testing.T) {
 	// Assert
 	asserts.Success(t, err)
 
-	q := query.NewBuilder[*User](
-		query.Where(userID, where.EQ, 2),
-	).Query()
+	q := query.NewChainBuilder(query.NewBuilder[*User]()).
+		AddWhere(query.Where(userID, where.EQ, 2)).
+		Query()
 
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(t.Context(), q)
 

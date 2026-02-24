@@ -25,16 +25,16 @@ type Item struct {
 
 func (u *Item) GetID() int64 { return u.ID }
 
-var itemFields = record.NewFields()
-
-var id = record.NewIDGetter[*Item]()
-
-var createdAt = types.TimeGetter[*Item]{
-	Field: itemFields.New("created_at"),
-	Get: func(item *Item) time.Time {
-		return item.CreateAt
-	},
-}
+var (
+	itemFields = record.NewFields()
+	id         = record.NewIDGetter[*Item]()
+	createdAt  = types.TimeGetter[*Item]{
+		Field: itemFields.New("created_at"),
+		Get: func(item *Item) time.Time {
+			return item.CreateAt
+		},
+	}
+)
 
 func main() {
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
@@ -75,10 +75,10 @@ func main() {
 		}
 	}
 
-	query := queryBuilder(
-		querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC)),
-		query.Sort(sort.Asc(id)),
-	).Query()
+	query := query.NewChainBuilder(queryBuilder()).
+		AddWhere(querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC))).
+		Sort(sort.Asc(id)).
+		Query()
 
 	ctx := context.Background()
 

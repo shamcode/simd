@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"context"
 	"testing"
 
 	asserts "github.com/shamcode/assert"
@@ -35,18 +34,18 @@ func Test_Delete(t *testing.T) {
 	// Assert
 	asserts.Success(t, err)
 
-	var ids []int64
-
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
-		context.Background(),
-		query.NewBuilder[*User](
-			query.Sort(sort.Asc(userID)),
-		).Query(),
+		t.Context(),
+		query.NewChainBuilder(query.NewBuilder[*User]()).
+			Sort(sort.Asc(userID)).
+			Query(),
 	)
 	asserts.Success(t, err)
 
-	for cur.Next(context.Background()) {
-		ids = append(ids, cur.Item().GetID())
+	var ids []int64 //nolint:prealloc
+
+	for item := range cur.Seq(t.Context()) {
+		ids = append(ids, item.GetID())
 	}
 
 	asserts.Success(t, cur.Err())
