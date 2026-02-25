@@ -16,12 +16,13 @@ func WhereTime[R record.Record](
 	getter types.TimeGetter[R],
 	condition where.ComparatorType,
 	value ...time.Time,
-) query.BuilderOption {
+) query.AddWhereOption[R] {
 	return query.AddWhereOption[R]{
 		Cmp: comparators.TimeFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  value,
 		},
+		Error: nil,
 	}
 }

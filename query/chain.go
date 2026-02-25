@@ -12,7 +12,7 @@ type ChainBuilder[R record.Record, B ChainBuilder[R, B]] interface { //nolint:in
 	OpenBracket() B
 	CloseBracket() B
 
-	AddWhere(options BuilderOption) B
+	AddWhere(options AddWhereOption[R]) B
 
 	Sort(by sort.ByWithOrder[R]) B
 
@@ -25,6 +25,12 @@ type ChainBuilder[R record.Record, B ChainBuilder[R, B]] interface { //nolint:in
 
 	MakeCopy() B
 
+	// OnCopy call registered callback for make copy of builder
+	OnCopy(cb ChainBuilder[R, B]) B
+
+	SetOnChain(onChain func() B)
+	SetOnCopy(onCopy func(cb ChainBuilder[R, B]) B)
+
 	// Error save error to builder
 	Error(err error) B
 
@@ -32,10 +38,10 @@ type ChainBuilder[R record.Record, B ChainBuilder[R, B]] interface { //nolint:in
 	Query() Query[R]
 }
 
-type BaseChainBuilder[R record.Record, Return any] struct {
+type BaseChainBuilder[R record.Record, Return ChainBuilder[R, Return]] struct {
 	builder BuilderGeneric[R]
 	onChain func() Return
-	onCopy  func(cb *BaseChainBuilder[R, Return]) Return
+	onCopy  func(cb ChainBuilder[R, Return]) Return
 }
 
 func (cb *BaseChainBuilder[R, Return]) Not() Return {
@@ -58,8 +64,8 @@ func (cb *BaseChainBuilder[R, Return]) CloseBracket() Return {
 	return cb.onChain()
 }
 
-func (cb *BaseChainBuilder[R, Return]) AddWhere(where BuilderOption) Return {
-	cb.builder.Append(where)
+func (cb *BaseChainBuilder[R, Return]) AddWhere(where AddWhereOption[R]) Return {
+	where.Apply(cb.builder)
 	return cb.onChain()
 }
 
@@ -91,6 +97,10 @@ func (cb *BaseChainBuilder[R, Return]) MakeCopy() Return {
 	})
 }
 
+func (cb *BaseChainBuilder[R, Return]) OnCopy(cb2 ChainBuilder[R, Return]) Return {
+	return cb.onCopy(cb2)
+}
+
 func (cb *BaseChainBuilder[R, Return]) Error(err error) Return {
 	cb.builder.Error(err)
 	return cb.onChain()
@@ -100,42 +110,58 @@ func (cb *BaseChainBuilder[R, Return]) Query() Query[R] {
 	return cb.builder.Query()
 }
 
+func (cb *BaseChainBuilder[R, Return]) SetOnChain(onChain func() Return) {
+	cb.onChain = onChain
+}
+
+func (cb *BaseChainBuilder[R, Return]) SetOnCopy(onCopy func(cb ChainBuilder[R, Return]) Return) {
+	cb.onCopy = onCopy
+}
+
+// Builder return query.Builder.
+// TODO: remove.
+func (cb *BaseChainBuilder[R, Return]) Builder() BuilderGeneric[R] { return cb.builder }
+
 func NewCustomChainBuilder[
 	R record.Record,
-	Return any,
+	Return ChainBuilder[R, Return],
 ](
 	b BuilderGeneric[R],
-	onChain func() Return,
-	onCopy func(cb *BaseChainBuilder[R, Return]) Return,
-) *BaseChainBuilder[R, Return] {
+) ChainBuilder[R, Return] {
 	return &BaseChainBuilder[R, Return]{
 		builder: b,
-		onCopy:  onCopy,
-		onChain: onChain,
+		onChain: nil,
+		onCopy:  nil,
 	}
+}
+
+type DefaultChainBuilder[R record.Record] interface {
+	ChainBuilder[R, DefaultChainBuilder[R]]
+
+	// TODO: remove
+	Builder() BuilderGeneric[R]
 }
 
 type defaultChainBuilder[R record.Record] struct {
-	*BaseChainBuilder[R, *defaultChainBuilder[R]]
+	*BaseChainBuilder[R, DefaultChainBuilder[R]]
 }
 
-func NewChainBuilder[R record.Record](builder BuilderGeneric[R]) ChainBuilder[R, *defaultChainBuilder[R]] {
-	var rcb *defaultChainBuilder[R]
-
-	rcb = &defaultChainBuilder[R]{
-		BaseChainBuilder: NewCustomChainBuilder[
-			R,
-			*defaultChainBuilder[R],
-		](
-			builder,
-			func() *defaultChainBuilder[R] { return rcb },
-			func(cb *BaseChainBuilder[R, *defaultChainBuilder[R]]) *defaultChainBuilder[R] {
-				return &defaultChainBuilder[R]{
-					BaseChainBuilder: cb,
-				}
-			},
-		),
+func NewChainBuilder[R record.Record](builder BuilderGeneric[R]) DefaultChainBuilder[R] {
+	rcb := &defaultChainBuilder[R]{
+		BaseChainBuilder: nil,
 	}
+
+	chain := NewCustomChainBuilder[R, DefaultChainBuilder[R]](builder)
+	chain.SetOnChain(func() DefaultChainBuilder[R] {
+		return rcb
+	})
+	chain.SetOnCopy(func(cb ChainBuilder[R, DefaultChainBuilder[R]]) DefaultChainBuilder[R] {
+		return &defaultChainBuilder[R]{
+			BaseChainBuilder: cb.(*BaseChainBuilder[R, DefaultChainBuilder[R]]),
+		}
+	})
+
+	rcb.BaseChainBuilder = chain.(*BaseChainBuilder[R, DefaultChainBuilder[R]])
 
 	return rcb
 }

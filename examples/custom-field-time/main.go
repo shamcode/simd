@@ -43,11 +43,11 @@ func main() {
 
 	store := namespace.CreateNamespace[*Item]()
 
-	queryBuilder := query.NewBuilder[*Item]
+	queryBuilder := query.NewChainBuilder(query.NewBuilder[*Item]())
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
-		queryBuilder = debug.WrapCreateQueryBuilder(queryBuilder)
+		queryBuilder = debug.WrapChainBuilder(queryBuilder).(query.DefaultChainBuilder[*Item])
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -75,7 +75,7 @@ func main() {
 		}
 	}
 
-	query := query.NewChainBuilder(queryBuilder()).
+	query := queryBuilder.
 		AddWhere(querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC))).
 		Sort(sort.Asc(id)).
 		Query()

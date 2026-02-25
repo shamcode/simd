@@ -32,19 +32,24 @@ func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...
 	return uq
 }
 
-func NewUserQueryBuilder(b query.BuilderGeneric[*User]) UserQueryBuilder {
-	var queryBuilder UserQueryBuilder
+func NewUserQueryBuilder(
+	builder query.BuilderGeneric[*User],
+	wrapChain func(qb query.ChainBuilder[*User, UserQueryBuilder]) query.ChainBuilder[*User, UserQueryBuilder],
+) UserQueryBuilder {
+	var queryBuilder userQueryBuilder
+
+	chain := wrapChain(query.NewCustomChainBuilder[*User, UserQueryBuilder](builder))
+	chain.SetOnChain(func() UserQueryBuilder {
+		return queryBuilder
+	})
+	chain.SetOnCopy(func(bcb query.ChainBuilder[*User, UserQueryBuilder]) UserQueryBuilder {
+		return userQueryBuilder{
+			ChainBuilder: bcb,
+		}
+	})
 
 	queryBuilder = userQueryBuilder{
-		ChainBuilder: query.NewCustomChainBuilder(
-			b,
-			func() UserQueryBuilder { return queryBuilder },
-			func(bcb *query.BaseChainBuilder[*User, UserQueryBuilder]) UserQueryBuilder {
-				return userQueryBuilder{
-					ChainBuilder: bcb,
-				}
-			},
-		),
+		ChainBuilder: chain,
 	}
 
 	return queryBuilder

@@ -4,90 +4,35 @@ import (
 	"regexp"
 
 	"github.com/shamcode/simd/record"
-	"github.com/shamcode/simd/sort"
 	"github.com/shamcode/simd/where"
 	"github.com/shamcode/simd/where/comparators"
 )
 
-type LimitOption int
-
-func (o LimitOption) Apply(b any) { b.(Builder).Limit(int(o)) }
-
-func Limit(limitItems int) BuilderOption {
-	return LimitOption(limitItems)
-}
-
-type OffsetOption int
-
-func (o OffsetOption) Apply(b any) { b.(Builder).Offset(int(o)) }
-func Offset(startOffset int) BuilderOption {
-	return OffsetOption(startOffset)
-}
-
-type OrOption struct{}
-
-func (OrOption) Apply(b any) { b.(Builder).Or() }
-func Or() OrOption {
-	return OrOption{}
-}
-
-type NotOption struct{}
-
-func (NotOption) Apply(b any) { b.(Builder).Not() }
-func Not() BuilderOption {
-	return NotOption{}
-}
-
-type OpenBracketOption struct{}
-
-func (OpenBracketOption) Apply(b any) { b.(Builder).OpenBracket() }
-func OpenBracket() BuilderOption {
-	return OpenBracketOption{}
-}
-
-type CloseBracketOption struct{}
-
-func (CloseBracketOption) Apply(b any) { b.(Builder).CloseBracket() }
-func CloseBracket() BuilderOption {
-	return CloseBracketOption{}
-}
-
-type ErrorOption struct {
-	err error
-}
-
-func (o ErrorOption) Apply(b any) { b.(Builder).Error(o.err) }
-
-func Error(err error) BuilderOption {
-	return ErrorOption{err: err}
-}
-
-type SortOption[R record.Record] struct {
-	by sort.ByWithOrder[R]
-}
-
-func (o SortOption[R]) Apply(b any) { b.(BuilderGeneric[R]).Sort(o.by) }
-func Sort[R record.Record](by sort.ByWithOrder[R]) BuilderOption {
-	return SortOption[R]{by: by}
-}
-
 type AddWhereOption[R record.Record] struct {
-	Cmp where.FieldComparator[R]
+	Cmp   where.FieldComparator[R]
+	Error error
 }
 
-func (o AddWhereOption[R]) Apply(b any) { b.(BuilderGeneric[R]).AddWhere(o.Cmp) }
+func (o AddWhereOption[R]) Apply(b BuilderGeneric[R]) {
+	if o.Error == nil {
+		b.AddWhere(o.Cmp)
+	} else {
+		b.Error(o.Error)
+	}
+}
 
 func WhereAny[R record.Record](
 	getter record.GetterInterface[R, any],
 	condition where.ComparatorType,
 	values ...any,
-) BuilderOption {
+) AddWhereOption[R] {
 	return AddWhereOption[R]{
 		Cmp: comparators.EqualComparator[R, any]{
 			Cmp:    condition,
 			Getter: getter,
 			Value:  values,
 		},
+		Error: nil,
 	}
 }
 
@@ -95,12 +40,15 @@ func Where[R record.Record, T record.LessComparable](
 	getter record.ComparableGetter[R, T],
 	condition where.ComparatorType,
 	value ...T,
-) BuilderOption {
+) AddWhereOption[R] {
 	switch castedGetter := any(getter).(type) {
 	case record.ComparableGetter[R, string]:
 		castedValue, err := Cast[[]T, []string](value)
 		if err != nil {
-			return Error(GetterError{Field: getter.Field, Err: err})
+			return AddWhereOption[R]{
+				Cmp:   nil,
+				Error: GetterError{Field: getter.Field, Err: err},
+			}
 		}
 
 		return AddWhereOption[R]{
@@ -109,11 +57,13 @@ func Where[R record.Record, T record.LessComparable](
 				castedGetter,
 				castedValue...,
 			),
+			Error: nil,
 		}
 
 	default:
 		return AddWhereOption[R]{
-			Cmp: comparators.NewComparableFieldComparator[R, T](condition, getter, value...),
+			Cmp:   comparators.NewComparableFieldComparator[R, T](condition, getter, value...),
+			Error: nil,
 		}
 	}
 }
@@ -121,9 +71,10 @@ func Where[R record.Record, T record.LessComparable](
 func WhereStringRegexp[R record.Record](
 	getter record.ComparableGetter[R, string],
 	value *regexp.Regexp,
-) BuilderOption {
+) AddWhereOption[R] {
 	return AddWhereOption[R]{
-		Cmp: comparators.NewStringFieldRegexpComparator[R](where.Regexp, getter, value),
+		Cmp:   comparators.NewStringFieldRegexpComparator[R](where.Regexp, getter, value),
+		Error: nil,
 	}
 }
 
@@ -131,13 +82,14 @@ func WhereBool[R record.Record](
 	getter record.BoolGetter[R],
 	condition where.ComparatorType,
 	value ...bool,
-) BuilderOption {
+) AddWhereOption[R] {
 	return AddWhereOption[R]{
 		Cmp: comparators.EqualComparator[R, bool]{
 			Cmp:    condition,
 			Getter: record.Getter[R, bool](getter),
 			Value:  value,
 		},
+		Error: nil,
 	}
 }
 
@@ -145,9 +97,10 @@ func WhereMap[R record.Record, K comparable, V any](
 	getter record.MapGetter[R, K, V],
 	condition where.ComparatorType,
 	value ...any,
-) BuilderOption {
+) AddWhereOption[R] {
 	return AddWhereOption[R]{
-		Cmp: comparators.NewMapFieldComparator[R, K, V](condition, getter, value...),
+		Cmp:   comparators.NewMapFieldComparator[R, K, V](condition, getter, value...),
+		Error: nil,
 	}
 }
 
@@ -155,8 +108,9 @@ func WhereSet[R record.Record, T comparable](
 	getter record.SetGetter[R, T],
 	condition where.ComparatorType,
 	value ...T,
-) BuilderOption {
+) AddWhereOption[R] {
 	return AddWhereOption[R]{
-		Cmp: comparators.NewSetFieldComparator[R, T](condition, getter, value...),
+		Cmp:   comparators.NewSetFieldComparator[R, T](condition, getter, value...),
+		Error: nil,
 	}
 }

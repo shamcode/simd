@@ -19,11 +19,13 @@ func main() { //nolint:funlen
 	flag.Parse()
 
 	store := namespace.CreateNamespace[*User]()
-	queryBuilder := query.NewBuilder[*User]
+	wrapChain := func(qb query.ChainBuilder[*User, UserQueryBuilder]) query.ChainBuilder[*User, UserQueryBuilder] {
+		return qb
+	}
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
-		queryBuilder = debug.WrapCreateQueryBuilder(queryBuilder)
+		wrapChain = debug.WrapChainBuilder[*User, UserQueryBuilder]
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -57,10 +59,11 @@ func main() { //nolint:funlen
 		}
 	}
 
-	query := NewUserQueryBuilder(queryBuilder()).
+	query := NewUserQueryBuilder(query.NewBuilder[*User](), wrapChain).
 		WhereStatus(where.EQ, StatusActive).
 		Not().
 		WhereName(where.EQ, "Foo").
+		MakeCopy().
 		Query()
 
 	ctx := context.Background()

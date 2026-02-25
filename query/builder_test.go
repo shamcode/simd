@@ -12,64 +12,64 @@ func TestBuilderErrors(t *testing.T) {
 	_id := record.NewIDGetter[record.Record]()
 
 	testCases := []struct {
-		builderOptions []BuilderOption
-		expectedError  string
+		query         Query[record.Record]
+		expectedError string
 	}{
 		{
-			builderOptions: []BuilderOption{
-				Or(),
-				Where(_id, where.EQ, 1),
-				Where(_id, where.EQ, 2),
-			},
+			query: NewChainBuilder(NewBuilder[record.Record]()).
+				Or().
+				AddWhere(Where(_id, where.EQ, 1)).
+				AddWhere(Where(_id, where.EQ, 2)).
+				Query(),
 			expectedError: ".Or() before any condition not supported, add any condition before .Or()",
 		},
 		{
-			builderOptions: []BuilderOption{
-				Not(),
-				OpenBracket(),
-				Where(_id, where.EQ, 1),
-				Where(_id, where.EQ, 2),
-				CloseBracket(),
-			},
+			query: NewChainBuilder(NewBuilder[record.Record]()).
+				Not().
+				OpenBracket().
+				AddWhere(Where(_id, where.EQ, 1)).
+				AddWhere(Where(_id, where.EQ, 2)).
+				CloseBracket().
+				Query(),
 			expectedError: ".Not().OpenBracket() not supported",
 		},
 		{
-			builderOptions: []BuilderOption{
-				OpenBracket(),
-				Where(_id, where.EQ, 1),
-				Where(_id, where.EQ, 2),
-				CloseBracket(),
-				CloseBracket(),
-			},
+			query: NewChainBuilder(NewBuilder[record.Record]()).
+				OpenBracket().
+				AddWhere(Where(_id, where.EQ, 1)).
+				AddWhere(Where(_id, where.EQ, 2)).
+				CloseBracket().
+				CloseBracket().
+				Query(),
 			expectedError: "close bracket without open",
 		},
 		{
-			builderOptions: []BuilderOption{
-				OpenBracket(),
-				Where(_id, where.EQ, 1),
-				Where(_id, where.EQ, 2),
-				CloseBracket(),
-				OpenBracket(),
-			},
+			query: NewChainBuilder(NewBuilder[record.Record]()).
+				OpenBracket().
+				AddWhere(Where(_id, where.EQ, 1)).
+				AddWhere(Where(_id, where.EQ, 2)).
+				CloseBracket().
+				OpenBracket().
+				Query(),
 			expectedError: "invalid bracket balance: has not closed bracket",
 		},
 		{
-			builderOptions: []BuilderOption{
-				Not(),
-				Or(),
-				OpenBracket(),
-				Where(_id, where.EQ, 1),
-				Where(_id, where.EQ, 2),
-				CloseBracket(),
-				OpenBracket(),
-			},
+			query: NewChainBuilder(NewBuilder[record.Record]()).
+				Not().
+				Or().
+				OpenBracket().
+				AddWhere(Where(_id, where.EQ, 1)).
+				AddWhere(Where(_id, where.EQ, 2)).
+				CloseBracket().
+				OpenBracket().
+				Query(),
 			expectedError: ".Or() before any condition not supported, add any condition before .Or()\n" +
 				".Not().OpenBracket() not supported\n" +
 				"invalid bracket balance: has not closed bracket",
 		},
 	}
 	for _, testCase := range testCases {
-		err := NewBuilder[record.Record](testCase.builderOptions...).Query().Error().Error()
+		err := testCase.query.Error().Error()
 		asserts.Equals(t, testCase.expectedError, err, "check expected error")
 	}
 }

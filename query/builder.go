@@ -16,9 +16,6 @@ type Builder interface {
 	OpenBracket()
 	CloseBracket()
 
-	// Append apply new options to builder
-	Append(options ...BuilderOption)
-
 	// Error save error to builder
 	Error(err error)
 }
@@ -37,10 +34,6 @@ type BuilderGeneric[R record.Record] interface {
 
 	// Query return build Query
 	Query() Query[R]
-}
-
-type BuilderOption interface {
-	Apply(b any)
 }
 
 type queryBuilder[R record.Record] struct {
@@ -121,12 +114,6 @@ func (qb *queryBuilder[R]) OnIteration(cb func(item R)) {
 	qb.onIteration = &cb
 }
 
-func (qb *queryBuilder[R]) Append(options ...BuilderOption) {
-	for _, opt := range options {
-		opt.Apply(qb)
-	}
-}
-
 func (qb *queryBuilder[R]) MakeCopy() BuilderGeneric[R] {
 	cpy := &queryBuilder[R]{
 		limitItems:   qb.limitItems,
@@ -164,11 +151,6 @@ func (qb *queryBuilder[R]) Query() Query[R] {
 	}
 }
 
-func NewBuilder[R record.Record](options ...BuilderOption) BuilderGeneric[R] {
-	b := &queryBuilder[R]{} //nolint:exhaustruct
-	for _, opt := range options {
-		opt.Apply(b)
-	}
-
-	return b
+func NewBuilder[R record.Record]() BuilderGeneric[R] {
+	return &queryBuilder[R]{} //nolint:exhaustruct
 }
