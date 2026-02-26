@@ -48,7 +48,7 @@ func (w Conditions[R]) Check(item R) (bool, error) { //nolint:cyclop
 		}
 
 		compareResultForItem, err := condition.Cmp.Compare(item)
-		if nil != err {
+		if err != nil {
 			return false, err
 		}
 

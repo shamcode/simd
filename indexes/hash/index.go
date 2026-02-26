@@ -95,7 +95,7 @@ func (idx index[R]) selectForOther(condition where.Condition[R]) (count int, ids
 
 	for _, key := range keys {
 		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
-		if nil != errorForValue {
+		if errorForValue != nil {
 			err = errorForValue
 			return
 		}

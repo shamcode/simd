@@ -114,7 +114,7 @@ func (ns *WithIndexes[R]) PreselectForExecutor(conditions where.Conditions[R]) (
 		}
 
 		indexExists, indexSize, ids, idsUnique, err := ns.indexes.SelectForCondition(condition)
-		if nil != err {
+		if err != nil {
 			return nil, err
 		}
 

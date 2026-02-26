@@ -39,7 +39,7 @@ func (m mp) HasKey(key int) bool {
 func (m mp) HasValue(check record.MapValueComparator[int]) (bool, error) {
 	for _, value := range m {
 		res, err := check.Compare(value)
-		if nil != err {
+		if err != nil {
 			return false, err
 		}
 

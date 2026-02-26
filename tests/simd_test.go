@@ -79,7 +79,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 	}{
 		{
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -88,7 +88,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE status = ACTIVE ORDER BY id DESC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
 				Sort(sort.Desc(userID)).
 				Query(),
@@ -97,7 +97,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE status != DISABLED ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				Not().
 				AddWhere(query.Where(userStatus, where.EQ, StatusDisabled)).
 				Sort(sort.Asc(userID)).
@@ -107,7 +107,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userScore, where.GE, 10)).
 				AddWhere(query.Where(userScore, where.LT, 20)).
 				Sort(sort.Asc(userID)).
@@ -117,7 +117,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC LIMIT 1",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userScore, where.GE, 10)).
 				AddWhere(query.Where(userScore, where.LT, 20)).
 				Sort(sort.Asc(userID)).
@@ -128,7 +128,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 1 LIMIT 3",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userScore, where.GE, 10)).
 				AddWhere(query.Where(userScore, where.LT, 20)).
 				Sort(sort.Asc(userID)).
@@ -140,7 +140,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE score >= 10 AND score < 20 ORDER BY id ASC OFFSET 2 LIMIT 3",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userScore, where.GE, 10)).
 				AddWhere(query.Where(userScore, where.LT, 20)).
 				Sort(sort.Asc(userID)).
@@ -152,7 +152,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == ACTIVE",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userName, where.EQ, "Fourth")).
 				AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
 				Query(),
@@ -161,7 +161,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name = 'Fourth' AND status == DISABLED",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userName, where.EQ, "Fourth")).
 				AddWhere(query.Where(userStatus, where.EQ, StatusDisabled)).
 				Query(),
@@ -170,7 +170,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name LIKE 'th' ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userName, where.Like, "t")).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -179,7 +179,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR status == DISABLED ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 1)).
 				Or().
 				AddWhere(query.Where(userStatus, where.EQ, StatusDisabled)).
@@ -190,7 +190,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (NOT status == DISABLED) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 1)).
 				Or().
 				OpenBracket().
@@ -204,7 +204,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (NOT status == ACTIVE OR NOT is_online = true) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 1)).
 				Or().
 				OpenBracket().
@@ -221,7 +221,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 1 OR (status == DISABLED OR is_online = false) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 1)).
 				Or().
 				OpenBracket().
@@ -236,7 +236,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE (status == DISABLED OR is_online = false) OR id = 1 ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				OpenBracket().
 				AddWhere(query.Where(userStatus, where.EQ, StatusDisabled)).
 				Or().
@@ -251,7 +251,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 4 OR (status == DISABLED OR is_online = false) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 4)).
 				Or().
 				OpenBracket().
@@ -266,7 +266,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id = 4 AND (status == DISABLED OR is_online = true) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 4)).
 				OpenBracket().
 				AddWhere(query.Where(userStatus, where.EQ, StatusDisabled)).
@@ -280,7 +280,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE is_online = true ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -289,7 +289,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE id IN (4, 2) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.InArray, 4, 2)).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -298,7 +298,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name REGEXP [tT]) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereStringRegexp(userName, regexp.MustCompile("[tT]"))).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -307,7 +307,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE name IN (Second, Third) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userName, where.InArray, "Second", "Third")).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -316,7 +316,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE ( id = 1 ) AND id IN (1, 2, 3) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				OpenBracket().
 				AddWhere(query.Where(userID, where.EQ, 1)).
 				CloseBracket().
@@ -328,7 +328,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				Sort(sort.Asc(userID)).
 				Query(),
 			ExpectedCount: 4,
@@ -336,7 +336,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE tags HAS confirmed ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereSet(userTags, where.SetHas, TagConfirmed)).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -345,7 +345,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE tags HAS free ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereSet(userTags, where.SetHas, TagFree)).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -354,7 +354,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_KEY UnreadMessages ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereMap(userCounters, where.MapHasKey, CounterKeyUnreadMessages)).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -363,7 +363,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_VALUE HasCounterValueEqual(2) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereMap(userCounters, where.MapHasValue, HasCounterValueEqual(2))).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -372,7 +372,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE counter MAP_HAS_VALUE HasCounterValue(1) ORDER BY id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.WhereMap(userCounters, where.MapHasValue, HasCounterValueEqual(1))).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -381,7 +381,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY byOnline ASC id ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				Sort(sort.Asc(sort.ByScalar(byOnline{onlineToUp: true}))).
 				Sort(sort.Asc(userID)).
 				Query(),
@@ -390,7 +390,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY name ASC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				Sort(sort.Asc(userName)).
 				Query(),
 			ExpectedCount: 4,
@@ -398,7 +398,7 @@ func Test_FetchAllAndTotal(t *testing.T) { //nolint:maintidx
 		},
 		{
 			Name: "SELECT *, COUNT(*) WHERE True ORDER BY name DESC",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				Sort(sort.Desc(userName)).
 				Query(),
 			ExpectedCount: 4,

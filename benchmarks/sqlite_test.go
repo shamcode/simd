@@ -44,7 +44,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 	`
 
 		_, err = db.Exec(sqlStmt) //nolint:noctx
-		if nil != err {
+		if err != nil {
 			b.Fatal(err)
 		}
 
@@ -52,7 +52,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		simd.AddIndex(hash.NewComparableHashIndex(userID, true))
 
 		stmt, err := db.Prepare("INSERT INTO user (id, name, status, score, is_online) VALUES(?, ?, ?, ?, ?)") //nolint:noctx
-		if nil != err {
+		if err != nil {
 			b.Fatal(err)
 		}
 
@@ -66,12 +66,12 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 			}
 
 			err := simd.Upsert(user)
-			if nil != err {
+			if err != nil {
 				b.Fatal(err)
 			}
 
 			_, err = stmt.Exec(user.ID, user.Name, user.Status, user.Score, user.IsOnline) //nolint:noctx
-			if nil != err {
+			if err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -85,11 +85,11 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 				for i := 1; i < usersCount/4; i++ {
 					cur, err := qe.FetchAll(
 						context.Background(),
-						query.NewChainBuilder(query.NewBuilder[*User]()).
+						query.NewBuilder[*User]().
 							AddWhere(query.Where(userID, where.EQ, int64(i))).
 							Query(),
 					)
-					if nil != err {
+					if err != nil {
 						b.Fatalf("query: %s", err)
 					}
 
@@ -102,7 +102,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 		})
 
 		stmt, err = db.Prepare("SELECT is_online FROM user WHERE id = ?") //nolint:noctx
-		if nil != err {
+		if err != nil {
 			b.Fatal(err)
 		}
 
@@ -110,7 +110,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 			for i := 0; i < b.N; i++ {
 				for i := 1; i < usersCount/4; i++ {
 					rows, err := stmt.QueryContext(context.Background(), i)
-					if nil != err {
+					if err != nil {
 						b.Fatal(err)
 					}
 
@@ -121,7 +121,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 					var isOnline bool
 
 					err = rows.Scan(&isOnline)
-					if nil != err {
+					if err != nil {
 						b.Fatal(err)
 					}
 

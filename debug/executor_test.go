@@ -97,27 +97,27 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 	}{
 		{
 			name:     "order by ID asc",
-			query:    query.NewChainBuilder(query.NewBuilder[*user]()).Sort(sort.Asc(id)).Query(),
+			query:    query.NewBuilder[*user]().Sort(sort.Asc(id)).Query(),
 			expected: "SELECT *, COUNT(*) <Query dont implement QueryWithDumper interface, check QueryBuilder>",
 		},
 		{
 			name:     "order by ID asc",
-			query:    WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).Sort(sort.Asc(id)).Query(),
+			query:    WrapBuilder(query.NewBuilder[*user]()).Sort(sort.Asc(id)).Query(),
 			expected: "SELECT *, COUNT(*) ORDER BY ID ASC",
 		},
 		{
 			name:     "order by ID desc",
-			query:    WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).Sort(sort.Desc(id)).Query(),
+			query:    WrapBuilder(query.NewBuilder[*user]()).Sort(sort.Desc(id)).Query(),
 			expected: "SELECT *, COUNT(*) ORDER BY ID DESC",
 		},
 		{
 			name:     "where ID = int64(3)",
-			query:    WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).AddWhere(query.Where(id, where.EQ, 3)).Query(),
+			query:    WrapBuilder(query.NewBuilder[*user]()).AddWhere(query.Where(id, where.EQ, 3)).Query(),
 			expected: "SELECT *, COUNT(*) WHERE ID = 3",
 		},
 		{
 			name: "where ID = int64(3) and age == int(20)",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.EQ, 3)).
 				AddWhere(query.Where(age, where.EQ, 20)).
 				Query(),
@@ -125,7 +125,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ID = int64(3) and age == int(18)",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.EQ, 3)).
 				AddWhere(query.Where(age, where.EQ, 18)).
 				Query(),
@@ -133,7 +133,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where age > 18 and age < 22",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(age, where.GT, 18)).
 				AddWhere(query.Where(age, where.LT, 22)).
 				Sort(sort.Asc(id)).
@@ -142,7 +142,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where age >= 18 and age <= 22",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(age, where.GE, 18)).
 				AddWhere(query.Where(age, where.LE, 22)).
 				Sort(sort.Asc(id)).
@@ -151,7 +151,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ID = 2 or ID = 5",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.EQ, 2)).
 				Or().
 				AddWhere(query.Where(id, where.EQ, 5)).
@@ -161,7 +161,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ID = 2 or age > 20",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.EQ, 2)).
 				Or().
 				AddWhere(query.Where(age, where.GT, 20)).
@@ -171,7 +171,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ID = 1 or ( age > 20 and age < 22)",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.EQ, 1)).
 				Or().
 				OpenBracket().
@@ -184,7 +184,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ( age > 20 and age < 22) or ID = 1",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
 				AddWhere(query.Where(age, where.GT, 20)).
 				AddWhere(query.Where(age, where.LT, 22)).
@@ -197,7 +197,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where age > 20 and age < 22 or ID = 1",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(age, where.GT, 20)).
 				AddWhere(query.Where(age, where.LT, 22)).
 				Or().
@@ -208,7 +208,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where (age > 20 and age < 22) or ID = 1",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
 				AddWhere(query.Where(age, where.GT, 20)).
 				AddWhere(query.Where(age, where.LT, 22)).
@@ -221,7 +221,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where age > 20 and age < 22 and (ID = 1 or ID = 2)",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(age, where.GT, 20)).
 				AddWhere(query.Where(age, where.LT, 22)).
 				OpenBracket().
@@ -234,7 +234,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where age > 20 and age < 22 and (ID = 1 or ID = 2 or ID = 4)",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(age, where.GT, 20)).
 				AddWhere(query.Where(age, where.LT, 22)).
 				OpenBracket().
@@ -249,7 +249,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where (age > 20 and age < 22) and ID = 4",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
 				AddWhere(query.Where(age, where.GT, 20)).
 				AddWhere(query.Where(age, where.LT, 22)).
@@ -260,7 +260,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where age in {20, 21, 22} and ID > 3",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(age, where.InArray, 20, 21, 22)).
 				AddWhere(query.Where(id, where.GT, 3)).
 				Sort(sort.Asc(id)).
@@ -269,7 +269,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where name like \"th\"",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(name, where.Like, "th")).
 				Sort(sort.Asc(id)).
 				Query(),
@@ -277,7 +277,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where name like \"th\" or name like \"first\"",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(name, where.Like, "th")).
 				Or().
 				AddWhere(query.Where(name, where.Like, "first")).
@@ -287,7 +287,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ((ID = 1) or (ID = 2))",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
 				OpenBracket().
 				AddWhere(query.Where(id, where.EQ, 1)).
@@ -303,7 +303,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where (((ID = 1) or (ID = 2)) or ID = 3) or ID = 4",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
 				OpenBracket().
 				OpenBracket().
@@ -325,7 +325,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "where ID > 1 limit 2 offset 1 order by ID ASC",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.GT, 1)).
 				Limit(2).
 				Offset(1).
@@ -335,7 +335,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name: "unknown comparator",
-			query: WrapChainBuilder(query.NewChainBuilder(query.NewBuilder[*user]())).
+			query: WrapBuilder(query.NewBuilder[*user]()).
 				AddWhere(query.Where(id, where.ComparatorType(100), 1, 2)).
 				Limit(2).
 				Offset(1).
@@ -358,7 +358,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			}).FetchAll(ctx, test.query)
 
 			var errMsg string
-			if nil != err {
+			if err != nil {
 				errMsg = err.Error()
 			}
 
@@ -396,7 +396,7 @@ func TestFieldComparatorDumper(t *testing.T) {
 	}{
 		{
 			name: "IN RANGE",
-			query: WrapChainBuilderWithDumper(query.NewChainBuilder(query.NewBuilder[*user]()), dumper).
+			query: WrapBuilderWithDumper(query.NewBuilder[*user](), dumper).
 				AddWhere(query.Where(id, InRange, 3, 10)).
 				Not().
 				AddWhere(query.Where(age, where.LE, 21)).
@@ -409,7 +409,7 @@ func TestFieldComparatorDumper(t *testing.T) {
 		},
 		{
 			name: "IN RANGE With copy",
-			query: WrapChainBuilderWithDumper(query.NewChainBuilder(query.NewBuilder[*user]()), dumper).
+			query: WrapBuilderWithDumper(query.NewBuilder[*user](), dumper).
 				AddWhere(query.Where(id, InRange, 3, 10)).
 				Not().
 				AddWhere(query.Where(age, where.LE, 21)).
@@ -435,7 +435,7 @@ func TestFieldComparatorDumper(t *testing.T) {
 			}).FetchAll(ctx, test.query)
 
 			var errMsg string
-			if nil != err {
+			if err != nil {
 				errMsg = err.Error()
 			}
 

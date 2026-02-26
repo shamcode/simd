@@ -36,7 +36,7 @@ func Test_Delete(t *testing.T) {
 
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
 		t.Context(),
-		query.NewChainBuilder(query.NewBuilder[*User]()).
+		query.NewBuilder[*User]().
 			Sort(sort.Asc(userID)).
 			Query(),
 	)

@@ -54,7 +54,7 @@ func Benchmark_Indexes(b *testing.B) {
 				Score:    i % 150,
 				IsOnline: i%2 == 0,
 			})
-			if nil != err {
+			if err != nil {
 				b.Fatal(err)
 			}
 		}
@@ -66,50 +66,50 @@ func Benchmark_Indexes(b *testing.B) {
 	}{
 		{
 			Name: "id = 500",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.EQ, 500)).
 				Query(),
 		},
 		{
 			Name: "id IN (500, 1000, 1500)",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.InArray, 500, 1000, 1500)).
 				Query(),
 		},
 		{
 			Name: "id <= 1000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LE, 1000)).
 				Query(),
 		},
 		{
 			Name: "id > 1000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.GT, 1000)).
 				Query(),
 		},
 		{
 			Name: "id <= 5000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LE, 5000)).
 				Query(),
 		},
 		{
 			Name: "id > 5000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.GT, 5000)).
 				Query(),
 		},
 		{
 			Name: "id > 2000 and id < 3000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.GT, 2000)).
 				AddWhere(query.Where(userID, where.LT, 3000)).
 				Query(),
 		},
 		{
 			Name: "id < 2000 or id > 8000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LT, 2000)).
 				Or().
 				AddWhere(query.Where(userID, where.GT, 8000)).
@@ -117,7 +117,7 @@ func Benchmark_Indexes(b *testing.B) {
 		},
 		{
 			Name: "id < 1000 limit 100 asc",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LT, 1000)).
 				Limit(100).
 				Sort(sort.Asc[*User](userID)).
@@ -125,7 +125,7 @@ func Benchmark_Indexes(b *testing.B) {
 		},
 		{
 			Name: "id < 1000 limit 100 desc",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LT, 1000)).
 				Limit(100).
 				Sort(sort.Desc[*User](userID)).
@@ -133,7 +133,7 @@ func Benchmark_Indexes(b *testing.B) {
 		},
 		{
 			Name: "id < 1000 limit 100 offset 50 asc",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LT, 1000)).
 				Limit(100).
 				Offset(50).
@@ -142,7 +142,7 @@ func Benchmark_Indexes(b *testing.B) {
 		},
 		{
 			Name: "id < 1000 limit 100 offset 50 desc",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userID, where.LT, 1000)).
 				Limit(100).
 				Offset(50).
@@ -151,26 +151,26 @@ func Benchmark_Indexes(b *testing.B) {
 		},
 		{
 			Name: "age < 18",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userAge, where.LT, 18)).
 				Query(),
 		},
 		{
 			Name: "age <= 17",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userAge, where.LE, 17)).
 				Query(),
 		},
 		{
 			Name: "age > 18 and age < 45",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userAge, where.GT, 18)).
 				AddWhere(query.Where(userAge, where.LT, 45)).
 				Query(),
 		},
 		{
 			Name: "age > 18 and age < 45 and id > 2000",
-			Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+			Query: query.NewBuilder[*User]().
 				AddWhere(query.Where(userAge, where.GT, 18)).
 				AddWhere(query.Where(userAge, where.LT, 45)).
 				AddWhere(query.Where(userID, where.GT, 2000)).
@@ -210,7 +210,7 @@ func Benchmark_Indexes(b *testing.B) {
 				b.Run(exec.name, func(b *testing.B) {
 					for range b.N {
 						_, _, err := exec.qe.FetchAllAndTotal(context.Background(), bench.Query)
-						if nil != err {
+						if err != nil {
 							b.Fatal(err)
 						}
 					}
@@ -240,13 +240,13 @@ func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 				Score:    i % 150,
 				IsOnline: i%2 == 0,
 			})
-			if nil != err {
+			if err != nil {
 				b.Fatal(err)
 			}
 		}
 	}
 
-	q := query.NewChainBuilder(query.NewBuilder[*User]()).
+	q := query.NewBuilder[*User]().
 		AddWhere(query.Where(userAge, where.LT, 5)).
 		Query()
 
@@ -256,7 +256,7 @@ func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 		b.Run(strconv.Itoa(i+1), func(b *testing.B) {
 			for range b.N {
 				_, _, err := exec.FetchAllAndTotal(context.Background(), q)
-				if nil != err {
+				if err != nil {
 					b.Fatal(err)
 				}
 			}

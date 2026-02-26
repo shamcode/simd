@@ -16,7 +16,7 @@ func TestBuilderErrors(t *testing.T) {
 		expectedError string
 	}{
 		{
-			query: NewChainBuilder(NewBuilder[record.Record]()).
+			query: NewBuilder[record.Record]().
 				Or().
 				AddWhere(Where(_id, where.EQ, 1)).
 				AddWhere(Where(_id, where.EQ, 2)).
@@ -24,7 +24,7 @@ func TestBuilderErrors(t *testing.T) {
 			expectedError: ".Or() before any condition not supported, add any condition before .Or()",
 		},
 		{
-			query: NewChainBuilder(NewBuilder[record.Record]()).
+			query: NewBuilder[record.Record]().
 				Not().
 				OpenBracket().
 				AddWhere(Where(_id, where.EQ, 1)).
@@ -34,7 +34,7 @@ func TestBuilderErrors(t *testing.T) {
 			expectedError: ".Not().OpenBracket() not supported",
 		},
 		{
-			query: NewChainBuilder(NewBuilder[record.Record]()).
+			query: NewBuilder[record.Record]().
 				OpenBracket().
 				AddWhere(Where(_id, where.EQ, 1)).
 				AddWhere(Where(_id, where.EQ, 2)).
@@ -44,7 +44,7 @@ func TestBuilderErrors(t *testing.T) {
 			expectedError: "close bracket without open",
 		},
 		{
-			query: NewChainBuilder(NewBuilder[record.Record]()).
+			query: NewBuilder[record.Record]().
 				OpenBracket().
 				AddWhere(Where(_id, where.EQ, 1)).
 				AddWhere(Where(_id, where.EQ, 2)).
@@ -54,7 +54,7 @@ func TestBuilderErrors(t *testing.T) {
 			expectedError: "invalid bracket balance: has not closed bracket",
 		},
 		{
-			query: NewChainBuilder(NewBuilder[record.Record]()).
+			query: NewBuilder[record.Record]().
 				Not().
 				Or().
 				OpenBracket().

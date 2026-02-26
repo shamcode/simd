@@ -38,7 +38,7 @@ func (e *executor[R]) exec( //nolint:cyclop,funlen
 	q query.Query[R],
 	onlyTotal bool,
 ) (Iterator[R], int, error) {
-	if err := q.Error(); nil != err {
+	if err := q.Error(); err != nil {
 		return nil, 0, NewValidateQueryError(err)
 	}
 
@@ -48,7 +48,7 @@ func (e *executor[R]) exec( //nolint:cyclop,funlen
 	conditions := q.Conditions()
 
 	itemsForCheck, err := e.selector.PreselectForExecutor(conditions)
-	if nil != err {
+	if err != nil {
 		return nil, 0, NewExecuteQueryError(err)
 	}
 
@@ -58,7 +58,7 @@ func (e *executor[R]) exec( //nolint:cyclop,funlen
 			return nil, 0, ctx.Err()
 		default:
 			res, err := conditions.Check(item)
-			if nil != err {
+			if err != nil {
 				return nil, 0, NewExecuteQueryError(err)
 			}
 

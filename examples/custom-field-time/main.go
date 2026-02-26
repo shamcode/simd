@@ -43,11 +43,11 @@ func main() {
 
 	store := namespace.CreateNamespace[*Item]()
 
-	queryBuilder := query.NewChainBuilder(query.NewBuilder[*Item]())
+	queryBuilder := query.NewBuilder[*Item]()
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
-		queryBuilder = debug.WrapChainBuilder(queryBuilder).(query.DefaultChainBuilder[*Item])
+		queryBuilder = debug.WrapBuilder(queryBuilder).(query.DefaultBuilder[*Item])
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -70,7 +70,7 @@ func main() {
 		},
 	} {
 		err := store.Insert(user)
-		if nil != err {
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -83,7 +83,7 @@ func main() {
 	ctx := context.Background()
 
 	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
-	if nil != err {
+	if err != nil {
 		log.Fatal(err)
 	}
 
@@ -91,7 +91,7 @@ func main() {
 		log.Printf("%#v", cur.Item())
 	}
 
-	if err := cur.Err(); nil != err {
+	if err := cur.Err(); err != nil {
 		log.Fatal(err)
 	}
 

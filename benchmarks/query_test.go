@@ -30,7 +30,7 @@ func Benchmark_Query(b *testing.B) {
 			Score:    i % 150,
 			IsOnline: i%2 == 0,
 		})
-		if nil != err {
+		if err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -42,13 +42,13 @@ func Benchmark_Query(b *testing.B) {
 		}{
 			{
 				Name: "is_online = true",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
 					Query(),
 			},
 			{
 				Name: "is_online = true offset 1000 limit 100",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
 					Offset(1000).
 					Limit(100).
@@ -56,19 +56,19 @@ func Benchmark_Query(b *testing.B) {
 			},
 			{
 				Name: "id <= 5000",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.Where(userID, where.LE, 5000)).
 					Query(),
 			},
 			{
 				Name: "id > 1000",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.Where(userID, where.GT, 1000)).
 					Query(),
 			},
 			{
 				Name: "id > 1000 limit 100 asc",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.Where(userID, where.GT, 1000)).
 					Limit(100).
 					Sort(sort.Asc[*User](userID)).
@@ -76,7 +76,7 @@ func Benchmark_Query(b *testing.B) {
 			},
 			{
 				Name: "id > 1000 limit 100 desc",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.Where(userID, where.GT, 1000)).
 					Limit(100).
 					Sort(sort.Desc[*User](userID)).
@@ -84,7 +84,7 @@ func Benchmark_Query(b *testing.B) {
 			},
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.Where(userID, where.GT, 1000)).
 					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
 					AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
@@ -92,7 +92,7 @@ func Benchmark_Query(b *testing.B) {
 			},
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE limit 100 desc",
-				Query: query.NewChainBuilder(query.NewBuilder[*User]()).
+				Query: query.NewBuilder[*User]().
 					AddWhere(query.Where(userID, where.GT, 1000)).
 					AddWhere(query.WhereBool(userIsOnline, where.EQ, true)).
 					AddWhere(query.Where(userStatus, where.EQ, StatusActive)).
@@ -108,7 +108,7 @@ func Benchmark_Query(b *testing.B) {
 			b.Run(bench.Name, func(b *testing.B) {
 				for range b.N {
 					_, _, err := qe.FetchAllAndTotal(context.Background(), bench.Query)
-					if nil != err {
+					if err != nil {
 						b.Fatal(err)
 					}
 				}

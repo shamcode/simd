@@ -139,7 +139,7 @@ func (idx index[R]) Select(condition where.Condition[R]) ( //nolint:cyclop
 	idx.storage.RLock()
 	idx.btree().All(func(key indexes.Key, records storage.IDStorage) {
 		resultForValue, errorForValue := idx.compute.Check(key, condition.Cmp)
-		if nil != errorForValue {
+		if errorForValue != nil {
 			err = errorForValue
 			return
 		}

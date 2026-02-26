@@ -13,14 +13,6 @@ type AddWhereOption[R record.Record] struct {
 	Error error
 }
 
-func (o AddWhereOption[R]) Apply(b BuilderGeneric[R]) {
-	if o.Error == nil {
-		b.AddWhere(o.Cmp)
-	} else {
-		b.Error(o.Error)
-	}
-}
-
 func WhereAny[R record.Record](
 	getter record.GetterInterface[R, any],
 	condition where.ComparatorType,

@@ -6,7 +6,7 @@ import (
 )
 
 type UserQueryBuilder interface {
-	query.ChainBuilder[*User, UserQueryBuilder]
+	query.Builder[*User, UserQueryBuilder]
 
 	WhereID(condition where.ComparatorType, id ...int64) UserQueryBuilder
 	WhereName(condition where.ComparatorType, name ...string) UserQueryBuilder
@@ -14,7 +14,7 @@ type UserQueryBuilder interface {
 }
 
 type userQueryBuilder struct {
-	query.ChainBuilder[*User, UserQueryBuilder]
+	query.Builder[*User, UserQueryBuilder]
 }
 
 func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int64) UserQueryBuilder {
@@ -33,24 +33,21 @@ func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...
 }
 
 func NewUserQueryBuilder(
-	builder query.BuilderGeneric[*User],
-	wrapChain func(qb query.ChainBuilder[*User, UserQueryBuilder]) query.ChainBuilder[*User, UserQueryBuilder],
+	wrapChain func(qb query.Builder[*User, UserQueryBuilder]) query.Builder[*User, UserQueryBuilder],
 ) UserQueryBuilder {
-	var queryBuilder userQueryBuilder
+	queryBuilder := &userQueryBuilder{
+		Builder: nil,
+	}
 
-	chain := wrapChain(query.NewCustomChainBuilder[*User, UserQueryBuilder](builder))
-	chain.SetOnChain(func() UserQueryBuilder {
-		return queryBuilder
-	})
-	chain.SetOnCopy(func(bcb query.ChainBuilder[*User, UserQueryBuilder]) UserQueryBuilder {
+	chain := wrapChain(query.NewExtendedBuilder[*User, UserQueryBuilder]())
+	chain.SetOnChain(queryBuilder)
+	chain.SetOnCopy(func(bcb query.Builder[*User, UserQueryBuilder]) UserQueryBuilder {
 		return userQueryBuilder{
-			ChainBuilder: bcb,
+			Builder: bcb,
 		}
 	})
 
-	queryBuilder = userQueryBuilder{
-		ChainBuilder: chain,
-	}
+	queryBuilder.Builder = chain
 
 	return queryBuilder
 }

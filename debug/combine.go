@@ -6,124 +6,116 @@ import (
 	"github.com/shamcode/simd/sort"
 )
 
-type chain[R record.Record, Return query.ChainBuilder[R, Return]] struct {
-	chain query.ChainBuilder[R, Return]
+type combine[R record.Record, Return query.Builder[R, Return]] struct {
+	base  query.Builder[R, Return]
 	debug *debugQueryBuilder[R]
 }
 
-func (cb *chain[R, Return]) Not() Return {
+func (cb *combine[R, Return]) Not() Return {
 	cb.debug.not()
-	return cb.chain.Not()
+	return cb.base.Not()
 }
 
-func (cb *chain[R, Return]) Or() Return {
+func (cb *combine[R, Return]) Or() Return {
 	cb.debug.or()
-	return cb.chain.Or()
+	return cb.base.Or()
 }
 
-func (cb *chain[R, Return]) OpenBracket() Return {
+func (cb *combine[R, Return]) OpenBracket() Return {
 	cb.debug.openBracket()
-	return cb.chain.OpenBracket()
+	return cb.base.OpenBracket()
 }
 
-func (cb *chain[R, Return]) CloseBracket() Return {
+func (cb *combine[R, Return]) CloseBracket() Return {
 	cb.debug.closeBracket()
-	return cb.chain.CloseBracket()
+	return cb.base.CloseBracket()
 }
 
-func (cb *chain[R, Return]) AddWhere(where query.AddWhereOption[R]) Return {
+func (cb *combine[R, Return]) AddWhere(where query.AddWhereOption[R]) Return {
 	cb.debug.addWhere(where.Cmp)
-	return cb.chain.AddWhere(where)
+	return cb.base.AddWhere(where)
 }
 
-func (cb *chain[R, Return]) Sort(by sort.ByWithOrder[R]) Return {
+func (cb *combine[R, Return]) Sort(by sort.ByWithOrder[R]) Return {
 	cb.debug.sort(by)
-	return cb.chain.Sort(by)
+	return cb.base.Sort(by)
 }
 
-func (cb *chain[R, Return]) Limit(limitItems int) Return {
+func (cb *combine[R, Return]) Limit(limitItems int) Return {
 	cb.debug.limit(limitItems)
-	return cb.chain.Limit(limitItems)
+	return cb.base.Limit(limitItems)
 }
 
-func (cb *chain[R, Return]) Offset(startOffset int) Return {
+func (cb *combine[R, Return]) Offset(startOffset int) Return {
 	cb.debug.offset(startOffset)
-	return cb.chain.Offset(startOffset)
+	return cb.base.Offset(startOffset)
 }
 
-func (cb *chain[R, Return]) OnIteration(fn func(item R)) Return {
-	return cb.chain.OnIteration(fn)
+func (cb *combine[R, Return]) OnIteration(fn func(item R)) Return {
+	return cb.base.OnIteration(fn)
 }
 
-func (cb *chain[R, Return]) OnCopy(cb2 query.ChainBuilder[R, Return]) Return {
-	return cb.chain.OnCopy(cb2)
+func (cb *combine[R, Return]) OnCopy(cb2 query.Builder[R, Return]) Return {
+	return cb.base.OnCopy(cb2)
 }
 
-func (cb *chain[R, Return]) MakeCopy() Return {
-	return cb.OnCopy(&chain[R, Return]{
-		chain: cb.chain.MakeCopy(),
+func (cb *combine[R, Return]) MakeCopy() Return {
+	return cb.OnCopy(&combine[R, Return]{
+		base:  cb.base.MakeCopy(),
 		debug: cb.debug.makeCopy(),
 	})
 }
 
-func (cb *chain[R, Return]) SetOnChain(onChain func() Return) {
-	cb.chain.SetOnChain(onChain)
+func (cb *combine[R, Return]) SetOnChain(onChain Return) {
+	cb.base.SetOnChain(onChain)
 }
 
-func (cb *chain[R, Return]) SetOnCopy(onCopy func(onCopy query.ChainBuilder[R, Return]) Return) {
-	cb.chain.SetOnCopy(onCopy)
+func (cb *combine[R, Return]) SetOnCopy(onCopy func(onCopy query.Builder[R, Return]) Return) {
+	cb.base.SetOnCopy(onCopy)
 }
 
-func (cb *chain[R, Return]) Error(err error) Return {
-	return cb.chain.Error(err)
+func (cb *combine[R, Return]) Error(err error) Return {
+	return cb.base.Error(err)
 }
 
-func (cb *chain[R, Return]) Query() query.Query[R] {
+func (cb *combine[R, Return]) Query() query.Query[R] {
 	return NewQueryWithDumper[R](
-		cb.chain.Query(),
+		cb.base.Query(),
 		cb.debug.Dump(),
 	)
 }
 
-// TODO: remove.
-func (cb *chain[R, Return]) Builder() query.BuilderGeneric[R] {
-	return nil
-}
-
-func (cb *chain[R, Return]) setFieldComparatorDumper(dumber FieldComparatorDumper[R]) {
+func (cb *combine[R, Return]) setFieldComparatorDumper(dumber FieldComparatorDumper[R]) {
 	cb.debug.setFieldComparatorDumper(dumber)
 }
 
-func WrapChainBuilder[R record.Record, Return query.ChainBuilder[R, Return]](
-	queryBuilder query.ChainBuilder[R, Return],
-) query.ChainBuilder[R, Return] {
-	wrapped := &chain[R, Return]{
+func WrapBuilder[R record.Record, Return query.Builder[R, Return]](
+	queryBuilder query.Builder[R, Return],
+) query.Builder[R, Return] {
+	wrapped := &combine[R, Return]{
 		debug: newDebugQueryBuilder[R](),
-		chain: queryBuilder,
+		base:  queryBuilder,
 	}
 
-	def, ok := queryBuilder.(query.DefaultChainBuilder[R])
-	if ok {
-		// Replace default chain builder with wrapped.
-		cb1 := query.NewCustomChainBuilder[R, query.DefaultChainBuilder[R]](def.Builder())
-		cb1.SetOnChain(func() query.DefaultChainBuilder[R] {
-			return any(wrapped).(query.DefaultChainBuilder[R])
-		})
-		cb1.SetOnCopy(func(onCopy query.ChainBuilder[R, query.DefaultChainBuilder[R]]) query.DefaultChainBuilder[R] {
-			return onCopy.(query.DefaultChainBuilder[R])
+	if _, ok := queryBuilder.(query.DefaultBuilder[R]); ok {
+		// Replace default combine builder with wrapped.
+		cb1 := query.NewExtendedBuilder[R, query.DefaultBuilder[R]]()
+		cb1.SetOnChain(any(wrapped).(query.DefaultBuilder[R]))
+		cb1.SetOnCopy(func(onCopy query.Builder[R, query.DefaultBuilder[R]]) query.DefaultBuilder[R] {
+			return onCopy.(query.DefaultBuilder[R])
 		})
 
-		wrapped.chain = any(cb1).(query.ChainBuilder[R, Return])
+		wrapped.base = any(cb1).(query.Builder[R, Return])
 	}
 
 	return wrapped
 }
 
-func WrapChainBuilderWithDumper[R record.Record, Return query.ChainBuilder[R, Return]](
-	cb query.ChainBuilder[R, Return],
+func WrapBuilderWithDumper[R record.Record, Return query.Builder[R, Return]](
+	cb query.Builder[R, Return],
 	dumper FieldComparatorDumper[R],
-) query.ChainBuilder[R, Return] {
-	b := WrapChainBuilder[R, Return](cb).(*chain[R, Return])
+) query.Builder[R, Return] {
+	b := WrapBuilder[R, Return](cb).(*combine[R, Return])
 	b.setFieldComparatorDumper(dumper)
 
 	return b

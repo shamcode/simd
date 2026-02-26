@@ -28,7 +28,7 @@ func Test_Context(t *testing.T) {
 
 	// Act
 	_, err := executor.CreateQueryExecutor[*User](store).FetchTotal(ctx,
-		query.NewChainBuilder(query.NewBuilder[*User]()).Query(),
+		query.NewBuilder[*User]().Query(),
 	)
 
 	// Assert
