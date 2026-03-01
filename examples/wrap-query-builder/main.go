@@ -19,13 +19,13 @@ func main() { //nolint:funlen
 	flag.Parse()
 
 	store := namespace.CreateNamespace[*User]()
-	wrapChain := func(qb query.Builder[*User, UserQueryBuilder]) query.Builder[*User, UserQueryBuilder] {
-		return qb
-	}
+	queryBuilder := query.NewExtendedBuilder[*User, UserQueryBuilder]
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
-		wrapChain = debug.WrapBuilder[*User, UserQueryBuilder]
+		queryBuilder = func() query.Builder[*User, UserQueryBuilder] {
+			return debug.WrapBuilder(query.NewExtendedBuilder[*User, UserQueryBuilder]())
+		}
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -59,7 +59,7 @@ func main() { //nolint:funlen
 		}
 	}
 
-	query := NewUserQueryBuilder(wrapChain).
+	q := NewUserQueryBuilder(queryBuilder()).
 		WhereStatus(where.EQ, StatusActive).
 		Not().
 		WhereName(where.EQ, "Foo").
@@ -68,7 +68,7 @@ func main() { //nolint:funlen
 
 	ctx := context.Background()
 
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -33,21 +33,18 @@ func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...
 }
 
 func NewUserQueryBuilder(
-	wrapChain func(qb query.Builder[*User, UserQueryBuilder]) query.Builder[*User, UserQueryBuilder],
+	baseBuilder query.Builder[*User, UserQueryBuilder],
 ) UserQueryBuilder {
 	queryBuilder := &userQueryBuilder{
-		Builder: nil,
+		Builder: baseBuilder,
 	}
 
-	chain := wrapChain(query.NewExtendedBuilder[*User, UserQueryBuilder]())
-	chain.SetOnChain(queryBuilder)
-	chain.SetOnCopy(func(bcb query.Builder[*User, UserQueryBuilder]) UserQueryBuilder {
+	baseBuilder.SetOnChain(queryBuilder)
+	baseBuilder.SetOnCopy(func(bcb query.Builder[*User, UserQueryBuilder]) UserQueryBuilder {
 		return userQueryBuilder{
 			Builder: bcb,
 		}
 	})
-
-	queryBuilder.Builder = chain
 
 	return queryBuilder
 }

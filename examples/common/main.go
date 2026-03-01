@@ -31,18 +31,20 @@ var name = record.ComparableGetter[*User, string]{
 	Get:   func(item *User) string { return item.Name },
 }
 
-func main() {
+func main() { //nolint:funlen
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 
 	flag.Parse()
 
 	store := namespace.CreateNamespace[*User]()
-	queryBuilder := query.NewBuilder[*User]()
+	queryBuilder := query.NewBuilder[*User]
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	// if debug enabled, add logging for query
 	if *debugEnabled {
-		queryBuilder = debug.WrapBuilder(queryBuilder).(query.DefaultBuilder[*User])
+		queryBuilder = func() query.DefaultBuilder[*User] {
+			return debug.WrapBuilder(query.NewBuilder[*User]())
+		}
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -71,14 +73,14 @@ func main() {
 		}
 	}
 
-	query := queryBuilder.
+	q := queryBuilder().
 		AddWhere(query.Where(id, where.GT, 1)).
 		Sort(sort.Asc(name)).
 		Query()
 
 	ctx := context.Background()
 
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
 	if err != nil {
 		log.Fatal(err)
 	}

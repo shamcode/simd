@@ -36,18 +36,20 @@ var (
 	}
 )
 
-func main() {
+func main() { //nolint:funlen
 	debugEnabled := flag.Bool("debug", false, "enabled debug")
 
 	flag.Parse()
 
 	store := namespace.CreateNamespace[*Item]()
 
-	queryBuilder := query.NewBuilder[*Item]()
+	queryBuilder := query.NewBuilder[*Item]
 	queryExecutor := executor.CreateQueryExecutor(store)
 
 	if *debugEnabled {
-		queryBuilder = debug.WrapBuilder(queryBuilder).(query.DefaultBuilder[*Item])
+		queryBuilder = func() query.DefaultBuilder[*Item] {
+			return debug.WrapBuilder(query.NewBuilder[*Item]())
+		}
 		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
@@ -75,14 +77,14 @@ func main() {
 		}
 	}
 
-	query := queryBuilder.
+	q := queryBuilder().
 		AddWhere(querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC))).
 		Sort(sort.Asc(id)).
 		Query()
 
 	ctx := context.Background()
 
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, query)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
 	if err != nil {
 		log.Fatal(err)
 	}
