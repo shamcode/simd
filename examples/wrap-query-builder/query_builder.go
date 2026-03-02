@@ -18,17 +18,17 @@ type userQueryBuilder struct {
 }
 
 func (uq userQueryBuilder) WhereID(condition where.ComparatorType, value ...int64) UserQueryBuilder {
-	uq.AddWhere(query.Where(id, condition, value...))
+	uq.AddWhere(query.Field(id, condition, value...))
 	return uq
 }
 
 func (uq userQueryBuilder) WhereName(condition where.ComparatorType, value ...string) UserQueryBuilder {
-	uq.AddWhere(query.Where(name, condition, value...))
+	uq.AddWhere(query.Field(name, condition, value...))
 	return uq
 }
 
 func (uq userQueryBuilder) WhereStatus(condition where.ComparatorType, value ...Status) UserQueryBuilder {
-	uq.AddWhere(query.Where(status, condition, value...))
+	uq.AddWhere(query.Field(status, condition, value...))
 	return uq
 }
 

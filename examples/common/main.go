@@ -74,7 +74,7 @@ func main() { //nolint:funlen
 	}
 
 	q := queryBuilder().
-		AddWhere(query.Where(id, where.GT, 1)).
+		AddWhere(query.Field(id, where.GT, 1)).
 		Sort(sort.Asc(name)).
 		Query()
 

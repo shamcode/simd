@@ -39,7 +39,7 @@ func Test_Upsert(t *testing.T) {
 	asserts.Success(t, err)
 
 	q := query.NewBuilder[*User]().
-		AddWhere(query.Where(userID, where.EQ, 2)).
+		AddWhere(query.Field(userID, where.EQ, 2)).
 		Query()
 
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(t.Context(), q)

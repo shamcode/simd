@@ -13,7 +13,7 @@ type AddWhereOption[R record.Record] struct {
 	Error error
 }
 
-func WhereAny[R record.Record](
+func FieldAny[R record.Record](
 	getter record.GetterInterface[R, any],
 	condition where.ComparatorType,
 	values ...any,
@@ -28,7 +28,7 @@ func WhereAny[R record.Record](
 	}
 }
 
-func Where[R record.Record, T record.LessComparable](
+func Field[R record.Record, T record.LessComparable](
 	getter record.ComparableGetter[R, T],
 	condition where.ComparatorType,
 	value ...T,
@@ -60,7 +60,7 @@ func Where[R record.Record, T record.LessComparable](
 	}
 }
 
-func WhereStringRegexp[R record.Record](
+func FieldStringRegexp[R record.Record](
 	getter record.ComparableGetter[R, string],
 	value *regexp.Regexp,
 ) AddWhereOption[R] {
@@ -70,7 +70,7 @@ func WhereStringRegexp[R record.Record](
 	}
 }
 
-func WhereBool[R record.Record](
+func FieldBool[R record.Record](
 	getter record.BoolGetter[R],
 	condition where.ComparatorType,
 	value ...bool,
@@ -85,7 +85,7 @@ func WhereBool[R record.Record](
 	}
 }
 
-func WhereMap[R record.Record, K comparable, V any](
+func FieldMap[R record.Record, K comparable, V any](
 	getter record.MapGetter[R, K, V],
 	condition where.ComparatorType,
 	value ...any,
@@ -96,7 +96,7 @@ func WhereMap[R record.Record, K comparable, V any](
 	}
 }
 
-func WhereSet[R record.Record, T comparable](
+func FieldSet[R record.Record, T comparable](
 	getter record.SetGetter[R, T],
 	condition where.ComparatorType,
 	value ...T,
