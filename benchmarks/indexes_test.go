@@ -67,58 +67,58 @@ func Benchmark_Indexes(b *testing.B) {
 		{
 			Name: "id = 500",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.EQ, 500)).
+				Where(query.Field(userID, where.EQ, 500)).
 				Query(),
 		},
 		{
 			Name: "id IN (500, 1000, 1500)",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.InArray, 500, 1000, 1500)).
+				Where(query.Field(userID, where.InArray, 500, 1000, 1500)).
 				Query(),
 		},
 		{
 			Name: "id <= 1000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LE, 1000)).
+				Where(query.Field(userID, where.LE, 1000)).
 				Query(),
 		},
 		{
 			Name: "id > 1000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.GT, 1000)).
+				Where(query.Field(userID, where.GT, 1000)).
 				Query(),
 		},
 		{
 			Name: "id <= 5000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LE, 5000)).
+				Where(query.Field(userID, where.LE, 5000)).
 				Query(),
 		},
 		{
 			Name: "id > 5000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.GT, 5000)).
+				Where(query.Field(userID, where.GT, 5000)).
 				Query(),
 		},
 		{
 			Name: "id > 2000 and id < 3000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.GT, 2000)).
-				AddWhere(query.Field(userID, where.LT, 3000)).
+				Where(query.Field(userID, where.GT, 2000)).
+				Where(query.Field(userID, where.LT, 3000)).
 				Query(),
 		},
 		{
 			Name: "id < 2000 or id > 8000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LT, 2000)).
+				Where(query.Field(userID, where.LT, 2000)).
 				Or().
-				AddWhere(query.Field(userID, where.GT, 8000)).
+				Where(query.Field(userID, where.GT, 8000)).
 				Query(),
 		},
 		{
 			Name: "id < 1000 limit 100 asc",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LT, 1000)).
+				Where(query.Field(userID, where.LT, 1000)).
 				Limit(100).
 				Sort(sort.Asc[*User](userID)).
 				Query(),
@@ -126,7 +126,7 @@ func Benchmark_Indexes(b *testing.B) {
 		{
 			Name: "id < 1000 limit 100 desc",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LT, 1000)).
+				Where(query.Field(userID, where.LT, 1000)).
 				Limit(100).
 				Sort(sort.Desc[*User](userID)).
 				Query(),
@@ -134,7 +134,7 @@ func Benchmark_Indexes(b *testing.B) {
 		{
 			Name: "id < 1000 limit 100 offset 50 asc",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LT, 1000)).
+				Where(query.Field(userID, where.LT, 1000)).
 				Limit(100).
 				Offset(50).
 				Sort(sort.Asc[*User](userID)).
@@ -143,7 +143,7 @@ func Benchmark_Indexes(b *testing.B) {
 		{
 			Name: "id < 1000 limit 100 offset 50 desc",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userID, where.LT, 1000)).
+				Where(query.Field(userID, where.LT, 1000)).
 				Limit(100).
 				Offset(50).
 				Sort(sort.Desc[*User](userID)).
@@ -152,28 +152,28 @@ func Benchmark_Indexes(b *testing.B) {
 		{
 			Name: "age < 18",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userAge, where.LT, 18)).
+				Where(query.Field(userAge, where.LT, 18)).
 				Query(),
 		},
 		{
 			Name: "age <= 17",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userAge, where.LE, 17)).
+				Where(query.Field(userAge, where.LE, 17)).
 				Query(),
 		},
 		{
 			Name: "age > 18 and age < 45",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userAge, where.GT, 18)).
-				AddWhere(query.Field(userAge, where.LT, 45)).
+				Where(query.Field(userAge, where.GT, 18)).
+				Where(query.Field(userAge, where.LT, 45)).
 				Query(),
 		},
 		{
 			Name: "age > 18 and age < 45 and id > 2000",
 			Query: query.NewBuilder[*User]().
-				AddWhere(query.Field(userAge, where.GT, 18)).
-				AddWhere(query.Field(userAge, where.LT, 45)).
-				AddWhere(query.Field(userID, where.GT, 2000)).
+				Where(query.Field(userAge, where.GT, 18)).
+				Where(query.Field(userAge, where.LT, 45)).
+				Where(query.Field(userID, where.GT, 2000)).
 				Query(),
 		},
 	}
@@ -247,7 +247,7 @@ func Benchmark_BTreeIndexesMaxChildren(b *testing.B) {
 	}
 
 	q := query.NewBuilder[*User]().
-		AddWhere(query.Field(userAge, where.LT, 5)).
+		Where(query.Field(userAge, where.LT, 5)).
 		Query()
 
 	for i, store := range stores {

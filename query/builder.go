@@ -15,7 +15,7 @@ type Builder[R record.Record, B Builder[R, B]] interface { //nolint:interfaceblo
 	OpenBracket() B
 	CloseBracket() B
 
-	AddWhere(options AddWhereOption[R]) B
+	Where(options WhereOption[R]) B
 
 	Sort(by sort.ByWithOrder[R]) B
 
@@ -94,7 +94,7 @@ func (qb *BaseBuilder[R, Return]) CloseBracket() Return {
 	return qb.onChain
 }
 
-func (qb *BaseBuilder[R, Return]) AddWhere(cmp AddWhereOption[R]) Return {
+func (qb *BaseBuilder[R, Return]) Where(cmp WhereOption[R]) Return {
 	if cmp.Error != nil {
 		qb.errors = append(qb.errors, cmp.Error)
 

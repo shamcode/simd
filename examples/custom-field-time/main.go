@@ -77,14 +77,14 @@ func main() { //nolint:funlen
 		}
 	}
 
-	q := queryBuilder().
-		AddWhere(querybuilder.WhereTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC))).
+	qry := queryBuilder().
+		Where(querybuilder.FieldTime(createdAt, where.LT, time.Date(2022, time.January, 1, 0, 0, 0, 0, time.UTC))).
 		Sort(sort.Asc(id)).
 		Query()
 
 	ctx := context.Background()
 
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, qry)
 	if err != nil {
 		log.Fatal(err)
 	}

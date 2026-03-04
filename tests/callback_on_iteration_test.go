@@ -39,7 +39,7 @@ func Test_CallbackOnIteration(t *testing.T) {
 	cur, err := executor.CreateQueryExecutor[*User](store).FetchAll(
 		t.Context(),
 		query.NewBuilder[*User]().
-			AddWhere(query.Field(userStatus, where.EQ, StatusActive)).
+			Where(query.Field(userStatus, where.EQ, StatusActive)).
 			Limit(1).
 			Sort(sort.Asc(userID)).
 			OnIteration(func(item *User) {

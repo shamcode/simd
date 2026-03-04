@@ -59,7 +59,7 @@ func main() { //nolint:funlen
 		}
 	}
 
-	q := NewUserQueryBuilder(queryBuilder()).
+	qry := NewUserQueryBuilder(queryBuilder()).
 		WhereStatus(where.EQ, StatusActive).
 		Not().
 		WhereName(where.EQ, "Foo").
@@ -68,7 +68,7 @@ func main() { //nolint:funlen
 
 	ctx := context.Background()
 
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, qry)
 	if err != nil {
 		log.Fatal(err)
 	}

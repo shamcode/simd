@@ -112,30 +112,30 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		},
 		{
 			name:     "where ID = int64(3)",
-			query:    WrapBuilder(query.NewBuilder[*user]()).AddWhere(query.Field(id, where.EQ, 3)).Query(),
+			query:    WrapBuilder(query.NewBuilder[*user]()).Where(query.Field(id, where.EQ, 3)).Query(),
 			expected: "SELECT *, COUNT(*) WHERE ID = 3",
 		},
 		{
 			name: "where ID = int64(3) and age == int(20)",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.EQ, 3)).
-				AddWhere(query.Field(age, where.EQ, 20)).
+				Where(query.Field(id, where.EQ, 3)).
+				Where(query.Field(age, where.EQ, 20)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE ID = 3 AND age = 20",
 		},
 		{
 			name: "where ID = int64(3) and age == int(18)",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.EQ, 3)).
-				AddWhere(query.Field(age, where.EQ, 18)).
+				Where(query.Field(id, where.EQ, 3)).
+				Where(query.Field(age, where.EQ, 18)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE ID = 3 AND age = 18",
 		},
 		{
 			name: "where age > 18 and age < 22",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(age, where.GT, 18)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 18)).
+				Where(query.Field(age, where.LT, 22)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE age > 18 AND age < 22 ORDER BY ID ASC",
@@ -143,8 +143,8 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age >= 18 and age <= 22",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(age, where.GE, 18)).
-				AddWhere(query.Field(age, where.LE, 22)).
+				Where(query.Field(age, where.GE, 18)).
+				Where(query.Field(age, where.LE, 22)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE age >= 18 AND age <= 22 ORDER BY ID ASC",
@@ -152,9 +152,9 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where ID = 2 or ID = 5",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 5)).
+				Where(query.Field(id, where.EQ, 5)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE ID = 2 OR ID = 5 ORDER BY ID ASC",
@@ -162,9 +162,9 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where ID = 2 or age > 20",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				Or().
-				AddWhere(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.GT, 20)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE ID = 2 OR age > 20 ORDER BY ID ASC",
@@ -172,11 +172,11 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where ID = 1 or ( age > 20 and age < 22)",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
 				Sort(sort.Asc(id)).
 				Query(),
@@ -186,11 +186,11 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			name: "where ( age > 20 and age < 22) or ID = 1",
 			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE (age > 20 AND age < 22) OR ID = 1 ORDER BY ID ASC",
@@ -198,10 +198,10 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age > 20 and age < 22 or ID = 1",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE age > 20 AND age < 22 OR ID = 1 ORDER BY ID ASC",
@@ -210,11 +210,11 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			name: "where (age > 20 and age < 22) or ID = 1",
 			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE (age > 20 AND age < 22) OR ID = 1 ORDER BY ID ASC",
@@ -222,12 +222,12 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age > 20 and age < 22 and (ID = 1 or ID = 2)",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE age > 20 AND age < 22 AND (ID = 1 OR ID = 2)",
@@ -235,14 +235,14 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age > 20 and age < 22 and (ID = 1 or ID = 2 or ID = 4)",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				CloseBracket().
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE age > 20 AND age < 22 AND (ID = 1 OR ID = 2 OR ID = 4)",
@@ -251,18 +251,18 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			name: "where (age > 20 and age < 22) and ID = 4",
 			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE (age > 20 AND age < 22) AND ID = 4",
 		},
 		{
 			name: "where age in {20, 21, 22} and ID > 3",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(age, where.InArray, 20, 21, 22)).
-				AddWhere(query.Field(id, where.GT, 3)).
+				Where(query.Field(age, where.InArray, 20, 21, 22)).
+				Where(query.Field(id, where.GT, 3)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE age IN (20, 21, 22) AND ID > 3 ORDER BY ID ASC",
@@ -270,7 +270,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where name like \"th\"",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(name, where.Like, "th")).
+				Where(query.Field(name, where.Like, "th")).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE name LIKE \"th\" ORDER BY ID ASC",
@@ -278,9 +278,9 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where name like \"th\" or name like \"first\"",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(name, where.Like, "th")).
+				Where(query.Field(name, where.Like, "th")).
 				Or().
-				AddWhere(query.Field(name, where.Like, "first")).
+				Where(query.Field(name, where.Like, "first")).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE name LIKE \"th\" OR name LIKE \"first\" ORDER BY ID ASC",
@@ -290,11 +290,11 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			query: WrapBuilder(query.NewBuilder[*user]()).
 				OpenBracket().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				CloseBracket().
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Sort(sort.Asc(id)).
@@ -307,18 +307,18 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 				OpenBracket().
 				OpenBracket().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				CloseBracket().
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 3)).
+				Where(query.Field(id, where.EQ, 3)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				Sort(sort.Asc(id)).
 				Query(),
 			expected: "SELECT *, COUNT(*) WHERE (((ID = 1) OR (ID = 2)) OR ID = 3) OR ID = 4 ORDER BY ID ASC",
@@ -326,7 +326,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "where ID > 1 limit 2 offset 1 order by ID ASC",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.GT, 1)).
+				Where(query.Field(id, where.GT, 1)).
 				Limit(2).
 				Offset(1).
 				Sort(sort.Asc(id)).
@@ -336,7 +336,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 		{
 			name: "unknown comparator",
 			query: WrapBuilder(query.NewBuilder[*user]()).
-				AddWhere(query.Field(id, where.ComparatorType(100), 1, 2)).
+				Where(query.Field(id, where.ComparatorType(100), 1, 2)).
 				Limit(2).
 				Offset(1).
 				Sort(sort.Asc(id)).
@@ -397,9 +397,9 @@ func TestFieldComparatorDumper(t *testing.T) {
 		{
 			name: "IN RANGE",
 			query: WrapBuilderWithDumper(query.NewBuilder[*user](), dumper).
-				AddWhere(query.Field(id, InRange, 3, 10)).
+				Where(query.Field(id, InRange, 3, 10)).
 				Not().
-				AddWhere(query.Field(age, where.LE, 21)).
+				Where(query.Field(age, where.LE, 21)).
 				Limit(2).
 				Offset(1).
 				Sort(sort.Asc(id)).
@@ -410,9 +410,9 @@ func TestFieldComparatorDumper(t *testing.T) {
 		{
 			name: "IN RANGE With copy",
 			query: WrapBuilderWithDumper(query.NewBuilder[*user](), dumper).
-				AddWhere(query.Field(id, InRange, 3, 10)).
+				Where(query.Field(id, InRange, 3, 10)).
 				Not().
-				AddWhere(query.Field(age, where.LE, 21)).
+				Where(query.Field(age, where.LE, 21)).
 				Limit(2).
 				Offset(1).
 				Sort(sort.Asc(id)).

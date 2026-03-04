@@ -18,8 +18,8 @@ func TestBuilderErrors(t *testing.T) {
 		{
 			query: NewBuilder[record.Record]().
 				Or().
-				AddWhere(Field(_id, where.EQ, 1)).
-				AddWhere(Field(_id, where.EQ, 2)).
+				Where(Field(_id, where.EQ, 1)).
+				Where(Field(_id, where.EQ, 2)).
 				Query(),
 			expectedError: ".Or() before any condition not supported, add any condition before .Or()",
 		},
@@ -27,8 +27,8 @@ func TestBuilderErrors(t *testing.T) {
 			query: NewBuilder[record.Record]().
 				Not().
 				OpenBracket().
-				AddWhere(Field(_id, where.EQ, 1)).
-				AddWhere(Field(_id, where.EQ, 2)).
+				Where(Field(_id, where.EQ, 1)).
+				Where(Field(_id, where.EQ, 2)).
 				CloseBracket().
 				Query(),
 			expectedError: ".Not().OpenBracket() not supported",
@@ -36,8 +36,8 @@ func TestBuilderErrors(t *testing.T) {
 		{
 			query: NewBuilder[record.Record]().
 				OpenBracket().
-				AddWhere(Field(_id, where.EQ, 1)).
-				AddWhere(Field(_id, where.EQ, 2)).
+				Where(Field(_id, where.EQ, 1)).
+				Where(Field(_id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Query(),
@@ -46,8 +46,8 @@ func TestBuilderErrors(t *testing.T) {
 		{
 			query: NewBuilder[record.Record]().
 				OpenBracket().
-				AddWhere(Field(_id, where.EQ, 1)).
-				AddWhere(Field(_id, where.EQ, 2)).
+				Where(Field(_id, where.EQ, 1)).
+				Where(Field(_id, where.EQ, 2)).
 				CloseBracket().
 				OpenBracket().
 				Query(),
@@ -58,8 +58,8 @@ func TestBuilderErrors(t *testing.T) {
 				Not().
 				Or().
 				OpenBracket().
-				AddWhere(Field(_id, where.EQ, 1)).
-				AddWhere(Field(_id, where.EQ, 2)).
+				Where(Field(_id, where.EQ, 1)).
+				Where(Field(_id, where.EQ, 2)).
 				CloseBracket().
 				OpenBracket().
 				Query(),

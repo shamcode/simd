@@ -99,31 +99,31 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where id = int64(3)",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(id, where.EQ, 3)).
+				Where(query.Field(id, where.EQ, 3)).
 				Query(),
 			expected: []int64{3},
 		},
 		{
 			name: "where id = int64(3) and age == int(20)",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(id, where.EQ, 3)).
-				AddWhere(query.Field(age, where.EQ, 20)).
+				Where(query.Field(id, where.EQ, 3)).
+				Where(query.Field(age, where.EQ, 20)).
 				Query(),
 			expected: []int64{3},
 		},
 		{
 			name: "where id = int64(3) and age == int(18)",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(id, where.EQ, 3)).
-				AddWhere(query.Field(age, where.EQ, 18)).
+				Where(query.Field(id, where.EQ, 3)).
+				Where(query.Field(age, where.EQ, 18)).
 				Query(),
 			expected: []int64{},
 		},
 		{
 			name: "where age > 18 and age < 22",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(age, where.GT, 18)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 18)).
+				Where(query.Field(age, where.LT, 22)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{2, 3, 4},
@@ -131,8 +131,8 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age >= 18 and age <= 22",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(age, where.GE, 18)).
-				AddWhere(query.Field(age, where.LE, 22)).
+				Where(query.Field(age, where.GE, 18)).
+				Where(query.Field(age, where.LE, 22)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 2, 3, 4, 5},
@@ -140,9 +140,9 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where id = 2 or id = 5",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 5)).
+				Where(query.Field(id, where.EQ, 5)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{2, 5},
@@ -150,9 +150,9 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where id = 2 or age > 20",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				Or().
-				AddWhere(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.GT, 20)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{2, 4, 5},
@@ -160,11 +160,11 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where id = 1 or ( age > 20 and age < 22)",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
 				Sort(sort.Asc[*user](id)).
 				Query(),
@@ -174,11 +174,11 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			name: "where ( age > 20 and age < 22) or id = 1",
 			query: query.NewBuilder[*user]().
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 4},
@@ -186,10 +186,10 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age > 20 and age < 22 or id = 1",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 4},
@@ -198,11 +198,11 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			name: "where (age > 20 and age < 22) or id = 1",
 			query: query.NewBuilder[*user]().
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 4},
@@ -210,12 +210,12 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2)",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				Query(),
 			expected: []int64{},
@@ -223,14 +223,14 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where age > 20 and age < 22 and (id = 1 or id = 2 or id = 4)",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				Or().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				CloseBracket().
 				Query(),
 			expected: []int64{4},
@@ -239,18 +239,18 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			name: "where (age > 20 and age < 22) and id = 4",
 			query: query.NewBuilder[*user]().
 				OpenBracket().
-				AddWhere(query.Field(age, where.GT, 20)).
-				AddWhere(query.Field(age, where.LT, 22)).
+				Where(query.Field(age, where.GT, 20)).
+				Where(query.Field(age, where.LT, 22)).
 				CloseBracket().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				Query(),
 			expected: []int64{4},
 		},
 		{
 			name: "where age in {20, 21, 22} and id > 3",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(age, where.InArray, 20, 21, 22)).
-				AddWhere(query.Field(id, where.GT, 3)).
+				Where(query.Field(age, where.InArray, 20, 21, 22)).
+				Where(query.Field(id, where.GT, 3)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{4, 5},
@@ -258,7 +258,7 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where name like \"th\"",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(name, where.Like, "th")).
+				Where(query.Field(name, where.Like, "th")).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{3, 4, 5},
@@ -266,9 +266,9 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 		{
 			name: "where name like \"th\" or name like \"first\"",
 			query: query.NewBuilder[*user]().
-				AddWhere(query.Field(name, where.Like, "th")).
+				Where(query.Field(name, where.Like, "th")).
 				Or().
-				AddWhere(query.Field(name, where.Like, "first")).
+				Where(query.Field(name, where.Like, "first")).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 3, 4, 5},
@@ -278,11 +278,11 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			query: query.NewBuilder[*user]().
 				OpenBracket().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				CloseBracket().
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Sort(sort.Asc[*user](id)).
@@ -294,11 +294,11 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 			query: query.NewBuilder[*user]().
 				OpenBracket().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				CloseBracket().
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Sort(sort.Asc[*user](id)).
@@ -311,18 +311,18 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 				OpenBracket().
 				OpenBracket().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				CloseBracket().
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 3)).
+				Where(query.Field(id, where.EQ, 3)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 2, 3, 4},
@@ -333,18 +333,18 @@ func TestQueryExecutor(t *testing.T) { //nolint:maintidx
 				OpenBracket().
 				OpenBracket().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 1)).
+				Where(query.Field(id, where.EQ, 1)).
 				CloseBracket().
 				Or().
 				OpenBracket().
-				AddWhere(query.Field(id, where.EQ, 2)).
+				Where(query.Field(id, where.EQ, 2)).
 				CloseBracket().
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 3)).
+				Where(query.Field(id, where.EQ, 3)).
 				CloseBracket().
 				Or().
-				AddWhere(query.Field(id, where.EQ, 4)).
+				Where(query.Field(id, where.EQ, 4)).
 				Sort(sort.Asc[*user](id)).
 				Query(),
 			expected: []int64{1, 2, 3, 4},

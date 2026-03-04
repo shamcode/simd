@@ -73,14 +73,14 @@ func main() { //nolint:funlen
 		}
 	}
 
-	q := queryBuilder().
-		AddWhere(query.Field(id, where.GT, 1)).
+	qry := queryBuilder().
+		Where(query.Field(id, where.GT, 1)).
 		Sort(sort.Asc(name)).
 		Query()
 
 	ctx := context.Background()
 
-	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, q)
+	cur, total, err := queryExecutor.FetchAllAndTotal(ctx, qry)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -11,13 +11,13 @@ import (
 	"github.com/shamcode/simd/where"
 )
 
-// WhereTime add condition for check field with time.Time type.
-func WhereTime[R record.Record](
+// FieldTime add condition for check field with time.Time type.
+func FieldTime[R record.Record](
 	getter types.TimeGetter[R],
 	condition where.ComparatorType,
 	value ...time.Time,
-) query.AddWhereOption[R] {
-	return query.AddWhereOption[R]{
+) query.WhereOption[R] {
+	return query.WhereOption[R]{
 		Cmp: comparators.TimeFieldComparator[R]{
 			Cmp:    condition,
 			Getter: getter,

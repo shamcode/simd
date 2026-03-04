@@ -43,13 +43,13 @@ func Benchmark_Query(b *testing.B) {
 			{
 				Name: "is_online = true",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.FieldBool(userIsOnline, where.EQ, true)).
+					Where(query.FieldBool(userIsOnline, where.EQ, true)).
 					Query(),
 			},
 			{
 				Name: "is_online = true offset 1000 limit 100",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.FieldBool(userIsOnline, where.EQ, true)).
+					Where(query.FieldBool(userIsOnline, where.EQ, true)).
 					Offset(1000).
 					Limit(100).
 					Query(),
@@ -57,19 +57,19 @@ func Benchmark_Query(b *testing.B) {
 			{
 				Name: "id <= 5000",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.Field(userID, where.LE, 5000)).
+					Where(query.Field(userID, where.LE, 5000)).
 					Query(),
 			},
 			{
 				Name: "id > 1000",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.Field(userID, where.GT, 1000)).
+					Where(query.Field(userID, where.GT, 1000)).
 					Query(),
 			},
 			{
 				Name: "id > 1000 limit 100 asc",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.Field(userID, where.GT, 1000)).
+					Where(query.Field(userID, where.GT, 1000)).
 					Limit(100).
 					Sort(sort.Asc[*User](userID)).
 					Query(),
@@ -77,7 +77,7 @@ func Benchmark_Query(b *testing.B) {
 			{
 				Name: "id > 1000 limit 100 desc",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.Field(userID, where.GT, 1000)).
+					Where(query.Field(userID, where.GT, 1000)).
 					Limit(100).
 					Sort(sort.Desc[*User](userID)).
 					Query(),
@@ -85,17 +85,17 @@ func Benchmark_Query(b *testing.B) {
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.Field(userID, where.GT, 1000)).
-					AddWhere(query.FieldBool(userIsOnline, where.EQ, true)).
-					AddWhere(query.Field(userStatus, where.EQ, StatusActive)).
+					Where(query.Field(userID, where.GT, 1000)).
+					Where(query.FieldBool(userIsOnline, where.EQ, true)).
+					Where(query.Field(userStatus, where.EQ, StatusActive)).
 					Query(),
 			},
 			{
 				Name: "id > 1000 and is_online = true and status = ACTIVE limit 100 desc",
 				Query: query.NewBuilder[*User]().
-					AddWhere(query.Field(userID, where.GT, 1000)).
-					AddWhere(query.FieldBool(userIsOnline, where.EQ, true)).
-					AddWhere(query.Field(userStatus, where.EQ, StatusActive)).
+					Where(query.Field(userID, where.GT, 1000)).
+					Where(query.FieldBool(userIsOnline, where.EQ, true)).
+					Where(query.Field(userStatus, where.EQ, StatusActive)).
 					Sort(sort.Asc[*User](userID)).
 					Limit(100).
 					Query(),

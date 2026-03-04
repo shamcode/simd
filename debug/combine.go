@@ -31,9 +31,9 @@ func (cb *combine[R, Return]) CloseBracket() Return {
 	return cb.base.CloseBracket()
 }
 
-func (cb *combine[R, Return]) AddWhere(where query.AddWhereOption[R]) Return {
+func (cb *combine[R, Return]) Where(where query.WhereOption[R]) Return {
 	cb.debug.addWhere(where.Cmp)
-	return cb.base.AddWhere(where)
+	return cb.base.Where(where)
 }
 
 func (cb *combine[R, Return]) Sort(by sort.ByWithOrder[R]) Return {

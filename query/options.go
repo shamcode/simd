@@ -8,7 +8,7 @@ import (
 	"github.com/shamcode/simd/where/comparators"
 )
 
-type AddWhereOption[R record.Record] struct {
+type WhereOption[R record.Record] struct {
 	Cmp   where.FieldComparator[R]
 	Error error
 }
@@ -17,8 +17,8 @@ func FieldAny[R record.Record](
 	getter record.GetterInterface[R, any],
 	condition where.ComparatorType,
 	values ...any,
-) AddWhereOption[R] {
-	return AddWhereOption[R]{
+) WhereOption[R] {
+	return WhereOption[R]{
 		Cmp: comparators.EqualComparator[R, any]{
 			Cmp:    condition,
 			Getter: getter,
@@ -32,18 +32,18 @@ func Field[R record.Record, T record.LessComparable](
 	getter record.ComparableGetter[R, T],
 	condition where.ComparatorType,
 	value ...T,
-) AddWhereOption[R] {
+) WhereOption[R] {
 	switch castedGetter := any(getter).(type) {
 	case record.ComparableGetter[R, string]:
 		castedValue, err := Cast[[]T, []string](value)
 		if err != nil {
-			return AddWhereOption[R]{
+			return WhereOption[R]{
 				Cmp:   nil,
 				Error: GetterError{Field: getter.Field, Err: err},
 			}
 		}
 
-		return AddWhereOption[R]{
+		return WhereOption[R]{
 			Cmp: comparators.NewStringFieldComparator[R](
 				condition,
 				castedGetter,
@@ -53,7 +53,7 @@ func Field[R record.Record, T record.LessComparable](
 		}
 
 	default:
-		return AddWhereOption[R]{
+		return WhereOption[R]{
 			Cmp:   comparators.NewComparableFieldComparator[R, T](condition, getter, value...),
 			Error: nil,
 		}
@@ -63,8 +63,8 @@ func Field[R record.Record, T record.LessComparable](
 func FieldStringRegexp[R record.Record](
 	getter record.ComparableGetter[R, string],
 	value *regexp.Regexp,
-) AddWhereOption[R] {
-	return AddWhereOption[R]{
+) WhereOption[R] {
+	return WhereOption[R]{
 		Cmp:   comparators.NewStringFieldRegexpComparator[R](where.Regexp, getter, value),
 		Error: nil,
 	}
@@ -74,8 +74,8 @@ func FieldBool[R record.Record](
 	getter record.BoolGetter[R],
 	condition where.ComparatorType,
 	value ...bool,
-) AddWhereOption[R] {
-	return AddWhereOption[R]{
+) WhereOption[R] {
+	return WhereOption[R]{
 		Cmp: comparators.EqualComparator[R, bool]{
 			Cmp:    condition,
 			Getter: record.Getter[R, bool](getter),
@@ -89,8 +89,8 @@ func FieldMap[R record.Record, K comparable, V any](
 	getter record.MapGetter[R, K, V],
 	condition where.ComparatorType,
 	value ...any,
-) AddWhereOption[R] {
-	return AddWhereOption[R]{
+) WhereOption[R] {
+	return WhereOption[R]{
 		Cmp:   comparators.NewMapFieldComparator[R, K, V](condition, getter, value...),
 		Error: nil,
 	}
@@ -100,8 +100,8 @@ func FieldSet[R record.Record, T comparable](
 	getter record.SetGetter[R, T],
 	condition where.ComparatorType,
 	value ...T,
-) AddWhereOption[R] {
-	return AddWhereOption[R]{
+) WhereOption[R] {
+	return WhereOption[R]{
 		Cmp:   comparators.NewSetFieldComparator[R, T](condition, getter, value...),
 		Error: nil,
 	}

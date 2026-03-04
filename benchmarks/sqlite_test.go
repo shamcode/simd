@@ -86,7 +86,7 @@ func Benchmark_SIMDVsSQLite(b *testing.B) { //nolint:gocognit,cyclop
 					cur, err := qe.FetchAll(
 						context.Background(),
 						query.NewBuilder[*User]().
-							AddWhere(query.Field(userID, where.EQ, int64(i))).
+							Where(query.Field(userID, where.EQ, int64(i))).
 							Query(),
 					)
 					if err != nil {
