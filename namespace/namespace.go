@@ -1,7 +1,7 @@
 package namespace
 
 import (
-	"log"
+	"context"
 
 	"github.com/shamcode/simd/executor"
 	"github.com/shamcode/simd/indexes"
@@ -90,7 +90,10 @@ func (ns *WithIndexes[R]) AddIndex(index indexes.Index[R]) {
 	ns.indexes.Add(index)
 }
 
-func (ns *WithIndexes[R]) PreselectForExecutor(conditions where.Conditions[R]) ( //nolint:funlen,cyclop
+func (ns *WithIndexes[R]) PreselectForExecutor( //nolint:funlen,cyclop
+	ctx context.Context,
+	conditions where.Conditions[R],
+) (
 	[]R,
 	error,
 ) {
@@ -149,12 +152,12 @@ func (ns *WithIndexes[R]) PreselectForExecutor(conditions where.Conditions[R]) (
 	items, size, idsUnique, hasItems := byLevel.reduce(lastBracketLevel, 0)
 
 	if !hasItems {
-		ns.logger.Println("index not applied", conditions)
+		ns.logger.Println(ctx, "index not applied", conditions)
 		return ns.storage.GetAllData(), nil
 	}
 
 	if size >= ns.storage.Count() {
-		ns.logger.Println("index not applied (large select)", conditions)
+		ns.logger.Println(ctx, "index not applied (large select)", conditions)
 		return ns.storage.GetAllData(), nil
 	}
 
@@ -167,7 +170,7 @@ func (ns *WithIndexes[R]) SetLogger(logger Logger) {
 
 func CreateNamespace[R record.Record]() *WithIndexes[R] {
 	return &WithIndexes[R]{
-		logger:  log.Default(),
+		logger:  StdLogger{},
 		storage: storage.CreateRecordsByID[R](),
 		indexes: indexes.CreateByField[R](),
 	}

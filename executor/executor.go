@@ -47,7 +47,7 @@ func (e *executor[R]) exec( //nolint:cyclop,funlen
 	callback := q.OnIterationCallback()
 	conditions := q.Conditions()
 
-	itemsForCheck, err := e.selector.PreselectForExecutor(conditions)
+	itemsForCheck, err := e.selector.PreselectForExecutor(ctx, conditions)
 	if err != nil {
 		return nil, 0, NewExecuteQueryError(err)
 	}

@@ -62,7 +62,7 @@ func (s *storage) Upsert(item *user) error {
 	return nil
 }
 
-func (s *storage) PreselectForExecutor(_ where.Conditions[*user]) ([]*user, error) {
+func (s *storage) PreselectForExecutor(_ context.Context, _ where.Conditions[*user]) ([]*user, error) {
 	items := make([]*user, 0, len(s.data))
 	for _, item := range s.data {
 		items = append(items, item)
