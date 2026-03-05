@@ -45,7 +45,7 @@ func main() { //nolint:funlen
 		queryBuilder = func() query.DefaultBuilder[*User] {
 			return debug.WrapBuilder(query.NewBuilder[*User]())
 		}
-		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(s string) {
+		queryExecutor = debug.WrapQueryExecutor(queryExecutor, func(_ context.Context, s string) {
 			log.Printf("SIMD QUERY: %s", s)
 		})
 	}

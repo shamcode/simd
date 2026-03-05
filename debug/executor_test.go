@@ -353,7 +353,7 @@ func TestQueryExecutorWithDebug(t *testing.T) { //nolint:maintidx
 			t.Parallel()
 
 			ctx := context.Background()
-			_, err := WrapQueryExecutor(qe, func(q string) {
+			_, err := WrapQueryExecutor(qe, func(_ context.Context, q string) {
 				asserts.Equals(t, test.expected, q, "query")
 			}).FetchAll(ctx, test.query)
 
@@ -430,7 +430,7 @@ func TestFieldComparatorDumper(t *testing.T) {
 			t.Parallel()
 
 			ctx := context.Background()
-			_, err := WrapQueryExecutor(qe, func(q string) {
+			_, err := WrapQueryExecutor(qe, func(_ context.Context, q string) {
 				asserts.Equals(t, test.expected, q, "query")
 			}).FetchAll(ctx, test.query)
 
